@@ -307,3 +307,11 @@ This is a hobby project of mine, so please keep that in mind. I have tried to co
 
 ## Arraymancer support: Experimental
 If you want to use Arraymancer with NumericalNim, the basics should work but I haven't tested all of it yet.
+
+# TODO
+- Very much!
+- Comment and document code.
+- Add more ODE integrators.
+- Add more integration methods (Gaussian Quadrature on it's way, hopefully).
+- Make the existing code more efficient and robust.
+- Add parallelization of some kind to speed it up. `Vector` would probably benefit from it.
