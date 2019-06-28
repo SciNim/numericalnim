@@ -9,16 +9,16 @@ type
 proc newVector*[T](components: openArray[T]): Vector[T] =
     return Vector[T](components: @components, len: components.len)
 
-proc checkVectorSizes*(v1, v2: Vector) =
+proc checkVectorSizes*(v1, v2: Vector) {.inline.} =
     if v1.len == v2.len: 
         return
     else:
         raise newException(ValueError, "Vectors must have the same size.")
 
 
-proc `[]`*[T](v: Vector[T], i: int): T = v.components[i]
-proc `[]`*[T](v: var Vector[T], i: int): var T = v.components[i]
-proc `[]=`*[T](v: var Vector[T], i: int, value: T) =
+proc `[]`*[T](v: Vector[T], i: int): T {.inline.} = v.components[i]
+proc `[]`*[T](v: var Vector[T], i: int): var T {.inline.} = v.components[i]
+proc `[]=`*[T](v: var Vector[T], i: int, value: T) {.inline.} =
     v.components[i] = value
 iterator items*[T](v: Vector[T]): T =
     for i in v.components:
@@ -29,168 +29,168 @@ iterator mitems*[T](v: var Vector[T]): var T =
 iterator pairs*[T](v: Vector[T]): (int, T) =
     for i in 0 ..< v.len:
         yield (i, v[i])
-proc `$`*(v: Vector): string = &"Vector({v.components})"
-proc `@`*[T](v: Vector[T]): seq[T] = v.components
-proc `@`*[T](v: Vector[Vector[T]]): seq[seq[T]] =
+proc `$`*(v: Vector): string {.inline.} = &"Vector({v.components})"
+proc `@`*[T](v: Vector[T]): seq[T] {.inline.} = v.components
+proc `@`*[T](v: Vector[Vector[T]]): seq[seq[T]] {.inline.} =
     for i in 0 ..< v.len:
         result.add(@(v[i]))
-proc `@`*[T](v: Vector[Vector[Vector[T]]]): seq[seq[seq[T]]] =
+proc `@`*[T](v: Vector[Vector[Vector[T]]]): seq[seq[seq[T]]] {.inline.} =
     for i in 0 ..< v.len:
         result.add(@(v[i]))
-proc toTensor*(v: Vector): Tensor[float] = (@v).toTensor()
-proc`==`*[T](v1, v2: Vector[T]): bool =
+proc toTensor*(v: Vector): Tensor[float] {.inline.} = (@v).toTensor()
+proc`==`*[T](v1, v2: Vector[T]): bool {.inline.} =
     for i in 0 .. v1.components.high:
         if v1[i] != v2[i]:
             return false
     return true
-proc `+`*[T](v1, v2: Vector[T]): Vector[T] = 
+proc `+`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} = 
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] + v2[i]
     result = newVector(newComponents)
 
-proc `+`*[T](v1: Vector[T], d: float): Vector[T] =
+proc `+`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] + d
     result = newVector(newComponents)
 
-proc `+`*[T](d: float, v1: Vector[T]): Vector[T] =
+proc `+`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] + d
     result = newVector(newComponents)
 
-proc `+`*[T](v1: Vector[T], d: T): Vector[T] =
+proc `+`*[T](v1: Vector[T], d: T): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] + d
     result = newVector(newComponents)
 
-proc `+`*[T](d: T, v1: Vector[T]): Vector[T] =
+proc `+`*[T](d: T, v1: Vector[T]): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] + d
     result = newVector(newComponents)
 
-proc `+=`*[T](v1: var Vector[T], v2: Vector[T]) = 
+proc `+=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} = 
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] += v2[i]
 
-proc `+=`*[T](v1: var Vector[T], d: float) =
+proc `+=`*[T](v1: var Vector[T], d: float) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] += d
 
-proc `+=`*[T](v1: var Vector[T], d: T) =
+proc `+=`*[T](v1: var Vector[T], d: T) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] += d
 
-proc `-`*[T](v1, v2: Vector[T]): Vector[T] = 
+proc `-`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} = 
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] - v2[i]
     result = newVector(newComponents)
 
-proc `-`*[T](v1: Vector[T], d: float): Vector[T] =
+proc `-`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] - d
     result = newVector(newComponents)
 
-proc `-`*[T](d: float, v1: Vector[T]): Vector[T] =
+proc `-`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = d - v1[i]
     result = newVector(newComponents)
 
-proc `-`*[T](v1: Vector[T], d: T): Vector[T] =
+proc `-`*[T](v1: Vector[T], d: T): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] - d
     result = newVector(newComponents)
 
-proc `-`*[T](d: T, v1: Vector[T]): Vector[T] =
+proc `-`*[T](d: T, v1: Vector[T]): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = d - v1[i]
     result = newVector(newComponents)
 
-proc `-=`*[T](v1: var Vector[T], v2: Vector[T]) = 
+proc `-=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} = 
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] -= v2[i]
 
-proc `-=`*[T](v1: var Vector[T], d: float) =
+proc `-=`*[T](v1: var Vector[T], d: float) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] -= d
 
-proc `-=`*[T](v1: var Vector[T], d: T) =
+proc `-=`*[T](v1: var Vector[T], d: T) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] -= d
 
-proc `/`*[T](v1: Vector[T], d: float): Vector[T] = 
+proc `/`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} = 
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] / d
     result = newVector(newComponents)
-proc `*`*[T](v1: Vector[T], d: float): Vector[T] = 
+proc `*`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} = 
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] * d
     result = newVector(newComponents)
-proc `*`*[T](d: float, v1: Vector[T]): Vector[T] = 
+proc `*`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} = 
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] * d
     result = newVector(newComponents)
-proc `*`*[T](v1, v2: Vector[T]): float =
+proc `*`*[T](v1, v2: Vector[T]): float {.inline.} =
     checkVectorSizes(v1, v2)
     result = 0.0
     for i in 0 .. v1.components.high:
         result += v1[i] * v2[i]
-proc `.*`*[T](v1, v2: Vector[T]): Vector[T] =
+proc `.*`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] * v2[i]
     result = newVector(newComponents)
-proc `./`*[T](v1, v2: Vector[T]): Vector[T] =
+proc `./`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] / v2[i]
     result = newVector(newComponents)
-proc `.*=`*[T](v1: var Vector[T], v2: Vector[T]) =
+proc `.*=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] *= v2[i]
-proc `./=`*[T](v1: var Vector[T], v2: Vector[T]) =
+proc `./=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] /= v2[i]
-proc dot*[T](v1, v2: Vector[T]): float =
+proc dot*[T](v1, v2: Vector[T]): float {.inline.} =
     result = v1 * v2
-proc `*=`*[T](v1: var Vector[T], d: float) =
+proc `*=`*[T](v1: var Vector[T], d: float) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] *= d
-proc `/=`*[T](v1: var Vector[T], d: float) =
+proc `/=`*[T](v1: var Vector[T], d: float) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] /= d
-proc `-`*[T](v1: Vector[T]): Vector[T] =
+proc `-`*[T](v1: Vector[T]): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = -v1[i]
     result = newVector(newComponents)
-proc abs*[T](v1: Vector[T]): float =
+proc abs*[T](v1: Vector[T]): float {.inline.} =
     result = 0.0
     for i in 0 .. v1.components.high:
         let abs_i: float = abs(v1[i])
         result += abs_i * abs_i
     result = sqrt(result)
-proc mean_squared_error*[T](v1: Vector[T]): float = abs(v1) / v1.len.toFloat
+proc mean_squared_error*[T](v1: Vector[T]): float {.inline.} = abs(v1) / v1.len.toFloat
 
 
 proc clone*[T](x: T): T {.inline.} = x
@@ -206,7 +206,7 @@ proc hermiteSpline*[T](x, x1, x2: float, y1, y2, dy1, dy2: T): T {.inline.}=
     let h11 = t ^ 3 - t ^ 2
     result = h00 * y1 + h10 * (x2 - x1) * dy1 + h01 * y2 + h11 * (x2 - x1) * dy2
 
-proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: openArray[T]): seq[T] =
+proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: openArray[T]): seq[T] {.inline.} =
     # loop over each interval and check if x is in there, if x is sorted
     var xIndex = 0
     if isSorted(x):
@@ -236,7 +236,7 @@ proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: ope
 
 
 
-proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] =
+proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] {.inline.} =
     if X.len != Y.len:
         raise newException(ValueError, "X and Y must have the same length")
     let zipped = zip(X, Y)
@@ -244,14 +244,14 @@ proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] =
     result = zipped.sortedByIt(it[0])
 
 
-proc isClose*[T](y1, y2: T, tol: float = 1e-3): bool =
+proc isClose*[T](y1, y2: T, tol: float = 1e-3): bool {.inline.} =
     let diff = calcError(y1, y2)
     if diff <= tol:
         return true
     else:
         return false
 
-proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[float] =
+proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[float] {.inline.} =
     let dx = abs(dx) * sgn(x2 - x1).toFloat
     if dx == 0.0:
         raise newException(ValueError, "dx must be bigger than 0")
@@ -264,7 +264,7 @@ proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[fl
             result.add(x2)
     
 
-proc linspace*(x1, x2: float, N: int): seq[float] =
+proc linspace*(x1, x2: float, N: int): seq[float] {.inline.} =
     if N <= 0:
         raise newException(ValueError, &"Number of samples {N} must be greater then 0")
     
