@@ -6,7 +6,7 @@ type
         components*: seq[T]
         len*: int
 
-proc newVector*[T](components: openArray[T]): Vector[T] =
+proc newVector*[T](components: openArray[T]): Vector[T] {.inline.} =
     return Vector[T](components: @components, len: components.len)
 
 proc checkVectorSizes*(v1, v2: Vector) {.inline.} =
