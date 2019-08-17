@@ -2,6 +2,8 @@
 
 NumericalNim is a collection of numerical methods written in Nim. Currently it has support for basic integration and ODE. It can operate on floats and custom structures, such as vectors and tensors (if they support a set of operators).
 
+[![Build Status](https://nimble.directory/ci/badges/jester/nimdevel/status.svg)](https://nimble.directory/ci/badges/jester/nimdevel/output.html) [![Build Status](https://nimble.directory/ci/badges/jester/nimdevel/docstatus.svg)](https://nimble.directory/ci/badges/jester/nimdevel/doc_build_output.html)
+
 # ODE
 ## Initial value problems (IVP)
 ## The integrators
