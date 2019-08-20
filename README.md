@@ -217,9 +217,7 @@ proc trapz*[T](Y: openArray[T], X: openArray[float]): T
 
 proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T]
 
-proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[]): seq[T]
-
-proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx: float): seq[T]
+proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T]
 
 proc simpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, optional: openArray[T] = @[]): T
 
@@ -229,9 +227,7 @@ proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: f
 
 proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T]
 
-proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[]): seq[T]
-
-proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx: float): seq[T]
+proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T]
 
 proc romberg*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, depth = 8, tol = 1e-8, optional: openArray[T] = @[]): T
 

@@ -54,14 +54,6 @@ proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T] =
         integral += 0.5 * (dataset[i+1][0] - dataset[i][0]) * (dataset[i+1][1] + dataset[i][1])
         result.add(integral)
 
-# function values only on discrete points
-proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[]): seq[T] =
-    let optional = @optional
-    var Y: seq[T]
-    for x in X:
-        Y.add(f(x, optional))
-    result = cumtrapz(Y, X)
-
 # function values calculated according to the dx and then interpolated
 proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T] =
     ## Calculate the cumulative integral of f using the trapezoidal rule at the points in X.
@@ -237,14 +229,7 @@ proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
         xs.add(dataset[dataset.high][0])
     result = hermiteInterpolate(X, xs, y, dy)
 
-proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[]): seq[T] =
-    let optional = @optional
-    var Y: seq[T]
-    for x in X:
-        Y.add(f(x, optional))
-    result = cumsimpson(Y, X)
-
-proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx: float): seq[T] =
+proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T] =
     ## Calculate the cumulative integral of f using Simpson's rule.
     ## Input:
     ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f).
