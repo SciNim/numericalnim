@@ -105,7 +105,7 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     result = (yNew, k7, dt, error)
 
 
-proc adaptiveODE[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator: proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float), useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
+proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator: proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float), useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
     let t0 = options.tStart
     var t = t0
     var tPositive, tNegative: seq[float]
@@ -218,6 +218,6 @@ proc adaptiveODE[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], 
 proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator="dopri54"): (seq[float], seq[T]) =
     case integrator.toLower():
         of "dopri54":
-            return adaptiveODE(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
+            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
         of "rk4":
-            return adaptiveODE(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
+            return ODESolver(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
