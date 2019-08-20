@@ -4,6 +4,16 @@ import arraymancer
 
 # N: #intervals
 proc trapz*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using the trapezoidal rule.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - N: The number of subintervals to divide the integration interval into.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using the trapezoidal rule.
     if N < 1:
         raise newException(ValueError, "N must be an integer >= 1")
     let optional = @optional
@@ -14,6 +24,13 @@ proc trapz*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 
     result *= dx
 
 proc trapz*[T](Y: openArray[T], X: openArray[float]): T =
+    ## Calculate the integral of f using the trapezoidal rule from a set values.
+    ## Input:
+    ##   - Y: A seq of values of the integrand.
+    ##   - X: A seq with the corresponding x-values.
+    ##
+    ## Returns:
+    ##   - The integral evaluated from the smallest to the largest value in X calculated using the trapezoidal rule.
     let dataset = sortDataset(X, Y)
     result = 0.5 * (dataset[1][0] - dataset[0][0]) * (dataset[0][1] + dataset[1][1])
     for i in 1 .. dataset.high - 1:
@@ -22,6 +39,13 @@ proc trapz*[T](Y: openArray[T], X: openArray[float]): T =
 
 # discrete points
 proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T] =
+    ## Calculate the cumulative integral of f using the trapezoidal rule from a set of values.
+    ## Input:
+    ##   - Y: A seq of values of the integrand.
+    ##   - X: A seq with the corresponding x-values.
+    ##
+    ## Returns:
+    ##   - The cumulative integral evaluated from the smallest to the largest value in X calculated using the trapezoidal rule.
     let dataset = sortDataset(X, Y)
     result.add(dataset[0][1] - dataset[0][1]) # get the right kind of zero
     var integral = 0.5 * (dataset[1][0] - dataset[0][0]) * (dataset[0][1] + dataset[1][1])
@@ -39,8 +63,16 @@ proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], o
     result = cumtrapz(Y, X)
 
 # function values calculated according to the dx and then interpolated
-proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx: float): seq[T] =
-    # do while t < max(X): dy.add(f(t)), y.add(integral), time.add(t)
+proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T] =
+    ## Calculate the cumulative integral of f using the trapezoidal rule at the points in X.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - X: The x-values of the returned values.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - dx: The step length to use when integrating.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from the smallest to the largest value of X calculated using the trapezoidal rule.
     var
         times: seq[float]
         dy, y: seq[T]
@@ -66,6 +98,16 @@ proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], o
 
 
 proc simpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using Simpson's rule.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - N: The number of subintervals to divide the integration interval into. Must be 2 or greater.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using Simpson's rule.
     if N < 2:
         raise newException(ValueError, "N must be an integer >= 2")
     let optional = @optional
@@ -92,6 +134,13 @@ proc simpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N 
     result += resultTemp
 
 proc simpson*[T](Y: openArray[T], X: openArray[float]): T =
+    ## Calculate the integral of f using Simpson's rule from a set of values.
+    ## Input:
+    ##   - Y: A seq of values of the integrand.
+    ##   - X: A seq with the corresponding x-values.
+    ##
+    ## Returns:
+    ##   - The integral evaluated from the smallest to the largest value in X calculated using Simpson's rule.
     var dataset = sortDataset(X, Y)
     var N = dataset.len
     if N < 3:
@@ -116,6 +165,16 @@ proc simpson*[T](Y: openArray[T], X: openArray[float]): T =
         result += alpha * dataset[2*i + 2][1] + beta * dataset[2*i + 1][1] + eta * dataset[2*i][1]
 
 proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using a adaptive Simpson's rule.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using an adaptive Simpson's rule.
     let zero = f(xStart, @optional) - f(xStart, @optional)
     let value1 = simpson(f, xStart, xEnd, N = 2, optional = optional)
     let value2 = simpson(f, xStart, xEnd, N = 4, optional = optional)
@@ -133,6 +192,13 @@ proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: f
 
 
 proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
+    ## Calculate the cumulative integral of f using Simpson's rule from a set of values.
+    ## Input:
+    ##   - Y: A seq of values of the integrand.
+    ##   - X: A seq with the corresponding x-values.
+    ##
+    ## Returns:
+    ##   - The cumulative integral evaluated from the smallest to the largest value in X calculated using Simpson's rule.
     var dataset = sortDataset(X, Y)
     var N = dataset.len
     var alpha, beta, eta: float
@@ -179,6 +245,15 @@ proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float],
     result = cumsimpson(Y, X)
 
 proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx: float): seq[T] =
+    ## Calculate the cumulative integral of f using Simpson's rule.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - X: The x-values of the returned values.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - dx: The step length to use when integrating.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from the smallest to the largest value of X calculated using Simpson's rule.
     let optional = @optional
     var dy: seq[T]
     let t = linspace(min(X), max(X), ((max(X) - min(X)) / dx).toInt + 2)
@@ -188,6 +263,17 @@ proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float],
     result = hermiteInterpolate(X, t, ys, dy)
 
 proc romberg*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, depth = 8, tol = 1e-8, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using Romberg Integration.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - depth: The maximum depth of the Richardson Extrapolation.
+    ##   - tol: The error tolerance that must be satisfied.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using Romberg integration.
     if depth < 2:
         raise newException(ValueError, "depth must be 2 or greater")
     let optional = @optional
@@ -210,6 +296,13 @@ proc romberg*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, de
     result = values[values.high][0]
 
 proc romberg*[T](Y: openArray[T], X: openArray[float]): T =
+    ## Calculate the integral of f using Romberg Integration from a set of values.
+    ## Input:
+    ##   - Y: A seq of values of the integrand.
+    ##   - X: A seq with the corresponding x-values.
+    ##
+    ## Returns:
+    ##   - The integral evaluated from the smallest to the largest value in X calculated using Romberg Integration.
     let dataset = sortDataset(X, Y)
     let N = dataset.len
     if N < 3:
