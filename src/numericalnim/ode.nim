@@ -244,3 +244,5 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
             return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
         of "rk4":
             return ODESolver(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
+        else:
+            raise newException(ValueError, &"{integrator} is not a valid integrator")
