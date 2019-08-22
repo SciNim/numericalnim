@@ -113,6 +113,8 @@ Now the error is higher for `DOPRI54` as well.
 - `cumtrapz` - Uses the trapezoidal rule to integrate both functions and discrete points but it outputs a seq of the integral values at provided x-values. 
 - `cumsimpson` - Uses Simpson's rule to integrate both functions and discrete points but it outputs a seq of the integral values at provided x-values.
 
+- `gaussQuad` - Uses Gauss-Legendre Quadrature to integrate functions. Choose between 20 different accuracies by setting how many function evaluations should be made on each subinterval with the `nPoints` parameter (1 - 20 is valid options).
+
 ## Usage
 Using the default parameters you need to provide one of these sets:
 - ``f(x)``, ``xStart``, ``xEnd``
@@ -129,7 +131,7 @@ proc f[T](x: float, optional: seq[T]): T
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 ## Quick Tutorial
-We want to evaluate the integral of f(x) = sin(x) from 0 to Pi. For this we can choose either `trapz`, `simpson`, `adaptiveSimpson` or `romberg`. Let's do all of them and compare them!
+We want to evaluate the integral of f(x) = sin(x) from 0 to Pi. For this we can choose either `trapz`, `simpson`, `adaptiveSimpson`, `gaussQuad` or `romberg`. Let's do all of them and compare them!
 ```nim
 import math
 import numericalnim
@@ -140,17 +142,20 @@ let xEnd = PI
 let integral_trapz = trapz(f, xStart, xEnd)
 let integral_simpson = simpson(f, xStart, xEnd)
 let integral_adaptiveSimpson = adaptiveSimpson(f, xStart, xEnd)
+let integral_gaussQuad = gaussQuad(f, xStart, xEnd)
 let integral_romberg = romberg(f, xStart, xEnd)
 
 echo "Trapz: ", integral_trapz
 echo "Simpson: ", integral_simpson
 echo "Adaptive Simpson: ", integral_adaptiveSimpson
+echo "Gauss: ", integral_gaussQuad
 echo "Romberg: ", integral_romberg
 ```
 ```nim
 Trapz: 1.999993420259403
 Simpson: 2.000000000017319
 Adaptive Simpson: 1.999999999997953
+Gauss: 1.999999999999998
 Romberg: 1.999999999999077
 ```
 The correct value is 2 so all of them seems to work, great! Let's compare the errors:
@@ -158,12 +163,14 @@ The correct value is 2 so all of them seems to work, great! Let's compare the er
 echo "Trapz error: ", 2.0 - integral_trapz
 echo "Simpson error: ", 2.0 - integral_simpson
 echo "Adaptive Simpson error: ", 2.0 - integral_adaptiveSimpson
+echo "Gauss error: ", 2.0 - integral_gaussQuad
 echo "Romberg error: ", 2.0 - integral_romberg
 ```
 ```nim
 Trapz error: 6.5797405970347e-006
 Simpson error: -1.731903509494259e-011
 Adaptive Simpson error: 2.046807168198939e-012
+Gauss error: 1.554312234475219e-015
 Romberg error: 9.234835118832052e-013
 ```
 We see that the trapezoidal rule is less accurate than the others as we could expect. 
@@ -208,7 +215,7 @@ Now they are starting to differ from each outer. The rounded analytic solutions 
 ```
 We see that simpson gets it spot on while trapz is a bit off. The velocity is a parabola so you can't exactly approximate it with a straight line as trapz does.
 
-## Example: optional parameters / API
+## Optional parameters / API
 You can pass some additional parameters to the functions if you don't want to play with the defaults. For now here are the procs:
 ```nim
 proc trapz*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, optional: openArray[T] = @[]): T
@@ -232,6 +239,8 @@ proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float],
 proc romberg*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, depth = 8, tol = 1e-8, optional: openArray[T] = @[]): T
 
 proc romberg*[T](Y: openArray[T], X: openArray[float]): T
+
+proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 100, nPoints = 7, optional: openArray[T] = @[]): T
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 
@@ -308,6 +317,6 @@ If you want to use Arraymancer with NumericalNim, the basics should work but I h
 - Very much!
 - Comment and document code.
 - Add more ODE integrators.
-- Add more integration methods (Gaussian Quadrature on it's way, hopefully).
+- Add more integration methods (Gaussian Quadrature on it's way. Done).
 - Make the existing code more efficient and robust.
 - Add parallelization of some kind to speed it up. `Vector` would probably benefit from it.
