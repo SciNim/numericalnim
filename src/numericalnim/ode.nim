@@ -13,6 +13,16 @@ type
 
 
 proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0): ODEoptions =
+    ## Create a new ODEoptions object.
+    ## Input:
+    ##   - dt: The time step to use in fixed timestep integrators.
+    ##   - tol: The error tolerance to use in adaptive timestep integrators.
+    ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
+    ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
+    ##   - tStart: The time to start the ODE-solver at. The time the initial conditions are supplied at.
+    ##
+    ## Returns:
+    ##   - ODEoptions object with the supplied parameters.
     if dtMax < dtMin:
         raise newException(ValueError, "dtMin must be less than dtMax")
     result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax), dtMin: abs(dtMin), tStart: tStart)
@@ -21,6 +31,7 @@ const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dt
 
 
 proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using RK4. Only for internal use.
     var k1, k2, k3, k4: T
     k1 = f(t, y)
     k2 = f(t + 0.5*dt, y + 0.5 * dt * k1)
@@ -31,6 +42,7 @@ proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, op
 
 
 proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using DOPRI54. Only for internal use.
     const
         c2 = 1.0/5.0
         c3 = 3.0/10.0
@@ -105,7 +117,8 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     result = (yNew, k7, dt, error)
 
 
-proc adaptiveODE[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator: proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float), useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
+proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator: proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float), useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
+    ## Handles the ODE solving. Only for internal use. 
     let t0 = options.tStart
     var t = t0
     var tPositive, tNegative: seq[float]
@@ -216,8 +229,20 @@ proc adaptiveODE[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], 
     
 
 proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator="dopri54"): (seq[float], seq[T]) =
+    ## Solve an ODE initial value problem.
+    ## Input:
+    ##   - f: the ODE function y' = f(t, y).
+    ##   - y0: Initial value.
+    ##   - tspan: Seq of t values that y will be returned at.
+    ##   - options: ODEoptions object with ODE parameters.
+    ##   - integrator: String with the integrator to use. Choices: "dopri54", "rk4".
+    ##
+    ## Returns:
+    ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
     case integrator.toLower():
         of "dopri54":
-            return adaptiveODE(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
+            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
         of "rk4":
-            return adaptiveODE(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
+            return ODESolver(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
+        else:
+            raise newException(ValueError, &"{integrator} is not a valid integrator")
