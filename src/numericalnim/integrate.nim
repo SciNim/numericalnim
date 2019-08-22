@@ -343,7 +343,7 @@ proc getGaussLegendreWeights(nPoints: int): tuple[nodes: seq[float], weights: se
     }.toTable()
     return gaussWeights[nPoints]
 
-proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, nPoints = 5, optional: openArray[T] = @[]): T =
+proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 100, nPoints = 7, optional: openArray[T] = @[]): T =
     ## Calculate the integral of f using Gaussian Quadrature. Has 20 different sets of weights, ranging from 1 to 20 function evaluations per subinterval. 
     ## Input:
     ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
