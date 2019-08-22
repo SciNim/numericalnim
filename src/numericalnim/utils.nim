@@ -283,11 +283,10 @@ template timeit*(s: untyped, n = 100, msg = ""): untyped =
     echo msg & ": " & $(tTotal / n.toFloat) & " seconds per iteration"
 
 template benchmarkit*[T](s: untyped, n = 100, msg = "", answer: T, onlyEfficiency = false): untyped =
-    var tTotal = 0.0
+    var tTotal = cpuTime()
     for i in 1 .. n:
-        let t0 = cpuTime()
         discard s
-        tTotal += cpuTime() - t0
+    tTotal = cpuTime() - tTotal
     let error = calcError(answer, s)
     let tAverage = tTotal / n.toFloat
     let efficiency = (error * tAverage)
