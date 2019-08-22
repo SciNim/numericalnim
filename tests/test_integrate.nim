@@ -92,6 +92,98 @@ test "cumsimpson func, dx = 0.1":
         check isClose(value, cumY[i], tol=1e-3)
 
 
+test "gaussQuad func n=2":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=2, N=1, optional=optional)
+    check isClose(value, correct, tol=1)
+
+test "gaussQuad func n=2 N=10":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=2, N=10, optional=optional)
+    check isClose(value, correct, tol=1e-2)
+
+test "gaussQuad func n=3":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=3, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-1)
+
+test "gaussQuad func n=4":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=4, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-3)
+
+test "gaussQuad func n=5":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=5, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-4)
+
+test "gaussQuad func n=5 N=10":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=5, N=10, optional=optional)
+    check isClose(value, correct, tol=1e-6)
+
+test "gaussQuad func n=6":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=6, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-5)
+
+test "gaussQuad func n=7":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=7, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-6)
+
+test "gaussQuad func n=8":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=8, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-6)
+
+test "gaussQuad func n=9":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=9, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-7)
+
+test "gaussQuad func n=10":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=10, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-7)
+
+test "gaussQuad func n=10 N=10":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=10, N=10, optional=optional)
+    check isClose(value, correct, tol=1e-9)
+
+test "gaussQuad func n=11":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=11, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-8)
+
+test "gaussQuad func n=12":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=12, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-8)
+
+test "gaussQuad func n=13":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=13, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-9)
+
+test "gaussQuad func n=14":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=14, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-9)
+        
+test "gaussQuad func n=15":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=15, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-10)
+
+test "gaussQuad func n=16":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=16, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-10)
+
+test "gaussQuad func n=17":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=17, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-11)
+
+test "gaussQuad func n=18":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=18, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-12)
+
+test "gaussQuad func n=19":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=19, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-13)
+
+test "gaussQuad func n=20":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=20, N=1, optional=optional)
+    check isClose(value, correct, tol=1e-14)
+
+test "gaussQuad func n=20 N=10":
+    let value = gaussQuad(f, xStart, xEnd, nPoints=20, N=10, optional=optional)
+    check isClose(value, correct, tol=1e-14)
+
 test "trapz Vector func, N = 10":
     let value = trapz(fVector, xStart, xEnd, N = 10, optional = optionalVector)
     check isClose(value, correctVector, tol = 1e-1)
@@ -124,6 +216,85 @@ test "romberg Vector func, default":
     let value = romberg(fVector, xStart, xEnd, optional = optionalVector)
     check isClose(value, correctVector, tol = 1e-8)
 
+test "gaussQuad Vector n=2":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=2, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1.5)
+
+test "gaussQuad Vector n=3":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=3, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-1)
+
+test "gaussQuad Vector n=4":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=4, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-2)
+
+test "gaussQuad Vector n=5":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=5, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-4)
+
+test "gaussQuad Vector n=6":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=6, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-5)
+
+test "gaussQuad Vector n=7":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=7, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-6)
+
+test "gaussQuad Vector n=8":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=8, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-6)
+
+test "gaussQuad Vector n=9":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=9, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-7)
+
+test "gaussQuad Vector n=10":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=10, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-7)
+
+test "gaussQuad Vector n=10 N=10":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=10, N=10, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-8)
+
+test "gaussQuad Vector n=11":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=11, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-8)
+
+test "gaussQuad Vector n=12":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=12, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-8)
+
+test "gaussQuad Vector n=13":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=13, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-9)
+
+test "gaussQuad Vector n=14":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=14, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-9)
+        
+test "gaussQuad Vector n=15":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=15, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-10)
+
+test "gaussQuad Vector n=16":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=16, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-10)
+
+test "gaussQuad Vector n=17":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=17, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-11)
+
+test "gaussQuad Vector n=18":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=18, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-12)
+
+test "gaussQuad Vector n=19":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=19, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-13)
+
+test "gaussQuad Vector n=20":
+    let value = gaussQuad(fVector, xStart, xEnd, nPoints=20, N=1, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-14)
 
 test "trapz Tensor func, N = 10":
     let value = trapz(fTensor, xStart, xEnd, N = 10, optional = optionalTensor)
@@ -157,5 +328,84 @@ test "romberg Tensor func, default":
     let value = romberg(fTensor, xStart, xEnd, optional = optionalTensor)
     check isClose(value, correctTensor, tol = 1e-8)
 
+test "gaussQuad Tensor n=2":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=2, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1.5)
+
+test "gaussQuad Tensor n=3":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=3, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-1)
+
+test "gaussQuad Tensor n=4":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=4, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-2)
+
+test "gaussQuad Tensor n=5":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=5, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-4)
+
+test "gaussQuad Tensor n=6":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=6, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-5)
+
+test "gaussQuad Tensor n=7":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=7, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-6)
+
+test "gaussQuad Tensor n=8":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=8, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-6)
+
+test "gaussQuad Tensor n=9":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=9, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-7)
+
+test "gaussQuad Tensor n=10":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=10, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-7)
+
+test "gaussQuad Tensor n=10 N=10":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=10, N=10, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-8)
+
+test "gaussQuad Tensor n=11":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=11, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-8)
+
+test "gaussQuad Tensor n=12":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=12, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-8)
+
+test "gaussQuad Tensor n=13":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=13, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-9)
+
+test "gaussQuad Tensor n=14":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=14, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-9)
+        
+test "gaussQuad Tensor n=15":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=15, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-10)
+
+test "gaussQuad Tensor n=16":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=16, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-10)
+
+test "gaussQuad Tensor n=17":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=17, N=1, optional=optionalTensor)    
+    check isClose(value, correctTensor, tol=1e-11)
+
+test "gaussQuad Tensor n=18":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=18, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-12)
+
+test "gaussQuad Tensor n=19":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=19, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-13)
+
+test "gaussQuad Tensor n=20":
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=20, N=1, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-14)
 
 
