@@ -168,8 +168,8 @@ proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: f
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using an adaptive Simpson's rule.
     let zero = f(xStart, @optional) - f(xStart, @optional)
-    let value1 = simpson(f, xStart, xEnd, N = 2, optional = optional)
-    let value2 = simpson(f, xStart, xEnd, N = 4, optional = optional)
+    let value1 = simpson(f, xStart, xEnd, N = 2, optional = @optional)
+    let value2 = simpson(f, xStart, xEnd, N = 4, optional = @optional)
     let error = (value2 - value1)/15
     var tol = tol
     if tol < 1e-15:
@@ -178,8 +178,8 @@ proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: f
         return value2 + error
     let m = (xStart + xEnd) / 2.0
     let newtol = tol / 2.0
-    let left = adaptiveSimpson(f, xStart, m, tol = newtol, optional = optional)
-    let right = adaptiveSimpson(f, m, xEnd, tol = newtol, optional = optional)
+    let left = adaptiveSimpson(f, xStart, m, tol = newtol, optional = @optional)
+    let right = adaptiveSimpson(f, m, xEnd, tol = newtol, optional = @optional)
     return left + right
 
 
@@ -374,3 +374,47 @@ proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, 
             tempResult += weights[i] * f(c1 * nodes[i] + c2, optional)
         tempResult *= c1
         result += tempResult
+
+proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T =
+    let optional = @optional
+
+    #[
+    const lowOrderWeights = [0.236926885056189087514, 0.4786286704993664680413, 0.5688888888888888888889, 0.4786286704993664680413, 0.2369268850561890875143] # weights for low order
+    const lowOrderNodes = [-0.9061798459386639927976, -0.5384693101056830910363, 0.0, 0.5384693101056830910363, 0.9061798459386639927976] # nodes for low order
+    const highOrderCommonWeights = [0.1152333166224733940246, 0.2410403392286475866999, 0.2829874178574912132043, 0.2410403392286475866999, 0.1152333166224733940246] # weights for high order to use with lowOrderNodes
+    const highOrderWeights = [0.04258203675108183286451, 0.186800796556492657468, 0.272849801912558922341, 0.272849801912558922341, 0.1868007965564926574678, 0.0425820367510818328645] # weights for high order to use with highOrderNodes
+    const highOrderNodes = [-0.9840853600948424644962, -0.7541667265708492204408, -0.2796304131617831934135, 0.2796304131617831934135, 0.7541667265708492204408, 0.9840853600948424644962] # nodes for high order
+    ]#
+
+    const lowOrderWeights = [0.0666713443086881375936, 0.1494513491505805931458, 0.219086362515982043996, 0.269266719309996355091, 0.2955242247147528701739, 0.2955242247147528701739, 0.2692667193099963550912, 0.2190863625159820439955, 0.1494513491505805931458, 0.0666713443086881375936] # weights for low order
+    const lowOrderNodes = [-0.973906528517171720078, -0.8650633666889845107321, -0.6794095682990244062343, -0.4333953941292471907993, -0.1488743389816312108848, 0.1488743389816312108848, 0.4333953941292471907993, 0.6794095682990244062343, 0.865063366688984510732, 0.973906528517171720078] # nodes for low order
+    const highOrderCommonWeights = [0.0325581623079647274788, 0.075039674810919952767, 0.1093871588022976418992, 0.134709217311473325928, 0.1477391049013384913748, 0.1477391049013384913748, 0.134709217311473325928, 0.109387158802297641899, 0.075039674810919952767, 0.032558162307964727479] # weights for high order to use with lowOrderNodes
+    const highOrderWeights = [0.0116946388673718742781, 0.0547558965743519960314, 0.093125454583697605535, 0.123491976262065851078, 0.142775938577060080797, 0.149445554002916905665, 0.1427759385770600807971, 0.123491976262065851078, 0.093125454583697605535, 0.05475589657435199603138, 0.0116946388673718742781] # weights for high order to use with highOrderNodes
+    const highOrderNodes = [-0.9956571630258080807355, -0.9301574913557082260012, -0.7808177265864168970637, -0.562757134668604683339, -0.294392862701460198131, 0.0, 0.2943928627014601981311, 0.562757134668604683339, 0.7808177265864168970637, 0.9301574913557082260012, 0.9956571630258080807355] # nodes for high order
+
+
+    var lowOrderResult, highOrderResult: T
+    var savedFunctionValues = newSeq[T](lowOrderNodes.len)
+    let c1 = (xEnd - xStart) / 2.0
+    let c2 = (xStart + xEnd) / 2.0
+    for i in 0 .. lowOrderNodes.high:
+        savedFunctionValues[i] = f(c1 * lowOrderNodes[i] + c2, optional)
+    lowOrderResult = lowOrderWeights[0] * savedFunctionValues[0]
+    for i in 1 .. lowOrderNodes.high:
+        lowOrderResult += lowOrderWeights[i] * savedFunctionValues[i]
+    lowOrderResult *= c1
+    
+    highOrderResult = highOrderCommonWeights[0] * savedFunctionValues[0]
+    for i in 1 .. lowOrderNodes.high:
+        highOrderResult += highOrderCommonWeights[i] * savedFunctionValues[i]
+    for i in 0 .. highOrderNodes.high:
+        highOrderResult += highOrderWeights[i] * f(c1 * highOrderNodes[i] + c2, optional)
+    highOrderResult *= c1
+    let zero = f(xStart, @optional) - f(xStart, @optional)
+    let error = highOrderResult - lowOrderResult
+    if calcError(error, zero) < tol or abs(xEnd - xStart) < 1e-5:
+        return highOrderResult
+    
+    let left = adaptiveGauss(f, xStart, c2, tol = tol/2, optional=optional)
+    let right = adaptiveGauss(f, c2, xEnd, tol = tol/2, optional=optional)
+    return left + right
