@@ -2,7 +2,7 @@ import algorithm, strutils, math, strformat, sequtils
 import arraymancer
 import utils
 
-type 
+type
     ODEoptions* = object
         dt*: float
         tol*: float
@@ -12,25 +12,31 @@ type
 
 
 
-proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0): ODEoptions =
+proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8,
+                    tStart = 0.0): ODEoptions =
     ## Create a new ODEoptions object.
+    ##
     ## Input:
     ##   - dt: The time step to use in fixed timestep integrators.
     ##   - tol: The error tolerance to use in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
-    ##   - tStart: The time to start the ODE-solver at. The time the initial conditions are supplied at.
+    ##   - tStart: The time to start the ODE-solver at. The time the initial
+    ##     conditions are supplied at.
     ##
     ## Returns:
     ##   - ODEoptions object with the supplied parameters.
     if dtMax < dtMin:
         raise newException(ValueError, "dtMin must be less than dtMax")
-    result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax), dtMin: abs(dtMin), tStart: tStart)
+    result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax),
+                        dtMin: abs(dtMin), tStart: tStart)
 
-const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0)
+const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2,
+                                         dtMin = 1e-8, tStart = 0.0)
 
 
-proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float) =
+proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+                 options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using RK4. Only for internal use.
     var k1, k2, k3, k4: T
     k1 = f(t, y)
@@ -41,7 +47,8 @@ proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, op
     return (yNew, yNew, dt, 0.0)
 
 
-proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float) =
+proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using DOPRI54. Only for internal use.
     const
         c2 = 1.0/5.0
@@ -117,8 +124,13 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     result = (yNew, k7, dt, error)
 
 
-proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator: proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float), useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
-    ## Handles the ODE solving. Only for internal use. 
+proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
+                  options: ODEoptions = DEFAULT_ODEoptions,
+                  integrator: proc(f: proc(t: float, y: T): T,
+                                   t: float, y, FSAL: T,
+                                   dt: float, options: ODEoptions): (T, T, float, float),
+                  useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
+    ## Handles the ODE solving. Only for internal use.
     let t0 = options.tStart
     var t = t0
     var tPositive, tNegative: seq[float]
@@ -161,9 +173,11 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
                     break
                 while tPositive[denseIndex] <= t:
                     if useFSAL:
-                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, FSAL))
+                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
+                                                    t, lastIter.y, y, lastIter.dy, FSAL))
                     else:
-                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, f(t, y)))
+                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
+                                                    t, lastIter.y, y, lastIter.dy, f(t, y)))
                     denseIndex += 1
                     if tPositive.high < denseIndex:
                         break
@@ -201,9 +215,11 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
                     break
                 while -tNegative[denseIndex] <= t:
                     if useFSAL:
-                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, FSAL))
+                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t,
+                                                    t, lastIter.y, y, lastIter.dy, FSAL))
                     else:
-                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, g(t, y)))
+                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t,
+                                                    lastIter.y, y, lastIter.dy, g(t, y)))
                     denseIndex += 1
                     if tNegative.high < denseIndex:
                         break
@@ -225,11 +241,15 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
                 elif dtMax < dt:
                     dt = dtMax
         yNegative.add(y)
-    return (tNegative.reversed().concat(tZero).concat(tPositive) , yNegative.reversed().concat(yZero).concat(yPositive))
-    
+    return (tNegative.reversed().concat(tZero).concat(tPositive),
+            yNegative.reversed().concat(yZero).concat(yPositive))
 
-proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator="dopri54"): (seq[float], seq[T]) =
+
+proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
+                  options: ODEoptions = DEFAULT_ODEoptions,
+                  integrator="dopri54"): (seq[float], seq[T]) =
     ## Solve an ODE initial value problem.
+    ##
     ## Input:
     ##   - f: the ODE function y' = f(t, y).
     ##   - y0: Initial value.
@@ -241,8 +261,10 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
     ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
     case integrator.toLower():
         of "dopri54":
-            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
+            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step,
+                             useFSAL = true, order = 5.0, adaptive = true)
         of "rk4":
-            return ODESolver(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
+            return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
+                             useFSAL = false, order = 4.0, adaptive = false)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
