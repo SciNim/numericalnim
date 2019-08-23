@@ -112,8 +112,8 @@ Now the error is higher for `DOPRI54` as well.
 - `romberg` - Uses Romberg integration to integrate both functions and discrete points. __Note:__ If discrete points are provided they must be equally spaced and the number of points must be of the form 2^k + 1 ie 3, 5, 9, 17, 33, 65, 129 etc.
 - `cumtrapz` - Uses the trapezoidal rule to integrate both functions and discrete points but it outputs a seq of the integral values at provided x-values. 
 - `cumsimpson` - Uses Simpson's rule to integrate both functions and discrete points but it outputs a seq of the integral values at provided x-values.
-
 - `gaussQuad` - Uses Gauss-Legendre Quadrature to integrate functions. Choose between 20 different accuracies by setting how many function evaluations should be made on each subinterval with the `nPoints` parameter (1 - 20 is valid options).
+- `adaptiveGauss` - Uses Gauss-Kronrod Quadrature to adaptivly integrate function.
 
 ## Usage
 Using the default parameters you need to provide one of these sets:
@@ -143,12 +143,14 @@ let integral_trapz = trapz(f, xStart, xEnd)
 let integral_simpson = simpson(f, xStart, xEnd)
 let integral_adaptiveSimpson = adaptiveSimpson(f, xStart, xEnd)
 let integral_gaussQuad = gaussQuad(f, xStart, xEnd)
+let integral_adaptiveGauss = adaptiveGauss(f, xStart, xEnd)
 let integral_romberg = romberg(f, xStart, xEnd)
 
 echo "Trapz: ", integral_trapz
 echo "Simpson: ", integral_simpson
 echo "Adaptive Simpson: ", integral_adaptiveSimpson
 echo "Gauss: ", integral_gaussQuad
+echo "Adaptive Gauss: ", integral_adaptiveGauss
 echo "Romberg: ", integral_romberg
 ```
 ```nim
@@ -156,6 +158,7 @@ Trapz: 1.999993420259403
 Simpson: 2.000000000017319
 Adaptive Simpson: 1.999999999997953
 Gauss: 1.999999999999998
+Adaptive Gauss: 2.0
 Romberg: 1.999999999999077
 ```
 The correct value is 2 so all of them seems to work, great! Let's compare the errors:
@@ -164,6 +167,7 @@ echo "Trapz error: ", 2.0 - integral_trapz
 echo "Simpson error: ", 2.0 - integral_simpson
 echo "Adaptive Simpson error: ", 2.0 - integral_adaptiveSimpson
 echo "Gauss error: ", 2.0 - integral_gaussQuad
+echo "Adaptive Gauss error: ", 2.0 - integral_adaptiveGauss
 echo "Romberg error: ", 2.0 - integral_romberg
 ```
 ```nim
@@ -171,6 +175,7 @@ Trapz error: 6.5797405970347e-006
 Simpson error: -1.731903509494259e-011
 Adaptive Simpson error: 2.046807168198939e-012
 Gauss error: 1.554312234475219e-015
+Adaptive Gauss error: 0.0
 Romberg error: 9.234835118832052e-013
 ```
 We see that the trapezoidal rule is less accurate than the others as we could expect. 
@@ -241,6 +246,8 @@ proc romberg*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, de
 proc romberg*[T](Y: openArray[T], X: openArray[float]): T
 
 proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 100, nPoints = 7, optional: openArray[T] = @[]): T
+
+proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 
