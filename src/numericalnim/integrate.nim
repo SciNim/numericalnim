@@ -157,7 +157,7 @@ proc simpson*[T](Y: openArray[T], X: openArray[float]): T =
         result += alpha * dataset[2*i + 2][1] + beta * dataset[2*i + 1][1] + eta * dataset[2*i][1]
 
 proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T =
-    ## Calculate the integral of f using a adaptive Simpson's rule.
+    ## Calculate the integral of f using an adaptive Simpson's rule.
     ## Input:
     ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
     ##   - xStart: The start of the integration interval.
@@ -376,6 +376,16 @@ proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, 
         result += tempResult
 
 proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using an adaptive Gauss-Kronrod Quadrature.
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and optional is a seq of optional parameters (must be of same type as the output of f). 
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using an adaptive Gauss-Kronrod Quadrature.
     let optional = @optional
 
     #[
