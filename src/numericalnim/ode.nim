@@ -35,6 +35,14 @@ const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2,
                                          dtMin = 1e-8, tStart = 0.0)
 
 
+proc HEUN_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + dt, y + dt * k1)
+    let yNew = y + 0.5 * dt * (k1 + k2)
+    return (yNew, yNew, dt, 0.0)
+
 proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
                  options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using RK4. Only for internal use.
@@ -266,5 +274,8 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
         of "rk4":
             return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
                              useFSAL = false, order = 4.0, adaptive = false)
+        of "heun":
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN_step,
+                             useFSAL = false, order = 2.0, adaptive = false)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")

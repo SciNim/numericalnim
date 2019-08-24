@@ -45,6 +45,18 @@ test "RK4, dt = 1e-6":
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-8)
 
+test "Heun, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="heun")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "Heun, dt = 1e-3":
+    let (t, y) = solveODE(f, y0, tspan, integrator="heun")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-8)
+
 test "DOPRI54 Vector, default":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="dopri54")
     check t == tspan
@@ -69,6 +81,18 @@ test "RK4 Vector, dt = 1e-2":
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
 
+test "Heun Vector, default":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="heun")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYVector[i], tol=1e-8)
+
+test "Heun Vector, dt = 1e-2":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="heun", options=ooVector)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYVector[i], tol=1e-5)
+
 test "DOPRI54 Tensor, default":
     let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="dopri54")
     check t == tspan
@@ -92,3 +116,15 @@ test "RK4 Tensor, dt = 1e-2":
     check t == tspan
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-8)
+
+test "Heun Tensor, default":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="heun")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYTensor[i], tol=1e-8)
+
+test "Heun Tensor, dt = 1e-2":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="heun", options=ooTensor)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYTensor[i], tol=1e-5)
