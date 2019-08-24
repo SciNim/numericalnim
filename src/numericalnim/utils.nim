@@ -10,7 +10,7 @@ proc newVector*[T](components: openArray[T]): Vector[T] {.inline.} =
     return Vector[T](components: @components, len: components.len)
 
 proc checkVectorSizes*(v1, v2: Vector) {.inline.} =
-    if v1.len == v2.len: 
+    if v1.len == v2.len:
         return
     else:
         raise newException(ValueError, "Vectors must have the same size.")
@@ -43,7 +43,7 @@ proc`==`*[T](v1, v2: Vector[T]): bool {.inline.} =
         if v1[i] != v2[i]:
             return false
     return true
-proc `+`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} = 
+proc `+`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
@@ -74,7 +74,7 @@ proc `+`*[T](d: T, v1: Vector[T]): Vector[T] {.inline.} =
         newComponents[i] = v1[i] + d
     result = newVector(newComponents)
 
-proc `+=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} = 
+proc `+=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] += v2[i]
@@ -87,7 +87,7 @@ proc `+=`*[T](v1: var Vector[T], d: T) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] += d
 
-proc `-`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} = 
+proc `-`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
@@ -118,7 +118,7 @@ proc `-`*[T](d: T, v1: Vector[T]): Vector[T] {.inline.} =
         newComponents[i] = d - v1[i]
     result = newVector(newComponents)
 
-proc `-=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} = 
+proc `-=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] -= v2[i]
@@ -131,17 +131,17 @@ proc `-=`*[T](v1: var Vector[T], d: T) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] -= d
 
-proc `/`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} = 
+proc `/`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] / d
     result = newVector(newComponents)
-proc `*`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} = 
+proc `*`*[T](v1: Vector[T], d: float): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] * d
     result = newVector(newComponents)
-proc `*`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} = 
+proc `*`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] * d
@@ -206,7 +206,8 @@ proc hermiteSpline*[T](x, x1, x2: float, y1, y2, dy1, dy2: T): T {.inline.}=
     let h11 = t ^ 3 - t ^ 2
     result = h00 * y1 + h10 * (x2 - x1) * dy1 + h01 * y2 + h11 * (x2 - x1) * dy2
 
-proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: openArray[T]): seq[T] {.inline.} =
+proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float],
+                            y, dy: openArray[T]): seq[T] {.inline.} =
     # loop over each interval and check if x is in there, if x is sorted
     var xIndex = 0
     if isSorted(x):
@@ -232,7 +233,7 @@ proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: ope
                     result.add(y[y.high])
                 else:
                     raise newException(ValueError, &"{a} not in interval {min(t)} - {max(t)}")
-        
+
 
 
 
@@ -262,12 +263,12 @@ proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[fl
     if includeEnd:
         if result[result.high] != x2:
             result.add(x2)
-    
+
 
 proc linspace*(x1, x2: float, N: int): seq[float] {.inline.} =
     if N <= 0:
         raise newException(ValueError, &"Number of samples {N} must be greater then 0")
-    
+
     let dx = (x2 - x1) / (N - 1).toFloat
     result.add(x1)
     for i in 1 .. N - 2:
@@ -293,4 +294,4 @@ template benchmarkit*[T](s: untyped, n = 100, msg = "", answer: T, onlyEfficienc
     if onlyEfficiency:
         echo msg & " Efficiency: " & $efficiency
     else:
-        echo msg & ": Time: " & $tAverage & " s/iter Error: " & $error & " Efficiency: " & $efficiency 
+        echo msg & ": Time: " & $tAverage & " s/iter Error: " & $error & " Efficiency: " & $efficiency
