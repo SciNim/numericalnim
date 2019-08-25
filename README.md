@@ -8,8 +8,21 @@ NumericalNim is a collection of numerical methods written in Nim. Currently it h
 At the moment only two ODE integrators are implemented:
 
 ### First order ODE: y' = f(t, y) 
-- `RK4` - The standard 4th order, fixed timestep method we all know and love.
+- `rk21` - Heun's Adaptive 2nd order method.
+- `BS32` - Bogacki–Shampine 3rd order adaptive method.
 - `DOPRI54` - Dormand & Prince's adaptive 5th order method.
+- `Heun2` - Heun's 2nd order fixed timestep method.
+- `Ralston2` - Ralston's 2nd order fixed timestep method.
+- `Kutta3` - Kutta's 3rd order fixed timestep method.
+- `Heun3` - Heuns's 3rd order fixed timestep method.
+- `Ralston3` - Ralston's 3rd order fixed timestep method.
+- `SSPRK3` - Strong Stability Preserving Runge-Kutta 3rd order fixed timestep method.
+- `Ralston4` - Ralston's 4th order fixed timestep method.
+- `Kutta4` - Kutta's 4th order fixed timestep method.
+- `RK4` - The standard 4th order, fixed timestep method we all know and love.
+
+
+
 
 ### Dense Output
 All integrators support dense output using a 3rd order Hermite interpolant. Method specific interpolants may be added in the future.
