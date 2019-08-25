@@ -45,17 +45,59 @@ test "RK4, dt = 1e-6":
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-8)
 
-test "Heun, default":
-    let (t, y) = solveODE(f, y0, tspan, integrator="heun")
+test "Heun2, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="heun2")
     check t == tspan
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-10)
 
-test "Heun, dt = 1e-3":
-    let (t, y) = solveODE(f, y0, tspan, integrator="heun")
+test "Heun2, dt = 1e-3":
+    let (t, y) = solveODE(f, y0, tspan, integrator="heun2")
     check t == tspan
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-8)
+
+test "Ralston2, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="ralston2")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "Kutta3, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="kutta3")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "Heun3, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="heun3")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "Ralston3, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="ralston3")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "SSPRK3, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="ssprk3")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "Ralston4, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="ralston4")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
+
+test "Kutta4, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="kutta4")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-10)
 
 test "DOPRI54 Vector, default":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="dopri54")
@@ -81,14 +123,14 @@ test "RK4 Vector, dt = 1e-2":
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
 
-test "Heun Vector, default":
-    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="heun")
+test "Heun2 Vector, default":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="heun2")
     check t == tspan
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
 
-test "Heun Vector, dt = 1e-2":
-    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="heun", options=ooVector)
+test "Heun2 Vector, dt = 1e-2":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="heun2", options=ooVector)
     check t == tspan
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-5)
@@ -117,14 +159,14 @@ test "RK4 Tensor, dt = 1e-2":
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-8)
 
-test "Heun Tensor, default":
-    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="heun")
+test "Heun2 Tensor, default":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="heun2")
     check t == tspan
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-8)
 
-test "Heun Tensor, dt = 1e-2":
-    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="heun", options=ooTensor)
+test "Heun2 Tensor, dt = 1e-2":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="heun2", options=ooTensor)
     check t == tspan
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-5)

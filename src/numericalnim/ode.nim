@@ -35,12 +35,77 @@ const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2,
                                          dtMin = 1e-8, tStart = 0.0)
 
 
-proc HEUN_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+proc HEUN2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
     let k1 = f(t, y)
     let k2 = f(t + dt, y + dt * k1)
     let yNew = y + 0.5 * dt * (k1 + k2)
+    return (yNew, yNew, dt, 0.0)
+
+proc RALSTON2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 2/3 * dt, y + 2/3 * dt * k1)
+    let yNew = y + dt * (0.25 * k1 + 0.75 * k2)
+    return (yNew, yNew, dt, 0.0)
+
+proc KUTTA3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
+    let k3 = f(t + dt, y - dt * k1 + 2 * dt * k2)
+    let yNew = y + dt * (1/6 * k1 + 2/3 * k2 + 1/6 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+proc HEUN3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
+    let k3 = f(t + 2/3 * dt, y + 2/3 * dt * k2)
+    let yNew = y + dt * (0.25 * k1 + 0.75 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+proc RALSTON3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 1/2 * dt, y + 1/2 * dt * k1)
+    let k3 = f(t + 3/4 * dt, y + 3/4 * dt * k2)
+    let yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+proc SSPRK3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + dt, y + dt * k1)
+    let k3 = f(t + 0.5 * dt, y + 0.25 * dt * (k1 + k2))
+    let yNew = y + dt * (1/6 * k1 + 1/6 * k2 + 2/3 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+
+proc RALSTON4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 0.4 * dt, y + 0.4 * dt * k1)
+    let k3 = f(t + 0.45573725 * dt, y + dt * (0.29697761 * k1 + 0.15875964 * k2))
+    let k4 = f(t + dt, y + dt * (0.21810040 * k1 - 3.05096516 * k2 + 3.83286476 * k3))
+    let yNew = y + dt * (0.17476028 * k1 - 0.55148066 * k2 + 1.20553560 * k3 + 0.17118478 * k4)
+    return (yNew, yNew, dt, 0.0)
+
+proc KUTTA4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
+    let k3 = f(t + 2/3 * dt, y + dt * (-1/3 * k1 + k2))
+    let k4 = f(t + dt, y + dt * (k1 - k2 + k3))
+    let yNew = y + dt * (1/8 * k1 + 3/8 * k2 + 3/8 * k3 + 1/8 * k4)
     return (yNew, yNew, dt, 0.0)
 
 proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
@@ -274,8 +339,29 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
         of "rk4":
             return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
                              useFSAL = false, order = 4.0, adaptive = false)
-        of "heun":
-            return ODESolver(f, y0, tspan.sorted(), options, HEUN_step,
+        of "heun2":
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step,
                              useFSAL = false, order = 2.0, adaptive = false)
+        of "ralston2":
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step,
+                             useFSAL = false, order = 2.0, adaptive = false)
+        of "kutta3":
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "heun3":
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "ralston3":
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "ssprk3":
+            return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "ralston4":
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step,
+                                useFSAL = false, order = 4.0, adaptive = false)
+        of "kutta4":
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step,
+                                useFSAL = false, order = 4.0, adaptive = false)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
