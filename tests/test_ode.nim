@@ -99,6 +99,18 @@ test "Kutta4, default":
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-10)
 
+test "RK21, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="rk21")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-6)
+
+test "BS32, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="bs32")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-6)
+
 test "DOPRI54 Vector, default":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="dopri54")
     check t == tspan

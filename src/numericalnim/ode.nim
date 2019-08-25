@@ -119,6 +119,64 @@ proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     let yNew = y + dt / 6.0 * (k1 + 2.0 * (k2 + k3) + k4)
     return (yNew, yNew, dt, 0.0)
 
+proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let tol = options.tol
+    let dtMax = options.dtMax
+    let dtMin = options.dtMin
+    var k1, k2: T
+    var yNew, yLow: T
+    var error: float
+    var limitCounter = 0
+    var dt = dt
+    while true and limitCounter < 2:
+        k1 = f(t, y)
+        k2 = f(t + dt, y + dt * k1)
+        
+        yNew = y + dt * 0.5 * (k1 + k2)
+        yLow = y + dt * k1
+        error = calcError(yNew, yLow)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/2)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
+    result = (yNew, yNew, dt, error)
+
+proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let tol = options.tol
+    let dtMax = options.dtMax
+    let dtMin = options.dtMin
+    var k1, k2, k3, k4: T
+    var yNew, yLow: T
+    var error: float
+    var limitCounter = 0
+    var dt = dt
+    while true and limitCounter < 2:
+        k1 = f(t, y)
+        k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
+        k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
+        yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
+        k4 = f(t + dt, yNew)
+        
+        yLow = y + dt * (7/24 * k1 + 1/4 * k2 + 1/3 * k3 + 1/8 * k4)
+        error = calcError(yNew, yLow)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/3)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
+    result = (yNew, k4, dt, error)
+
 
 proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
                      options: ODEoptions): (T, T, float, float) =
@@ -336,6 +394,12 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
         of "dopri54":
             return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step,
                              useFSAL = true, order = 5.0, adaptive = true)
+        of "rk21":
+            return ODESolver(f, y0, tspan.sorted(), options, RK21_step ,
+                                useFSAL = false, order = 2.0, adaptive = true)
+        of "bs32":
+            return ODESolver(f, y0, tspan.sorted(), options, BS32_step,
+                                useFSAL = true, order = 3.0, adaptive = true)
         of "rk4":
             return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
                              useFSAL = false, order = 4.0, adaptive = false)
