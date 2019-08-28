@@ -192,6 +192,20 @@ proc abs*[T](v1: Vector[T]): float {.inline.} =
     result = sqrt(result)
 proc mean_squared_error*[T](v1: Vector[T]): float {.inline.} = abs(v1) / v1.len.toFloat
 
+proc `^`*[float](v: Vector[float], power: Natural): Vector[float] {.inline.} =
+    ## Returns a Vector object after raising each element to a power (Natural number powers)
+    var newComponents = newSeq[float](v.len)
+    for i in 0 .. v.components.high:
+        newComponents[i] = v[i] ^ power
+    result = newVector(newComponents)
+
+proc `^`*[float](v: Vector[float], power: float): Vector[float] {.inline.} =
+    ## Returns a Vector object after raising each element to a power (float powers)
+    var newComponents = newSeq[float](v.len)
+    for i in 0 .. v.components.high:
+        newComponents[i] = pow(v[i], power)
+    result = newVector(newComponents)
+ 
 
 proc clone*[T](x: T): T {.inline.} = x
 proc mean_squared_error*[T](y_true, y: T): float {.inline.} = abs(y_true - y)
@@ -205,6 +219,7 @@ proc hermiteSpline*[T](x, x1, x2: float, y1, y2, dy1, dy2: T): T {.inline.}=
     let h01 = t ^ 2 * (3.0 - 2.0 * t)
     let h11 = t ^ 3 - t ^ 2
     result = h00 * y1 + h10 * (x2 - x1) * dy1 + h01 * y2 + h11 * (x2 - x1) * dy2
+
 
 proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: openArray[T]): seq[T] {.inline.} =
     # loop over each interval and check if x is in there, if x is sorted
@@ -232,8 +247,6 @@ proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float], y, dy: ope
                     result.add(y[y.high])
                 else:
                     raise newException(ValueError, &"{a} not in interval {min(t)} - {max(t)}")
-        
-
 
 
 proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] {.inline.} =
@@ -250,6 +263,7 @@ proc isClose*[T](y1, y2: T, tol: float = 1e-3): bool {.inline.} =
         return true
     else:
         return false
+
 
 proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[float] {.inline.} =
     let dx = abs(dx) * sgn(x2 - x1).toFloat
@@ -273,6 +287,26 @@ proc linspace*(x1, x2: float, N: int): seq[float] {.inline.} =
     for i in 1 .. N - 2:
         result.add(x1 + dx * i.toFloat)
     result.add(x2)
+
+
+proc norm*(v1: Vector, p: int): float64 =
+    ## Calculate various norms of our Vector class
+    
+    # we have to make a case for p = 0 to avoid division by zero, may as well flesh them all out
+    case p:
+        of 0:
+            # max(v1) Infinity norm
+            result = float64(max(@v1))
+        of 1:
+            # sum(v1) Taxicab norm
+            result = float64(sum(@v1))
+        of 2:
+            # sqrt(sum([v ^ 2 for v in v1])) Euclidean norm
+            result = sqrt(sum(@(v1 ^ 2)))
+        else:
+            # pow(sum([v ^ p for v in v1]), 1.0/p) P norm
+            result = pow(sum(@(v1 ^ p)), 1.0 / float64(p))
+
 
 template timeit*(s: untyped, n = 100, msg = ""): untyped =
     var tTotal = 0.0

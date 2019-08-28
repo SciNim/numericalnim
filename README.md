@@ -244,12 +244,58 @@ proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, 
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 
+# Optimization
+## Optimization methods
+## 1 dimensional function optimization
+So far only a few methods have been implemented:
+
+### One Dimensional optimization methods
+- `steepest_descent` - Standard method for local minimum finding over a 2D plane
+- `conjugate_gradient` - iterative implementation of solving Ax = b
+- `newtons` - Newton-Raphson implementation for 1-dimensional functions
+
+## Usage
+Using default parameters the methods need 3 things: the function f(t, y) = y'(t, y), the initial values and the timepoints that you want the solution y(t) at.
+
+## Quick Tutorial
+
+Say we have some differentiable function and we would like to find one of its roots
+
+f = $\frac{1}{3}$x$^{3}$ - 2x$^{2}$ + 3x
+
+$\frac{df}{dx}$ = x$^{2}$ - 4x + 3
+
+
+
+If we translate this to code we get:
+
+```nim
+import math
+import numericalnim
+
+proc f(x:float64): float64 = (1.0 / 3.0) * x ^ 3 - 2 * x ^ 2 + 3 * x
+proc df(x:float64): float64 = x ^ 2 - 4 * x + 3
+```
+
+now given a starting point (and optional precision) we can estimate a nearby root
+We know for this function our actual root is 0
+
+```nim
+import numericalnim
+var start = 0.5
+result = newtons(f, df, start)
+echo result
+
+-1.210640218782444e-23
+```
+Pretty close!
 
 # Utils
 I have included a few handy tools in `numericalnim/utils`.
 ## Vector
 Hurray! Yet another vector library! This was mostly done for my own use but I figured it could come in handy if one wanted to just throw something together. It's main purpose is to enable you to solve systems of ODEs using your own types (for example arbitrary precision numbers). The `Vector` type is just a glorified seq with operator overload. No vectorization (unless the compiler does it automatically) sadly. Maybe can get OpenMP to work (or you maybe you, dear reader, can fix it :wink).
 The following operators and procs are supported:
+
 - `+` : Addition between `Vector`s and floats.
 - `-` : Addition between `Vector`s and floats.
 - `+=`, `-=` : inplace addition and subtraction.
@@ -261,10 +307,12 @@ The following operators and procs are supported:
 - `.*=`, `./=` : inplace elementwise multiplication and division between `Vector`s. (not nested `Vector`s)
 - `-` : negation (-Vector).
 - `dot` : Same as `*` between `Vector`s. It is recursive so it will not be a matrix dot product if nested `Vector`s are used.
-- `abs` : The magnitude of the `Vector`. It is recursive so it may not be one of the usual norms.
+- `abs` : The magnitude of the `Vector`. It is recursive so it may not be one of the usual norms. Equivalent to norm(`Vector`, 2)
 - `[]` : Use `v[i]` to get the i:th element of the `Vector`.
 - `==` : Compares two `Vector`s to see if they are equal.
 - `@` : Unpacks the Vector to (nested) seqs. Works with 1, 2 and 3 dimensional Vectors. 
+- `^` : Element-wise exponentiation, works with natural and floating point powers, returns a new Vector object
+- `norm` : General vector norm function
 
 A `Vector` is created using the `newVector` proc and is passed an `openArray` of the elements:
 ```nim
@@ -320,3 +368,4 @@ If you want to use Arraymancer with NumericalNim, the basics should work but I h
 - Add more integration methods (Gaussian Quadrature on it's way. Done).
 - Make the existing code more efficient and robust.
 - Add parallelization of some kind to speed it up. `Vector` would probably benefit from it.
+- More optimization methods!
