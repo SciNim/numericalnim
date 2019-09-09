@@ -19,7 +19,7 @@ test "conjugate_gradient func":
     let correct = toSeq([0.090909, 0.636363]).toTensor.reshape(2,1).astype(float64)
 
     let value = conjugate_gradient(A, b, x, tol)
-    check isClose(value, correct, tol = 1e-1)
+    check isClose(value, correct, tol = 1e-5)
 
 test "Newtons 1 dimension func":
     proc f(x:float64): float64 = (1.0 / 3.0) * x ^ 3 - 2 * x ^ 2 + 3 * x

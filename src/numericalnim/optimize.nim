@@ -3,17 +3,17 @@ import arraymancer
 import sequtils
 import math
 
-proc steepest_descent*(deriv: proc(x: float64): float64, start, gamma, precision: float64, max_iters: int):float64 {.inline.} =
+proc steepest_descent*(deriv: proc(x: float64): float64, start: float64, gamma: float64 = 0.01, precision: float64 = 1e-5, max_iters: Natural = 1000):float64 {.inline.} =
     ## Gradient descent optimization algorithm for finding local minimums of a function with derivative 'deriv'
     ## 
     ## Assuming that a multivariable function F is defined and differentiable near a minimum, F(x) decreases fastest
     ## when going in the direction negative to the gradient of F(a), similar to how water might traverse down a hill 
-    ## following the path of least resistance
+    ## following the path of least resistance.
     ## can benefit from preconditioning if the condition number of the coefficient matrix is ill-conditioned
     ## Input:
     ##   - deriv: derivative of a multivariable function F
     ##   - start: starting point near F's minimum
-    ##   - gamma: step size multiplier
+    ##   - gamma: step size multiplier, used to control the step size between iterations
     ##   - precision: numerical precision
     ##   - max_iters: maximum iterations
     ##
@@ -22,15 +22,15 @@ proc steepest_descent*(deriv: proc(x: float64): float64, start, gamma, precision
     var
         current = 0.0
         x = start
+        i = 0
 
-    for i in 0 .. max_iters:
-        # calculate the next direction propogate
+    while abs(x - current) > precision:
+        # calculate the next direction to propogate
         current = x
         x = current - gamma * deriv(current)
-        
-        # If we haven't moved much since the last iteration, break
-        if abs(x - current) <= precision:
-            break
+        i += 1
+        if i == max_iters:
+            raise newException(ArithmeticError, "Maximum iterations for Steepest descent method exceeded")
 
     return x
 
