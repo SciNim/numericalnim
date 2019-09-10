@@ -22,13 +22,16 @@ proc steepest_descent*(deriv: proc(x: float64): float64, start: float64, gamma: 
     var
         current = 0.0
         x = start
-        i = 0
 
-    while abs(x - current) > precision:
+    for i in 0 .. max_iters:
         # calculate the next direction to propogate
         current = x
         x = current - gamma * deriv(current)
-        i += 1
+        
+        # If we haven't moved much since the last iteration, break
+        if abs(x - current) <= precision:
+            break
+
         if i == max_iters:
             raise newException(ArithmeticError, "Maximum iterations for Steepest descent method exceeded")
 
@@ -89,14 +92,16 @@ proc newtons*(f: proc(x: float64): float64, deriv: proc(x: float64): float64, st
     var 
         x_iter = start
         i = 0
+        current_f = f(start)
 
-    while abs(f(x_iter)) >= precision and i <= max_iters:
-        x_iter = x_iter - (f(x_iter) / deriv(x_iter))
+    while abs(current_f) >= precision and i <= max_iters:
+        current_f = f(x_iter)
+        x_iter = x_iter - (current_f / deriv(x_iter))
         i += 1
         if i == max_iters:
             raise newException(ArithmeticError, "Maximum iterations for Newtons method exceeded")
 
-    return x_iter - (f(x_iter) / deriv(x_iter))
+    return x_iter - (current_f / deriv(x_iter))
 
 
 

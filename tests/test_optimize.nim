@@ -9,7 +9,14 @@ test "steepest_descent func":
     let max_iters = 10000
     let correct = 2.24996
     let value = steepest_descent(df, start, gamma, precision, max_iters)
-    check isClose(value, correct, tol = 1e-1)
+    check isClose(value, correct, tol = 1e-5)
+
+test "steepest_descent func starting at zero":
+    proc df(x: float): float = 4 * x^3 - 9.0 * x^2 + 4
+    let start = 0.0
+    let correct = -0.59301
+    let value = steepest_descent(df, start)
+    check isClose(value, correct, tol = 1e-5)
 
 test "conjugate_gradient func":
     var A = toSeq([4.0, 1.0, 1.0, 3.0]).toTensor.reshape(2,2).astype(float64)
@@ -35,7 +42,7 @@ test "Newtons 1 dimension func default args":
     let x = 0.5
     let correct = 0.0
     let value = newtons(f, df, x)
-    check isClose(value, correct, tol=1e-4)
+    check isClose(value, correct, tol=1e-5)
 
 test "Newtons unable to find a root":
     proc bad_f(x:float64): float64 = pow(E, x) + 1
