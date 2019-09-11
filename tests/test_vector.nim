@@ -202,3 +202,87 @@ test "Vector iterator":
     let v1 = newVector(c)
     for i, val in v1:
         check val == c[i]
+
+test "Vector Powers (integer power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = 2
+    let correct = newVector(@[1.0, 4.0, 9.0, 16.0])
+    check correct == (a ^ p)
+
+test "Vector Powers (zero power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = 0
+    let correct = newVector(@[1.0, 1.0, 1.0, 1.0])
+    check correct == (a ^ p)
+
+test "Vector Powers (large integer power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = 511
+    let correct = newVector(@[1.0, 6.703903964971299e+153, 6.44111661076297e+243, 4.49423283715579e+307])
+    let value = a ^ p
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Powers (float power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = 2.0
+    let correct = newVector(@[1.0, 4.0, 9.0, 16.0])
+    check correct == (a ^ p)
+
+test "Vector Powers (float power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = 2.5
+    let correct = newVector(@[1.0, 5.656854249492381, 15.5884572681199, 32.0])
+    let value = a ^ p
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Powers (negative power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = -2.5
+    let correct = newVector(@[pow(1.0, -2.5), pow(2.0, -2.5), pow(3.0, -2.5), pow(4.0, -2.5)])
+    let value = a ^ p
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Powers (float power)":
+    let a = newVector([1.0, 2.0, 3.0, 4.0])
+    let p = 0.5
+    let correct = newVector(@[1.0, 1.414213562373095, 1.732050807568877, 2.0])
+    let value = a ^ p
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Norms (infinity norm)":
+    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    let value = norm(vec, 0)
+    let correct = 5.0
+    check correct == norm(vec, 0)
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Norms (1 norm)":
+    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    let value = norm(vec, 1)
+    let correct = 25.0
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Norms (2 norm)":
+    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    let value = norm(vec, 2)
+    let correct = 10.2469507659596
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Norms (2 norm) equivalent to abs":
+    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    let value = norm(vec, 2)
+    let correct = vec.abs()
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Norms (p norm)":
+    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    let value = norm(vec, 4)
+    let correct = 6.871119744004721
+    check isClose(value, correct, tol = 1e-4)
+
+test "Vector Norms (p norm)":
+    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    let value = norm(vec, 15)
+    let correct = 5.384187447546214
+    check isClose(value, correct, tol = 1e-4)
+    
