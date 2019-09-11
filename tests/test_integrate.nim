@@ -184,6 +184,10 @@ test "gaussQuad func n=20 N=10":
     let value = gaussQuad(f, xStart, xEnd, nPoints=20, N=10, optional=optional)
     check isClose(value, correct, tol=1e-14)
 
+test "gaussAdaptive func default":
+    let value = adaptiveGauss(f, xStart, xEnd, optional=optional)
+    check isClose(value, correct, 1e-8)
+
 test "trapz Vector func, N = 10":
     let value = trapz(fVector, xStart, xEnd, N = 10, optional = optionalVector)
     check isClose(value, correctVector, tol = 1e-1)
@@ -296,6 +300,10 @@ test "gaussQuad Vector n=20":
     let value = gaussQuad(fVector, xStart, xEnd, nPoints=20, N=1, optional=optionalVector)
     check isClose(value, correctVector, tol=1e-14)
 
+test "adaptiveGauss Vector default":
+    let value = adaptiveGauss(fVector, xStart, xEnd, optional=optionalVector)
+    check isClose(value, correctVector, tol=1e-8)
+
 test "trapz Tensor func, N = 10":
     let value = trapz(fTensor, xStart, xEnd, N = 10, optional = optionalTensor)
     check isClose(value, correctTensor, tol = 1e-1)
@@ -407,5 +415,9 @@ test "gaussQuad Tensor n=19":
 test "gaussQuad Tensor n=20":
     let value = gaussQuad(fTensor, xStart, xEnd, nPoints=20, N=1, optional=optionalTensor)
     check isClose(value, correctTensor, tol=1e-14)
+
+test "adaptiveGauss Tensor default":
+    let value = adaptiveGauss(fTensor, xStart, xEnd, optional=optionalTensor)
+    check isClose(value, correctTensor, tol=1e-8)
 
 

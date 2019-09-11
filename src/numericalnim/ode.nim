@@ -2,7 +2,7 @@ import algorithm, strutils, math, strformat, sequtils
 import arraymancer
 import utils
 
-type 
+type
     ODEoptions* = object
         dt*: float
         tol*: float
@@ -12,25 +12,104 @@ type
 
 
 
-proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0): ODEoptions =
+proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8,
+                    tStart = 0.0): ODEoptions =
     ## Create a new ODEoptions object.
+    ##
     ## Input:
     ##   - dt: The time step to use in fixed timestep integrators.
     ##   - tol: The error tolerance to use in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
-    ##   - tStart: The time to start the ODE-solver at. The time the initial conditions are supplied at.
+    ##   - tStart: The time to start the ODE-solver at. The time the initial
+    ##     conditions are supplied at.
     ##
     ## Returns:
     ##   - ODEoptions object with the supplied parameters.
     if dtMax < dtMin:
         raise newException(ValueError, "dtMin must be less than dtMax")
-    result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax), dtMin: abs(dtMin), tStart: tStart)
+    result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax),
+                        dtMin: abs(dtMin), tStart: tStart)
 
-const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0)
+const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2,
+                                         dtMin = 1e-8, tStart = 0.0)
 
 
-proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float) =
+proc HEUN2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + dt, y + dt * k1)
+    let yNew = y + 0.5 * dt * (k1 + k2)
+    return (yNew, yNew, dt, 0.0)
+
+proc RALSTON2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 2/3 * dt, y + 2/3 * dt * k1)
+    let yNew = y + dt * (0.25 * k1 + 0.75 * k2)
+    return (yNew, yNew, dt, 0.0)
+
+proc KUTTA3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
+    let k3 = f(t + dt, y - dt * k1 + 2 * dt * k2)
+    let yNew = y + dt * (1/6 * k1 + 2/3 * k2 + 1/6 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+proc HEUN3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
+    let k3 = f(t + 2/3 * dt, y + 2/3 * dt * k2)
+    let yNew = y + dt * (0.25 * k1 + 0.75 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+proc RALSTON3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 1/2 * dt, y + 1/2 * dt * k1)
+    let k3 = f(t + 3/4 * dt, y + 3/4 * dt * k2)
+    let yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+proc SSPRK3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + dt, y + dt * k1)
+    let k3 = f(t + 0.5 * dt, y + 0.25 * dt * (k1 + k2))
+    let yNew = y + dt * (1/6 * k1 + 1/6 * k2 + 2/3 * k3)
+    return (yNew, yNew, dt, 0.0)
+
+
+proc RALSTON4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 0.4 * dt, y + 0.4 * dt * k1)
+    let k3 = f(t + 0.45573725 * dt, y + dt * (0.29697761 * k1 + 0.15875964 * k2))
+    let k4 = f(t + dt, y + dt * (0.21810040 * k1 - 3.05096516 * k2 + 3.83286476 * k3))
+    let yNew = y + dt * (0.17476028 * k1 - 0.55148066 * k2 + 1.20553560 * k3 + 0.17118478 * k4)
+    return (yNew, yNew, dt, 0.0)
+
+proc KUTTA4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let k1 = f(t, y)
+    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
+    let k3 = f(t + 2/3 * dt, y + dt * (-1/3 * k1 + k2))
+    let k4 = f(t + dt, y + dt * (k1 - k2 + k3))
+    let yNew = y + dt * (1/8 * k1 + 3/8 * k2 + 3/8 * k3 + 1/8 * k4)
+    return (yNew, yNew, dt, 0.0)
+
+proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+                 options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using RK4. Only for internal use.
     var k1, k2, k3, k4: T
     k1 = f(t, y)
@@ -40,8 +119,67 @@ proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, op
     let yNew = y + dt / 6.0 * (k1 + 2.0 * (k2 + k3) + k4)
     return (yNew, yNew, dt, 0.0)
 
+proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let tol = options.tol
+    let dtMax = options.dtMax
+    let dtMin = options.dtMin
+    var k1, k2: T
+    var yNew, yLow: T
+    var error: float
+    var limitCounter = 0
+    var dt = dt
+    while true and limitCounter < 2:
+        k1 = f(t, y)
+        k2 = f(t + dt, y + dt * k1)
+        
+        yNew = y + dt * 0.5 * (k1 + k2)
+        yLow = y + dt * k1
+        error = calcError(yNew, yLow)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/2)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
+    result = (yNew, yNew, dt, error)
 
-proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float) =
+proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+    options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using Heun. Only for internal use.
+    let tol = options.tol
+    let dtMax = options.dtMax
+    let dtMin = options.dtMin
+    var k1, k2, k3, k4: T
+    var yNew, yLow: T
+    var error: float
+    var limitCounter = 0
+    var dt = dt
+    while true and limitCounter < 2:
+        k1 = f(t, y)
+        k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
+        k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
+        yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
+        k4 = f(t + dt, yNew)
+        
+        yLow = y + dt * (7/24 * k1 + 1/4 * k2 + 1/3 * k3 + 1/8 * k4)
+        error = calcError(yNew, yLow)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/3)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
+    result = (yNew, k4, dt, error)
+
+
+proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using DOPRI54. Only for internal use.
     const
         c2 = 1.0/5.0
@@ -117,8 +255,13 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     result = (yNew, k7, dt, error)
 
 
-proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator: proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float), useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
-    ## Handles the ODE solving. Only for internal use. 
+proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
+                  options: ODEoptions = DEFAULT_ODEoptions,
+                  integrator: proc(f: proc(t: float, y: T): T,
+                                   t: float, y, FSAL: T,
+                                   dt: float, options: ODEoptions): (T, T, float, float),
+                  useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
+    ## Handles the ODE solving. Only for internal use.
     let t0 = options.tStart
     var t = t0
     var tPositive, tNegative: seq[float]
@@ -161,9 +304,11 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
                     break
                 while tPositive[denseIndex] <= t:
                     if useFSAL:
-                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, FSAL))
+                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
+                                                    t, lastIter.y, y, lastIter.dy, FSAL))
                     else:
-                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, f(t, y)))
+                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
+                                                    t, lastIter.y, y, lastIter.dy, f(t, y)))
                     denseIndex += 1
                     if tPositive.high < denseIndex:
                         break
@@ -201,9 +346,11 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
                     break
                 while -tNegative[denseIndex] <= t:
                     if useFSAL:
-                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, FSAL))
+                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t,
+                                                    t, lastIter.y, y, lastIter.dy, FSAL))
                     else:
-                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t, lastIter.y, y, lastIter.dy, g(t, y)))
+                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t,
+                                                    lastIter.y, y, lastIter.dy, g(t, y)))
                     denseIndex += 1
                     if tNegative.high < denseIndex:
                         break
@@ -225,11 +372,15 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
                 elif dtMax < dt:
                     dt = dtMax
         yNegative.add(y)
-    return (tNegative.reversed().concat(tZero).concat(tPositive) , yNegative.reversed().concat(yZero).concat(yPositive))
-    
+    return (tNegative.reversed().concat(tZero).concat(tPositive),
+            yNegative.reversed().concat(yZero).concat(yPositive))
 
-proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], options: ODEoptions = DEFAULT_ODEoptions, integrator="dopri54"): (seq[float], seq[T]) =
+
+proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
+                  options: ODEoptions = DEFAULT_ODEoptions,
+                  integrator="dopri54"): (seq[float], seq[T]) =
     ## Solve an ODE initial value problem.
+    ##
     ## Input:
     ##   - f: the ODE function y' = f(t, y).
     ##   - y0: Initial value.
@@ -241,8 +392,40 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float], op
     ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
     case integrator.toLower():
         of "dopri54":
-            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step, useFSAL = true, order = 5.0, adaptive = true)
+            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step,
+                             useFSAL = true, order = 5.0, adaptive = true)
+        of "rk21":
+            return ODESolver(f, y0, tspan.sorted(), options, RK21_step ,
+                                useFSAL = false, order = 2.0, adaptive = true)
+        of "bs32":
+            return ODESolver(f, y0, tspan.sorted(), options, BS32_step,
+                                useFSAL = true, order = 3.0, adaptive = true)
         of "rk4":
-            return ODESolver(f, y0, tspan.sorted(), options, RK4_step, useFSAL = false, order = 4.0, adaptive = false)
+            return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
+                             useFSAL = false, order = 4.0, adaptive = false)
+        of "heun2":
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step,
+                             useFSAL = false, order = 2.0, adaptive = false)
+        of "ralston2":
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step,
+                             useFSAL = false, order = 2.0, adaptive = false)
+        of "kutta3":
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "heun3":
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "ralston3":
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "ssprk3":
+            return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step,
+                                useFSAL = false, order = 3.0, adaptive = false)
+        of "ralston4":
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step,
+                                useFSAL = false, order = 4.0, adaptive = false)
+        of "kutta4":
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step,
+                                useFSAL = false, order = 4.0, adaptive = false)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
