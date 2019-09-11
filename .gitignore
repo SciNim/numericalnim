@@ -2,3 +2,6 @@ nimcache/
 *.exe
 bin/
 .vscode/
+*.code-workspace
+*.html
+!*.*
