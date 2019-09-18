@@ -39,9 +39,15 @@ test "Integrate using adaptiveSimpson, implicit":
     let correct = -cos(7.5) + cos(0.0)
     check isClose(computedValue, correct, tol=1e-7)
 
+test "Spline derivEval, single value":
+    let res = spline.derivEval(t[20])
+    let correct = cos(t[20])
+    check isClose(res, correct, 1e-6)
 
-# test deriv
-
+test "Spline derivEval, seq input":
+    let res = spline.derivEval(tTest)
+    for i, val in res:
+        check isClose(val, cos(tTest[i]), 1e-3)
 
 
 
