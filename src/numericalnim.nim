@@ -6,3 +6,5 @@ import numericalnim/ode
 export ode
 import numericalnim/optimize
 export optimize
+import numericalnim/interpolate
+export interpolate
