@@ -136,7 +136,7 @@ proc toDerivProc*[T](spline: CubicSpline[T]): proc(x: float): T =
 proc toDerivOptionalProc*[T](spline: CubicSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
   result = proc(t: float, optional: seq[T] = @[]): T = derivEval(spline, t)
 
-
+#[
 import sequtils, math
 proc f(x: float): float = exp(x)
 let x = linspace(0.0, 10.0, 100)
@@ -162,3 +162,4 @@ echo exp(1.0) - 1
 timeit(spline.eval(x), n, "Spline")
 let deriv = spline.toDerivProc
 echo deriv(t)
+]#
