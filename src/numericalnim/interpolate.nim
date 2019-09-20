@@ -15,7 +15,7 @@ type
     high: int
     len: int
 
-proc constructCubicSpline[T](X: seq[float], Y: seq[T]): seq[array[5, float]] =
+proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): seq[array[5, float]] =
   let n = X.len - 1
   var a = newSeq[T](n+1)
   var b = newSeq[float](n)
@@ -51,7 +51,7 @@ proc constructCubicSpline[T](X: seq[float], Y: seq[T]): seq[array[5, float]] =
     result[i] = [a[i], b[i], c[i], d[i], X[i]]
     
 
-proc newCubicSpline*[T: SomeFloat](X: seq[float], Y: seq[T]): CubicSpline[T] =
+proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[T]): CubicSpline[T] =
   let sortedData = sortDataset(X, Y)
   var xSorted = newSeq[float](X.len)
   var ySorted = newSeq[T](Y.len)
