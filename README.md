@@ -311,8 +311,31 @@ echo result
 Pretty close!
 
 # Interpolation
-## Cubic Splines
-
+## Natural Cubic Splines
+Cubic splines are piecewise polynomials of degree 3 ie. it is defined differently on different intervals. It passes through all the supplied points and has a continuos derivative. To find which interval a certain x-value is in we use a binary search algorithm to find it instead of looping over all intervals one after another.  
+### Usage
+To create a cubic spline, you have to supply two seqs/arrays with floats: `X` which is the independent variable (the input) and Y which is the dependent (the output, the function value):
+```nim
+let X = [0.0, 0.5, 1.7, 2.0, 5.0]
+let Y = [1.0, 3.5, -4.6, 0.1, 2.3]
+let spline = newCubicSpline(X, Y)
+```
+Now the spline is saved in the variable `spline` and it can be evaluated in multiple (but under the hood the same) ways. The easiest way is to use the `eval` proc:
+```nim
+echo spline.eval(1.0)
+```
+This will print the value of the spline evaluated at x=1. If you want to use the spline as a function without having to supply the spline you can convert it to a proc:
+```nim
+let splineProc = spline.toProc()
+echo splineProc(1.0)
+```
+You can also evaluate the derivative of the spline using `derivEval`, and you can turn the derivative into a proc as well:
+```nim
+echo spline.derivEval(1.0)
+let derivProc = spline.toDerivProc()
+echo derivProc(1.0)
+```
+This code will print the derivative of the spline at x=1.
 
 # Utils
 I have included a few handy tools in `numericalnim/utils`.
