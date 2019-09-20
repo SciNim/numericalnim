@@ -389,7 +389,8 @@ If you want to use Arraymancer with NumericalNim, the basics should work but I h
 - Very much!
 - Comment and document code.
 - Add more ODE integrators.
-- Add more integration methods (Gaussian Quadrature on it's way. Done).
+- Add more integration methods.
 - Make the existing code more efficient and robust.
 - Add parallelization of some kind to speed it up. `Vector` would probably benefit from it.
 - More optimization methods!
+- More interpolation methods (especially multivariate).
