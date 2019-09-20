@@ -135,31 +135,3 @@ proc toDerivProc*[T](spline: CubicSpline[T]): proc(x: float): T =
 
 proc toDerivOptionalProc*[T](spline: CubicSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
   result = proc(t: float, optional: seq[T] = @[]): T = derivEval(spline, t)
-
-#[
-import sequtils, math
-proc f(x: float): float = exp(x)
-let x = linspace(0.0, 10.0, 100)
-let y: seq[float] = x.map(f)
-let spline = newCubicSpline(x, y)
-var splineProc2 = spline.toProc
-let splineProc3 = spline.toOptionalProc
-var t = 4.875586
-echo spline.eval(t), "eval"
-echo exp(t), "exp"
-echo splineProc2(t)
-echo exp(t) - spline.eval(t)
-let n = 10000
-timeit(spline.eval(t), n, "Spline")
-timeit(splineProc2(t), n, "SplineProc2")
-timeit(exp(t), n, "Exp")
-echo adaptiveGauss(splineProc3, 0.0, 1.0)
-echo adaptiveGauss(spline, 0.0, 1.0)
-echo exp(1.0) - 1
-#echo spline.eval(x), "spline"
-#echo spline.binary_eval(x), "binarySeach"
-#echo y, "exp"
-timeit(spline.eval(x), n, "Spline")
-let deriv = spline.toDerivProc
-echo deriv(t)
-]#
