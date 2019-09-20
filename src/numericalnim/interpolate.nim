@@ -51,7 +51,7 @@ proc constructCubicSpline[T](X: seq[float], Y: seq[T]): seq[array[5, float]] =
     result[i] = [a[i], b[i], c[i], d[i], X[i]]
     
 
-proc newCubicSpline*[T](X: seq[float], Y: seq[T]): CubicSpline[T] =
+proc newCubicSpline*[T: SomeFloat](X: seq[float], Y: seq[T]): CubicSpline[T] =
   let sortedData = sortDataset(X, Y)
   var xSorted = newSeq[float](X.len)
   var ySorted = newSeq[T](Y.len)
