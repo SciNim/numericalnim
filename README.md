@@ -5,7 +5,7 @@ NumericalNim is a collection of numerical methods written in Nim. Currently it h
 # ODE
 ## Initial value problems (IVP)
 ## The integrators
-At the moment only two ODE integrators are implemented:
+These are the implemented ODE integrators:
 
 ### First order ODE: y' = f(t, y) 
 - `rk21` - Heun's Adaptive 2nd order method.
@@ -309,6 +309,10 @@ echo result
 -1.210640218782444e-23
 ```
 Pretty close!
+
+# Interpolation
+## Cubic Splines
+
 
 # Utils
 I have included a few handy tools in `numericalnim/utils`.
