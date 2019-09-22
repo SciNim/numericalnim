@@ -1,8 +1,6 @@
 import strformat, math
 import utils
 
-# use binary search to find interval in eval(Spline)
-
 type
   NewtonInterpolant*[T] = ref object
     X: seq[float]
