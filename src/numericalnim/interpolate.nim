@@ -2,16 +2,13 @@ import strformat, math
 import utils
 
 type
-  NewtonInterpolant*[T] = ref object
-    X: seq[float]
-    Y: seq[T]
-    high: int
-    len: int
   CubicSpline*[T] = ref object
     X: seq[float]
     coeffs: seq[array[5, float]]
     high: int
     len: int
+
+### CubicSpline
 
 proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): seq[array[5, float]] =
   let n = X.len - 1
