@@ -137,3 +137,5 @@ proc toDerivProc*[T](spline: CubicSpline[T]): proc(x: float): T =
 
 proc toDerivOptionalProc*[T](spline: CubicSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
   result = proc(t: float, optional: seq[T] = @[]): T = derivEval(spline, t)
+
+#TODO: a generic Polynomial type? 
