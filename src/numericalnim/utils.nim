@@ -151,23 +151,23 @@ proc `*`*[T](v1, v2: Vector[T]): float {.inline.} =
     result = 0.0
     for i in 0 .. v1.components.high:
         result += v1[i] * v2[i]
-proc `.*`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
+proc `*.`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] * v2[i]
     result = newVector(newComponents)
-proc `./`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
+proc `/.`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
         newComponents[i] = v1[i] / v2[i]
     result = newVector(newComponents)
-proc `.*=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
+proc `*.=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] *= v2[i]
-proc `./=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
+proc `/.=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
     checkVectorSizes(v1, v2)
     for i in 0 .. v1.components.high:
         v1[i] /= v2[i]

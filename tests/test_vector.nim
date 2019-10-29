@@ -120,14 +120,14 @@ test "Vector-Vector dot product":
 test "Vector elemetwise multiplication":
     let v1 = newVector([1.0, 2.0, 4.0, 1.34])
     let v2 = newVector([3.3, 2.2, 1.1, 5.67])
-    let v3 = v1 .* v2
+    let v3 = v1 *. v2
     let correct = newVector([1.0*3.3, 2.0*2.2, 4.0*1.1, 1.34*5.67])
     check v3 == correct
 
 test "Vector elemetwise division":
     let v1 = newVector([1.0, 2.0, 4.0, 1.34])
     let v2 = newVector([3.3, 2.2, 1.1, 5.67])
-    let v3 = v1 ./ v2
+    let v3 = v1 /. v2
     let correct = newVector([1.0/3.3, 2.0/2.2, 4.0/1.1, 1.34/5.67])
     check v3 == correct
 
@@ -145,17 +145,17 @@ test "Vector /=":
     let correct = newVector([2.0/1.25, 3.0/1.25, 5.0/1.25])
     check v1 == correct
 
-test "Vector .*=":
+test "Vector *.=":
     var v1 = newVector([2.0, 3.0, 5.0])
     let v2 = newVector([3.3, 2.2, 1.0])
-    v1 .*= v2
+    v1 *.= v2
     let correct = newVector([2.0*3.3, 3.0*2.2, 5.0*1.0])
     check v1 == correct
 
-test "Vector .*=":
+test "Vector *.=":
     var v1 = newVector([2.0, 3.0, 5.0])
     let v2 = newVector([3.3, 2.2, 1.0])
-    v1 ./= v2
+    v1 /.= v2
     let correct = newVector([2.0/3.3, 3.0/2.2, 5.0/1.0])
     check v1 == correct
 

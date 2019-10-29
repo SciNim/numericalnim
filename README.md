@@ -354,9 +354,9 @@ The following operators and procs are supported:
 - `*` : Vector-scalar multiplication or inner product between two `Vector`s.
 - `/` : Vector-scalar division.
 - `*=`, `/=` : inplace Vector-scalar multiplication and division.
-- `.*` : Elementwise multiplication between `Vector`s. (not nested `Vector`s)
-- `./` : Elementwise multiplication between `Vector`s. (not nested `Vector`s)
-- `.*=`, `./=` : inplace elementwise multiplication and division between `Vector`s. (not nested `Vector`s)
+- `*.` : Elementwise multiplication between `Vector`s. (not nested `Vector`s)
+- `/.` : Elementwise multiplication between `Vector`s. (not nested `Vector`s)
+- `*.=`, `/.=` : inplace elementwise multiplication and division between `Vector`s. (not nested `Vector`s)
 - `-` : negation (-Vector).
 - `dot` : Same as `*` between `Vector`s. It is recursive so it will not be a matrix dot product if nested `Vector`s are used.
 - `abs` : The magnitude of the `Vector`. It is recursive so it may not be one of the usual norms. Equivalent to norm(`Vector`, 2)
@@ -371,7 +371,7 @@ A `Vector` is created using the `newVector` proc and is passed an `openArray` of
 var v1 = newVector([1.0, 2.0, 3.0])
 var v2 = newVector([4.0, 5.0, 6.0])
 echo v1 + v2
-echo v1 ./ v2
+echo v1 /. v2
 echo abs(v1)
 ```
 ```nim
