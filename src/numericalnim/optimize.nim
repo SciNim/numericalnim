@@ -103,6 +103,27 @@ proc newtons*(f: proc(x: float64): float64, deriv: proc(x: float64): float64, st
 
     return x_iter - (current_f / deriv(x_iter))
 
+proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: float64 = 1e-5, max_iters: Natural = 1000): float64 =
+    var xLast = start[0]
+    var fLast = f(xLast)
+    var xCurrent = start[1]
+    var fCurrent = f(xCurrent)
+    var xTemp = 0.0
+    var i = 0
+    while abs(xLast - xCurrent) > precision:
+        xTemp = xCurrent
+        xCurrent = (xLast * fCurrent - xCurrent * fLast) / (fCurrent - fLast)
+        xLast = xTemp
+        fLast = fCurrent
+        fCurrent = f(xCurrent)
+        if i == max_iters:
+            raise newException(ArithmeticError, "Maximum iterations for Secant method exceeded")
+    return xCurrent
+
+    
+
+
+
 
 
 

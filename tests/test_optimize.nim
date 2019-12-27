@@ -50,4 +50,11 @@ test "Newtons unable to find a root":
     expect(ArithmeticError):
         discard newtons(bad_f, bad_df, 0, 0.000001, 1000)
 
+test "Secant 1 dimension func":
+    proc f(x:float64): float64 = (1.0 / 3.0) * x ^ 3 - 2 * x ^ 2 + 3 * x
+    let x = [1.0, 0.5]
+    let correct = 0.0
+    let value = secant(f, x, 1e-5, 10)
+    check isClose(value, correct, tol=1e-5)
+
 
