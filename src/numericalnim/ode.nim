@@ -22,7 +22,7 @@ proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8,
     ##   - dt: The time step to use in fixed timestep integrators.
     ##   - tol: The error tolerance to use in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
-    ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
+    ##   - dtMin: The minimum timestep allowed in adaptive timestep integrators.
     ##   - tStart: The time to start the ODE-solver at. The time the initial
     ##     conditions are supplied at.
     ##
