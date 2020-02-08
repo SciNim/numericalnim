@@ -118,7 +118,7 @@ test "Tsit54, default":
         check isClose(val, correctY[i], tol=1e-4)
 
 test "Tsit54, tol = 1e-8":
-    let (t, y) = solveODE(f, y0, tspan, integrator="tsit54", options=newODEoptions(dt=1e-6))
+    let (t, y) = solveODE(f, y0, tspan, integrator="tsit54", options=oo)
     check t == tspan
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-8)
@@ -166,7 +166,7 @@ test "Tsit54 Vector, default":
         check isClose(val, correctYVector[i], tol=1e-4)
 
 test "Tsit54 Vector, dt = 1e-2":
-    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="tsit54", options=newODEoptions(dt=1e-2))
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="tsit54", options=ooVector)
     check t == tspan
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
