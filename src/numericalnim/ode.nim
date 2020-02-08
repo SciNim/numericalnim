@@ -14,7 +14,7 @@ const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3"
 const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54"]
 const allODE* = fixedODE.concat(adaptiveODE)
 
-proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8,
+proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-4,
                     tStart = 0.0): ODEoptions =
     ## Create a new ODEoptions object.
     ##
