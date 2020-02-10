@@ -322,7 +322,7 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
-        error = calcError(yNew, yLow)
+        error = calcError(y, yLow)
         if error <= tol:
             break
         dt = 0.9 * dt * pow(tol/error, 1/5)
