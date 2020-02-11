@@ -335,7 +335,7 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
 proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
                      options: ODEoptions): (T, T, float, float) =
-    ## Take a single timestep using DOPRI54. Only for internal use.
+    ## Take a single timestep using VERN65. Only for internal use.
     const
         c2 = 0.06
         c3 = 0.09593333333333333
@@ -435,7 +435,7 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
 proc VERN76_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
                      options: ODEoptions): (T, T, float, float) =
-    ## Take a single timestep using DOPRI54. Only for internal use.
+    ## Take a single timestep using VERN76. Only for internal use.
     const
         c2 = 0.005
         c3 = 0.10888888888888888
