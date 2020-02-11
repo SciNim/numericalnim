@@ -501,7 +501,6 @@ proc VERN76_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         b7 = 0.4939969170032485
         b8 = -0.29430311714032503
         b9 = 0.08131747232495111
-        b10 = 0.0
         # Sixth order
         bHat1 = 0.04460860660634
         bHat2 = 0.0
