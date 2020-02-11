@@ -123,6 +123,19 @@ test "Tsit54, tol = 1e-8":
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-8)
 
+test "Vern65, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="vern65")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-4)
+
+test "Vern65, tol = 1e-8":
+    let (t, y) = solveODE(f, y0, tspan, integrator="vern65", options=oo)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-8)
+
+
 test "DOPRI54 Vector, default":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="dopri54")
     check t == tspan
@@ -167,6 +180,18 @@ test "Tsit54 Vector, default":
 
 test "Tsit54 Vector, dt = 1e-2":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="tsit54", options=ooVector)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYVector[i], tol=1e-8)
+        
+test "Vern65 Vector, default":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="vern65")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYVector[i], tol=1e-4)
+
+test "Vern65 Vector, tol = 1e-8":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="vern65", options=ooVector)
     check t == tspan
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
@@ -215,6 +240,18 @@ test "Tsit54 Tensor, default":
 
 test "Tsit54 Tensor, dt=1e-2":
     let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="tsit54", options=ooTensor)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYTensor[i], tol=1e-8)
+
+test "Vern65 Tensor, default":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="vern65")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYTensor[i], tol=1e-4)
+
+test "Vern65 Tensor, tol = 1e-8":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="vern65", options=ooTensor)
     check t == tspan
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-8)
