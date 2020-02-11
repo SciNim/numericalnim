@@ -424,7 +424,7 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         error = calcError(yNew, yLow)
         if error <= tol:
             break
-        dt = 0.9 * dt * pow(tol/error, 1/5)
+        dt = 0.9 * dt * pow(tol/error, 1/6)
         if abs(dt) < dtMin:
             dt = dtMin
             limitCounter += 1
@@ -538,7 +538,7 @@ proc VERN76_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         error = calcError(yNew, yLow)
         if error <= tol:
             break
-        dt = 0.9 * dt * pow(tol/error, 1/5)
+        dt = 0.9 * dt * pow(tol/error, 1/7)
         if abs(dt) < dtMin:
             dt = dtMin
             limitCounter += 1
@@ -724,7 +724,7 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                                 useFSAL = true, order = 6.0, adaptive = true)
         of "vern76":
             return ODESolver(f, y0, tspan.sorted(), options, VERN76_step,
-                                useFSAL = true, order = 6.0, adaptive = true)
+                                useFSAL = true, order = 7.0, adaptive = true)
         of "tsit54":
             return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step,
                              useFSAL = true, order = 5.0, adaptive = true)
