@@ -135,6 +135,17 @@ test "Vern65, tol = 1e-8":
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-8)
 
+test "Vern76, default":
+    let (t, y) = solveODE(f, y0, tspan, integrator="vern76")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-4)
+
+test "Vern76, tol = 1e-8":
+    let (t, y) = solveODE(f, y0, tspan, integrator="vern76", options=oo)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctY[i], tol=1e-8)
 
 test "DOPRI54 Vector, default":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="dopri54")
@@ -196,6 +207,18 @@ test "Vern65 Vector, tol = 1e-8":
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
 
+test "Vern76 Vector, default":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="vern76")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYVector[i], tol=1e-4)
+
+test "Vern76 Vector, tol = 1e-8":
+    let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="vern76", options=ooVector)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYVector[i], tol=1e-8)
+
 test "DOPRI54 Tensor, default":
     let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="dopri54")
     check t == tspan
@@ -252,6 +275,18 @@ test "Vern65 Tensor, default":
 
 test "Vern65 Tensor, tol = 1e-8":
     let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="vern65", options=ooTensor)
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYTensor[i], tol=1e-8)
+
+test "Vern76 Tensor, default":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="vern76")
+    check t == tspan
+    for i, val in y:
+        check isClose(val, correctYTensor[i], tol=1e-4)
+
+test "Vern76 Tensor, tol = 1e-8":
+    let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="vern76", options=ooTensor)
     check t == tspan
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-8)

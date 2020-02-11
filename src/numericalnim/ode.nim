@@ -11,7 +11,7 @@ type
         tStart*: float
 
 const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4", "rk4"]
-const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
+const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65", "vern76"]
 const allODE* = fixedODE.concat(adaptiveODE)
 
 proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-4,
@@ -433,6 +433,120 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     result = (yNew, k9, dt, error)
 
 
+proc VERN76_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using DOPRI54. Only for internal use.
+    const
+        c2 = 0.005
+        c3 = 0.10888888888888888
+        c4 = 0.16333333333333333
+        c5 = 0.4555
+        c6 = 0.6095094489978381
+        c7 = 0.884
+        c8 = 0.925
+        c9 = 1.0
+        c10 = 1.0
+        a21 = 0.005
+        a31 = -1.07679012345679
+        a32 = 1.185679012345679
+        a41 = 0.04083333333333333
+        a42 = 0.0
+        a43 = 0.1225
+        a51 = 0.6389139236255726
+        a52 = 0.0
+        a53 = -2.455672638223657
+        a54 = 2.272258714598084
+        a61 = -2.6615773750187572
+        a62 = 0.0
+        a63 = 10.804513886456137
+        a64 = -8.3539146573962
+        a65 = 0.820487594956657
+        a71 = 6.067741434696772
+        a72 = 0.0
+        a73 = -24.711273635911088
+        a74 = 20.427517930788895
+        a75 = -1.9061579788166472
+        a76 = 1.006172249242068
+        a81 = 12.054670076253203
+        a82 = 0.0
+        a83 = -49.75478495046899
+        a84 = 41.142888638604674
+        a85 = -4.461760149974004
+        a86 = 2.042334822239175
+        a87 = -0.09834843665406107
+        a91 = 10.138146522881808
+        a92 = 0.0
+        a93 = -42.6411360317175
+        a94 = 35.76384003992257
+        a95 = -4.3480228403929075
+        a96 = 2.0098622683770357
+        a97 = 0.3487490460338272
+        a98 = -0.27143900510483127
+        a101 = -45.030072034298676
+        a102 = 0.0
+        a103 = 187.3272437654589
+        a104 = -154.02882369350186
+        a105 = 18.56465306347536
+        a106 = -7.141809679295079
+        a107 = 1.3088085781613787
+        a108 = 0.0
+        a109 = 0.0
+        # Seventh order
+        b1 = 0.04715561848627222
+        b2 = 0.0
+        b3 = 0.0
+        b4 = 0.25750564298434153
+        b5 = 0.26216653977412624
+        b6 = 0.15216092656738558
+        b7 = 0.4939969170032485
+        b8 = -0.29430311714032503
+        b9 = 0.08131747232495111
+        b10 = 0.0
+        # Sixth order
+        bHat1 = 0.04460860660634
+        bHat2 = 0.0
+        bHat3 = 0.0
+        bHat4 = 0.26716403785714
+        bHat5 = 0.22010183001773
+        bHat6 = 0.21884317031432
+        bHat7 = 0.22898717054112
+        bHat8 = 0.0
+        bHat9 = 0.0
+        bHat10 = 0.20295184663356
+    let tol = options.tol
+    let dtMax = options.dtMax
+    let dtMin = options.dtMin
+    var k1, k2, k3, k4, k5, k6, k7, k8, k9, k10: T
+    var yNew, yLow: T
+    var error: float
+    var limitCounter = 0
+    var dt = dt
+    while true and limitCounter < 2:
+        k1 = FSAL
+        k2 = f(t + dt*c2, y + dt * (a21 * k1))
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
+        k8 = f(t + dt*c8, y + dt * (a81 * k1 + a82 * k2 + a83 * k3 + a84 * k4 + a85 * k5 + a86 * k6 + a87 * k7))
+        k9 = f(t + dt*c9, y + dt * (a91 * k1 + a92 * k2 + a93 * k3 + a94 * k4 + a95 * k5 + a96 * k6 + a97 * k7 + a98 * k8))
+        k10 = f(t + dt*c10, y + dt * (a101 * k1 + a102 * k2 + a103 * k3 + a104 * k4 + a105 * k5 + a106 * k6 + a107 * k7 + a108 * k8 + a109 * k9))
+
+        yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6 + b7 * k7 + b8 * k8 + b9 * k9)
+        yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7 + bHat8 * k8 + bHat9 * k9 + bHat10 * k10)
+        error = calcError(yNew, yLow)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/5)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
+    result = (yNew, k10, dt, error)
+
+
 proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                   options: ODEoptions = DEFAULT_ODEoptions,
                   integrator: proc(f: proc(t: float, y: T): T,
@@ -607,6 +721,9 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                                 useFSAL = false, order = 4.0, adaptive = false)
         of "vern65":
             return ODESolver(f, y0, tspan.sorted(), options, VERN65_step,
+                                useFSAL = true, order = 6.0, adaptive = true)
+        of "vern76":
+            return ODESolver(f, y0, tspan.sorted(), options, VERN76_step,
                                 useFSAL = true, order = 6.0, adaptive = true)
         of "tsit54":
             return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step,
