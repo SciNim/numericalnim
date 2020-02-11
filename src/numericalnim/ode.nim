@@ -11,10 +11,10 @@ type
         tStart*: float
 
 const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4", "rk4"]
-const adaptiveODE* = @["rk21", "bs32", "dopri54", "vern65"]
+const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
 const allODE* = fixedODE.concat(adaptiveODE)
 
-proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8,
+proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-4,
                     tStart = 0.0): ODEoptions =
     ## Create a new ODEoptions object.
     ##
@@ -22,7 +22,7 @@ proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8,
     ##   - dt: The time step to use in fixed timestep integrators.
     ##   - tol: The error tolerance to use in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
-    ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
+    ##   - dtMin: The minimum timestep allowed in adaptive timestep integrators.
     ##   - tStart: The time to start the ODE-solver at. The time the initial
     ##     conditions are supplied at.
     ##
@@ -256,6 +256,82 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
             dt = dtMax
     result = (yNew, k7, dt, error)
 
+proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions): (T, T, float, float) =
+    ## Take a single timestep using TSIT54. Only for internal use.
+    const
+        c2 = 0.161
+        c3 = 0.327
+        c4 = 0.9
+        c5 = 0.9800255409045097
+        c6 = 1.0
+        c7 = 1.0
+        a21 = 0.161
+        a31 = -0.008480655492356989
+        a32 = 0.335480655492357
+        a41 = 2.8971530571054935
+        a42 = -6.359448489975075
+        a43 = 4.3622954328695815
+        a51 = 5.325864828439257
+        a52 = -11.748883564062828
+        a53 = 7.4955393428898365
+        a54 = -0.09249506636175525
+        a61 = 5.86145544294642
+        a62 = -12.92096931784711
+        a63 = 8.159367898576159
+        a64 = -0.071584973281401
+        a65 = -0.028269050394068383
+        a71 = 0.09646076681806523
+        a72 = 0.01
+        a73 = 0.4798896504144996
+        a74 = 1.379008574103742
+        a75 = -3.290069515436081
+        a76 = 2.324710524099774
+        # Fifth order
+        b1 = a71
+        b2 = a72
+        b3 = a73
+        b4 = a74
+        b5 = a75
+        b6 = a76
+        # Fourth order
+        bHat1 = -0.001780011052226
+        bHat2 = -0.000816434459657
+        bHat3 = 0.007880878010262
+        bHat4 = -0.144711007173263
+        bHat5 = 0.582357165452555
+        bHat6 = -0.458082105929187
+        bHat7 = 1.0/66.0
+    let tol = options.tol
+    let dtMax = options.dtMax
+    let dtMin = options.dtMin
+    var k1, k2, k3, k4, k5, k6, k7: T
+    var yNew, yLow: T
+    var error: float
+    var limitCounter = 0
+    var dt = dt
+    while true and limitCounter < 2:
+        k1 = FSAL
+        k2 = f(t + dt*c2, y + dt * (a21 * k1))
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
+
+        yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
+        yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
+        error = calcError(y, yLow)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/5)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
+    result = (yNew, k7, dt, error)
+    
 
 proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
                      options: ODEoptions): (T, T, float, float) =
@@ -532,5 +608,8 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
         of "vern65":
             return ODESolver(f, y0, tspan.sorted(), options, VERN65_step,
                                 useFSAL = true, order = 6.0, adaptive = true)
+        of "tsit54":
+            return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step,
+                             useFSAL = true, order = 5.0, adaptive = true)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
