@@ -25,6 +25,7 @@ These are the implemented ODE integrators:
 - `Ralston4` - Ralston's 4th order fixed timestep method.
 - `Kutta4` - Kutta's 4th order fixed timestep method.
 - `RK4` - The standard 4th order, fixed timestep method we all know and love.
+- `Tsit54` - Tsitouras adaptive 5th order method.
 
 
 
