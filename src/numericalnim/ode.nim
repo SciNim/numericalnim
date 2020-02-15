@@ -16,7 +16,7 @@ const allODE* = fixedODE.concat(adaptiveODE)
 
 
 template commonAdaptiveMethodCode(order: int, body: untyped) =
-    while true and limitCounter < 2:
+    while limitCounter < 2:
         body
 
         if error <= tol:
