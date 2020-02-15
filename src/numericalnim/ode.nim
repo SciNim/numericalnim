@@ -146,7 +146,7 @@ proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(2):
+    commonAdaptiveMethodCode(order=2):
         k1 = f(t, y)
         k2 = f(t + dt, y + dt * k1)
         
@@ -165,7 +165,7 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(3):
+    commonAdaptiveMethodCode(order=3):
         k1 = f(t, y)
         k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
         k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
@@ -231,7 +231,7 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(5):
+    commonAdaptiveMethodCode(order=5):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -299,7 +299,7 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(5):
+    commonAdaptiveMethodCode(order=5):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -389,7 +389,7 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(6):
+    commonAdaptiveMethodCode(order=6):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
