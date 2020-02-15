@@ -15,16 +15,19 @@ const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
 const allODE* = fixedODE.concat(adaptiveODE)
 
 
-template commonAdaptiveMethodCode(e1, e2: float, order: int) =
-    error = calcError(e1, e2)
-    if error <= tol:
-        break
-    dt = 0.9 * dt * pow(tol/error, 1/order)
-    if abs(dt) < dtMin:
-        dt = dtMin
-        limitCounter += 1
-    elif dtMax < abs(dt):
-        dt = dtMax
+template commonAdaptiveMethodCode(e1, e2: float, order: int, body: untyped) =
+    while true and limitCounter < 2:
+        body
+
+        error = calcError(e1, e2)
+        if error <= tol:
+            break
+        dt = 0.9 * dt * pow(tol/error, 1/order)
+        if abs(dt) < dtMin:
+            dt = dtMin
+            limitCounter += 1
+        elif dtMax < abs(dt):
+            dt = dtMax
 
 proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-4,
                     tStart = 0.0): ODEoptions =
@@ -144,13 +147,12 @@ proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    while true and limitCounter < 2:
+    commonAdaptiveMethodCode(yNew, yLow, 2):
         k1 = f(t, y)
         k2 = f(t + dt, y + dt * k1)
         
         yNew = y + dt * 0.5 * (k1 + k2)
         yLow = y + dt * k1
-        commonAdaptiveMethodCode(yNew, yLow, 2)
     result = (yNew, yNew, dt, error)
 
 proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
@@ -164,7 +166,7 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    while true and limitCounter < 2:
+    commonAdaptiveMethodCode(yNew, yLow, 3):
         k1 = f(t, y)
         k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
         k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
@@ -172,7 +174,6 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         k4 = f(t + dt, yNew)
         
         yLow = y + dt * (7/24 * k1 + 1/4 * k2 + 1/3 * k3 + 1/8 * k4)
-        commonAdaptiveMethodCode(yNew, yLow, 3)
     result = (yNew, k4, dt, error)
 
 
@@ -230,7 +231,7 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     var error: float
     var limitCounter = 0
     var dt = dt
-    while true and limitCounter < 2:
+    commonAdaptiveMethodCode(yNew, yLow, 5):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -241,7 +242,6 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
-        commonAdaptiveMethodCode(yNew, yLow, 5)
     result = (yNew, k7, dt, error)
 
 proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
@@ -298,7 +298,7 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    while true and limitCounter < 2:
+    commonAdaptiveMethodCode(y, yLow, 5):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -309,7 +309,6 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
-        commonAdaptiveMethodCode(y, yLow, 5)
     result = (yNew, k7, dt, error)
     
 
@@ -388,7 +387,7 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    while true and limitCounter < 2:
+    commonAdaptiveMethodCode(yNew, yLow, 6):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -401,7 +400,6 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6 + b7 * k7 + b8 * k8)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7 + bHat8 * k8 + bHat9 * k9)
-        commonAdaptiveMethodCode(yNew, yLow, 6)
     result = (yNew, k9, dt, error)
 
 
