@@ -62,6 +62,13 @@ proc `+`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} =
         newComponents[i] = v1[i] + d
     result = newVector(newComponents)
 
+template `+.`*[T](d: float, v1: Vector[T]): Vector[T] =
+    d + v1
+
+template `+.`*[T](v1: Vector[T], d: float): Vector[T] =
+    v1 + d
+
+
 proc `+`*[T](v1: Vector[T], d: T): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
@@ -82,6 +89,9 @@ proc `+=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
 proc `+=`*[T](v1: var Vector[T], d: float) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] += d
+
+template `+.=`*[T](v1: var Vector[T], d: float) =
+    v1 += d
 
 proc `+=`*[T](v1: var Vector[T], d: T) {.inline.} =
     for i in 0 .. v1.components.high:
@@ -106,6 +116,12 @@ proc `-`*[T](d: float, v1: Vector[T]): Vector[T] {.inline.} =
         newComponents[i] = d - v1[i]
     result = newVector(newComponents)
 
+template `-.`*[T](d: float, v1: Vector[T]): Vector[T] =
+    d - v1
+
+template `-.`*[T](v1: Vector[T], d: float): Vector[T] =
+    v1 - d
+
 proc `-`*[T](v1: Vector[T], d: T): Vector[T] {.inline.} =
     var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
@@ -126,6 +142,9 @@ proc `-=`*[T](v1: var Vector[T], v2: Vector[T]) {.inline.} =
 proc `-=`*[T](v1: var Vector[T], d: float) {.inline.} =
     for i in 0 .. v1.components.high:
         v1[i] -= d
+
+template `-.=`*[T](v1: var Vector[T], d: float) =
+    v1 -= d
 
 proc `-=`*[T](v1: var Vector[T], d: T) {.inline.} =
     for i in 0 .. v1.components.high:
