@@ -159,9 +159,9 @@ test "Vector *.=":
     let correct = newVector([2.0/3.3, 3.0/2.2, 5.0/1.0])
     check v1 == correct
 
-test "Vector abs":
+test "Vector nomr default (former abs)":
     let v1 = newVector([1.0, 2.0, 3.0, 4.0])
-    let v1_abs = abs(v1)
+    let v1_abs = norm(v1)
     let correct = sqrt(1.0*1.0 + 2.0*2.0 + 3.0*3.0 + 4.0*4.0)
     check v1_abs == correct
 
@@ -268,12 +268,6 @@ test "Vector Norms (2 norm)":
     let correct = 10.2469507659596
     check isClose(value, correct, tol = 1e-4)
 
-test "Vector Norms (2 norm) equivalent to abs":
-    let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
-    let value = norm(vec, 2)
-    let correct = vec.abs()
-    check isClose(value, correct, tol = 1e-4)
-
 test "Vector Norms (p norm)":
     let vec = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
     let value = norm(vec, 4)
@@ -285,4 +279,10 @@ test "Vector Norms (p norm)":
     let value = norm(vec, 15)
     let correct = 5.384187447546214
     check isClose(value, correct, tol = 1e-4)
+
+test "Vector abs (element-wise)":
+    let vec = newVector([-1.0,-2.0,3.0,-4.0,5.0,-5.0,5.0])
+    let abs_vec = abs(vec)
+    let correct = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
+    check abs_vec == correct
     

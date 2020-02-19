@@ -184,13 +184,31 @@ proc `-`*[T](v1: Vector[T]): Vector[T] {.inline.} =
     for i in 0 .. v1.components.high:
         newComponents[i] = -v1[i]
     result = newVector(newComponents)
-proc abs*[T](v1: Vector[T]): float {.inline.} =
-    result = 0.0
+proc abs*[T](v1: Vector[T]): Vector[T] {.inline.} =
+    var newComponents = newSeq[T](v1.len)
     for i in 0 .. v1.components.high:
-        let abs_i: float = abs(v1[i])
-        result += abs_i * abs_i
-    result = sqrt(result)
-proc mean_squared_error*[T](v1: Vector[T]): float {.inline.} = abs(v1) / v1.len.toFloat
+        newComponents[i] = abs(v1[i])
+    result = newVector(newComponents)
+
+proc norm*(v1: Vector, p: int = 2): float64 =
+    ## Calculate various norms of our Vector class
+    
+    # we have to make a case for p = 0 to avoid division by zero, may as well flesh them all out
+    case p:
+        of 0:
+            # max(v1) Infinity norm
+            result = float64(max(@v1))
+        of 1:
+            # sum(v1) Taxicab norm
+            result = float64(sum(@v1))
+        of 2:
+            # sqrt(sum([v ^ 2 for v in v1])) Euclidean norm
+            result = sqrt(sum(@(v1 ^ 2)))
+        else:
+            # pow(sum([v ^ p for v in v1]), 1.0/p) P norm
+            result = pow(sum(@(v1 ^ p)), 1.0 / float64(p))
+
+proc mean_squared_error*[T](v1, v2: Vector[T]): float {.inline.} = norm(v1 - v2) / v1.len.toFloat
 
 proc `^`*[float](v: Vector[float], power: Natural): Vector[float] {.inline.} =
     ## Returns a Vector object after raising each element to a power (Natural number powers)
@@ -292,25 +310,6 @@ proc linspace*(x1, x2: float, N: int): seq[float] {.inline.} =
     for i in 1 .. N - 2:
         result.add(x1 + dx * i.toFloat)
     result.add(x2)
-
-
-proc norm*(v1: Vector, p: int): float64 =
-    ## Calculate various norms of our Vector class
-    
-    # we have to make a case for p = 0 to avoid division by zero, may as well flesh them all out
-    case p:
-        of 0:
-            # max(v1) Infinity norm
-            result = float64(max(@v1))
-        of 1:
-            # sum(v1) Taxicab norm
-            result = float64(sum(@v1))
-        of 2:
-            # sqrt(sum([v ^ 2 for v in v1])) Euclidean norm
-            result = sqrt(sum(@(v1 ^ 2)))
-        else:
-            # pow(sum([v ^ p for v in v1]), 1.0/p) P norm
-            result = pow(sum(@(v1 ^ p)), 1.0 / float64(p))
 
 
 template timeit*(s: untyped, n = 100, msg = ""): untyped =

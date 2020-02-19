@@ -26,7 +26,8 @@ These are the implemented ODE integrators:
 - `Kutta4` - Kutta's 4th order fixed timestep method.
 - `RK4` - The standard 4th order, fixed timestep method we all know and love.
 - `Tsit54` - Tsitouras adaptive 5th order method.
-- `Vern65` - Verner's 6th order adaptive timestep method.
+- `Vern65` - Verner's "most efficient" 6th order adaptive timestep method.
+- `Vern76` - Verner's "most efficient" 7th order adaptive timestep method.
 
 
 
@@ -361,12 +362,11 @@ The following operators and procs are supported:
 - `*.=`, `/.=` : inplace elementwise multiplication and division between `Vector`s. (not nested `Vector`s)
 - `-` : negation (-Vector).
 - `dot` : Same as `*` between `Vector`s. It is recursive so it will not be a matrix dot product if nested `Vector`s are used.
-- `abs` : The magnitude of the `Vector`. It is recursive so it may not be one of the usual norms. Equivalent to norm(`Vector`, 2)
 - `[]` : Use `v[i]` to get the i:th element of the `Vector`.
 - `==` : Compares two `Vector`s to see if they are equal.
 - `@` : Unpacks the Vector to (nested) seqs. Works with 1, 2 and 3 dimensional Vectors. 
 - `^` : Element-wise exponentiation, works with natural and floating point powers, returns a new Vector object
-- `norm` : General vector norm function
+- `norm` : General vector norm function. norm(`Vector`, 2) is the Euclidean norm. 
 
 A `Vector` is created using the `newVector` proc and is passed an `openArray` of the elements:
 ```nim
@@ -374,7 +374,7 @@ var v1 = newVector([1.0, 2.0, 3.0])
 var v2 = newVector([4.0, 5.0, 6.0])
 echo v1 + v2
 echo v1 /. v2
-echo abs(v1)
+echo norm(v1)
 ```
 ```nim
 Vector(@[5.0, 7.0, 9.0])
@@ -382,7 +382,7 @@ Vector(@[0.25, 0.4, 0.5])
 3.741657386773941
 ```
 ## linspace & arange
-`linspace` and `arange` are convinient procs to generate ordered seq's of floats. 
+`linspace` and `arange` are convenient procs to generate ordered seq's of floats. 
 ### linspace
 ```nim
 proc linspace*(x1, x2: float, N: int): seq[float]
@@ -412,8 +412,8 @@ echo arange(0.0, 4.9, 0.5)
 # Status
 This is a hobby project of mine, so please keep that in mind. I have tried to cover most of the use-cases in the tests but there's always the risk that I have missed something. If you spot a bug (or something worse) please open an Issue. If you want to help improve this project I would very much appreciate it.
 
-## Arraymancer support: Experimental
-If you want to use Arraymancer with NumericalNim, the basics should work but I haven't tested all of it yet.
+## Arraymancer support: Most should work
+If you want to use Arraymancer with NumericalNim, most should work but I haven't tested all of it yet.
 
 # TODO
 - Very much!
