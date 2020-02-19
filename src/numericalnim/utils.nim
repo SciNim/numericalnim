@@ -190,7 +190,7 @@ proc abs*[T](v1: Vector[T]): Vector[T] {.inline.} =
         newComponents[i] = abs(v1[i])
     result = newVector(newComponents)
 
-proc norm*(v1: Vector, p: int = 2): float64 =
+proc norm*(v1: Vector, p: int = 2): float64 {.inline.} =
     ## Calculate various norms of our Vector class
     
     # we have to make a case for p = 0 to avoid division by zero, may as well flesh them all out
@@ -207,6 +207,15 @@ proc norm*(v1: Vector, p: int = 2): float64 =
         else:
             # pow(sum([v ^ p for v in v1]), 1.0/p) P norm
             result = pow(sum(@(v1 ^ p)), 1.0 / float64(p))
+
+proc sum*[T](v: Vector[T]): T {.inline.} =
+    when T is Vector:
+        var newComponents = newSeq[T](v.len)
+        for i in 0 .. v.components.high:
+            newComponents[i] = sum(v[i])
+        return norm(newVector(newComponents), 1)
+    else:
+        return norm(v, 1)
 
 proc mean_squared_error*[T](v1, v2: Vector[T]): float {.inline.} = norm(v1 - v2) / v1.len.toFloat
 

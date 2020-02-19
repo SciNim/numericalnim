@@ -286,3 +286,8 @@ test "Vector abs (element-wise)":
     let correct = newVector([1.0,2.0,3.0,4.0,5.0,5.0,5.0])
     check abs_vec == correct
     
+test "Vector sum":
+    let vec = newVector([-1.0,-2.0,3.0,-4.0,5.0,-5.0,5.0])
+    let vec_sum = vec.sum()
+    let correct = sum([-1.0,-2.0,3.0,-4.0,5.0,-5.0,5.0])
+    check vec_sum == correct
