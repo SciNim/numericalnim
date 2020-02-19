@@ -38,11 +38,14 @@ proc `@`*[T](v: Vector[Vector[Vector[T]]]): seq[seq[seq[T]]] {.inline.} =
     for i in 0 ..< v.len:
         result.add(@(v[i]))
 proc toTensor*(v: Vector): Tensor[float] {.inline.} = (@v).toTensor()
-proc`==`*[T](v1, v2: Vector[T]): bool {.inline.} =
+proc `==`*[T](v1, v2: Vector[T]): bool {.inline.} =
     for i in 0 .. v1.components.high:
         if v1[i] != v2[i]:
             return false
     return true
+
+proc size*[T](v: Vector[T]): int = v.components.len
+
 proc `+`*[T](v1, v2: Vector[T]): Vector[T] {.inline.} =
     checkVectorSizes(v1, v2)
     var newComponents = newSeq[T](v1.len)
