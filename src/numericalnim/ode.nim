@@ -499,7 +499,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                 if error == 0.0:
                     dt *= 5
                 else:
-                    dt = 0.9 * dt * pow(tol/error, 1.0/order)
+                    dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
                 if dt < dtMin:
                     dt = dtMin
                 elif dtMax < dt:
@@ -541,7 +541,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                 if error == 0.0:
                     dt *= 5
                 else:
-                    dt = 0.9 * dt * pow(tol/error, 1.0/order)
+                    dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
                 if dt < dtMin:
                     dt = dtMin
                 elif dtMax < dt:
