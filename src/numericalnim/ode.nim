@@ -24,8 +24,8 @@ template `/.`(d1, d2: float): float =
 template `*.`(d1, d2: float): float =
     d1 * d2
 
-proc size(d: float): int = 1
-proc sum(d: float): float = d
+proc size(d: float): int {.inline.} = 1
+proc sum(d: float): float {.inline.} = d
 
 template commonAdaptiveMethodCode(yNew, error_y: untyped, order: int, body: untyped) =
     while limitCounter < 2:
