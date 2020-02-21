@@ -7,6 +7,19 @@ Install NumericalNim using Nimble:
 
 `nimble install numericalnim`
 
+## Suggested compilation flags
+
+With [FMA](https://en.wikipedia.org/wiki/FMA_instruction_set) and [AVX2](https://en.wikipedia.org/wiki/AVX2) there exist some [SIMD](https://en.wikipedia.org/wiki/SIMD) instruction sets which can increase the performance on [x86](https://en.wikipedia.org/wiki/X86) machines.
+To enable these, nim has to pass some flags to the C compiler.
+Below is a small table, listing the flags to add when compiling with `nim c` for some widely used compilers:
+
+Compiler     | Flags
+------------ | -----
+clang        | `-t:-mavx2 -t:-mfma -t:-ffp-contract=fast`
+gcc          | `-t:-mavx2 -t:-mfma`
+icc          | `-t:-march=core-avx2`
+msvc         | `-t:arch:AVX2 -t:fp:fast`
+
 # ODE
 ## Initial value problems (IVP)
 ## The integrators
