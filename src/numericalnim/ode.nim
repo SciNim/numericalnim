@@ -5,10 +5,13 @@ import utils
 type
     ODEoptions* = object
         dt*: float
-        tol*: float
         dtMax*: float
         dtMin*: float
         tStart*: float
+        absTol*: float
+        relTol*: float
+        scaleMax*: float
+        scaleMin*: float
 
 const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4", "rk4"]
 const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
@@ -31,7 +34,7 @@ template commonAdaptiveMethodCode(yNew, error_y: untyped, order: int, body: unty
     while limitCounter < 2:
         body
         #error = calcError(`e1`, `e2`)
-        let totalTol = tol +. tol * abs(`yNew`)
+        let totalTol = absTol +. relTol * abs(`yNew`)
         let err1 = `error_y` /. totalTol
         let err1_square = err1 *. err1
         let size = err1.size.toFloat
@@ -48,27 +51,33 @@ template commonAdaptiveMethodCode(yNew, error_y: untyped, order: int, body: unty
         elif dtMax < abs(dt):
             dt = dtMax
 
-proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-4,
-                    tStart = 0.0): ODEoptions =
+proc newODEoptions*(dt: float = 1e-4, absTol: float = 1e-4, relTol: float = 1e-4, dtMax: float = 1e-2, dtMin: float = 1e-4, scaleMax: float = 4.0, scaleMin: float = 0.1,
+                    tStart: float = 0.0): ODEoptions =
     ## Create a new ODEoptions object.
     ##
     ## Input:
     ##   - dt: The time step to use in fixed timestep integrators.
-    ##   - tol: The error tolerance to use in adaptive timestep integrators.
+    ##   - absTol: The absolute error tolerance to use in adaptive timestep integrators.
+    ##   - relTol: The relative error tolerance to use in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
     ##   - dtMin: The minimum timestep allowed in adaptive timestep integrators.
+    ##   - scaleMax: The maximum increase factor for the time step dt between two steps.
+    ##   - ScaleMin: The minimum factor for the time step dt between two steps.
     ##   - tStart: The time to start the ODE-solver at. The time the initial
     ##     conditions are supplied at.
     ##
     ## Returns:
     ##   - ODEoptions object with the supplied parameters.
-    if dtMax < dtMin:
+    if abs(dtMax) < abs(dtMin):
         raise newException(ValueError, "dtMin must be less than dtMax")
-    result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax),
-                        dtMin: abs(dtMin), tStart: tStart)
+    if abs(scaleMax) < 1:
+        raise newException(ValueError, "scaleMax must be bigger than 1")
+    if 1 < abs(scaleMin):
+        raise newException(ValueError, "scaleMin must be smaller than 1")
+    result = ODEoptions(dt: abs(dt), absTol: abs(absTol), relTol: abs(relTol), dtMax: abs(dtMax),
+                        dtMin: abs(dtMin), scaleMax: abs(scaleMax), scaleMin: abs(scaleMin), tStart: tStart)
 
-const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2,
-                                         dtMin = 1e-8, tStart = 0.0)
+const DEFAULT_ODEoptions = newODEoptions()
 
 
 proc HEUN2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
@@ -158,7 +167,8 @@ proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2: T
@@ -178,7 +188,8 @@ proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4: T
@@ -245,7 +256,8 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
         bHat5 = -92097.0/339200.0
         bHat6 = 187.0/2100.0
         bHat7 = 1.0/40.0
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4, k5, k6, k7: T
@@ -314,7 +326,8 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         bHat5 = 0.582357165452555
         bHat6 = -0.458082105929187
         bHat7 = 1.0/66.0
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4, k5, k6, k7: T
@@ -404,7 +417,8 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         bHat7 = 0.0
         bHat8 = -0.60711948917780
         bHat9 = 0.05686113944048
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4, k5, k6, k7, k8, k9: T
@@ -449,7 +463,6 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
     if t0 in tspan:
         yZero.add(y)
         tZero.add(t0)
-    let tol = options.tol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var dt, dtInit: float
