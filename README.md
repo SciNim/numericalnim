@@ -88,7 +88,7 @@ If we `echo y1, y2` we see that both gives roughly the same answer.
 
 ```nim
 @[0.8187307530779675, 0.9048374180359479, 1.0, 1.105170918075657, 1.221402758160196]
-@[0.8187307530779828, 0.904837418035959, 1.0, 1.105170918075646, 1.221402758160169]
+@[0.8187307530779815, 0.9048374180359576, 1.0, 1.105170918075645, 1.221402758160169]
 ```
 
 The analytical solution to the ODE is y(t) = exp(0.1*t) so we can compare both methods and see if the error is different:
@@ -107,19 +107,19 @@ As we can see both methods gives a good numerical approximation of this simple O
 
 Now it's time to play with the parameters and NumericalNim makes it easy to handle them using a `ODEoptions` type that is passed to `solveODE`. Here are the defaults:
 ```nim
-let options = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0)
+let options = newODEoptions(dt = 1e-4, relTol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0)
 let (t, y) = solveODE(f, y0, tspan, options = options, integrator = "dopri54")
 ```
 - `dt` - the timestep used by the fixed timestep methods.
-- `tol` - the tolerance used by the adaptive methods.
+- `relTol` - the relative tolerance used by the adaptive methods.
 - `dtMax` - the maximum allowed dt the adaptive method is allowed to use.
 - `dtMin` - the smallest allowed dt the adaptive method is allowed to use.
 - `tStart` - the time that the initial values are provided at.
 
-If we lower `dt` to `1e-1` and `tol` to `1e-1` we should get a higher error than last time. Let's see!
+If we lower `dt` to `1e-1` and `relTol` to `1e-1` we should get a higher error than last time. Let's see!
 
 ```nim
-let options = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0)
+let options = newODEoptions(dt = 1e-1, relTol = 1e-1, dtMax = 1e-2, dtMin = 1e-8, tStart = 0.0)
 let (t3, y3) = solveODE(f, y0, tspan, options = options, integrator = "rk4")
 let (t4, y4) = solveODE(f, y0, tspan, options, integrator="dopri54")
 
@@ -133,7 +133,7 @@ DOPRI54: 1.110223024625157e-015
 The error of `RK4` got a bit higher but not `DOPRI54`. If we increase `dtMax` to `1.0` we get the following:
 ```nim
 RK4: 2.018807343517892e-011
-DOPRI54: -4.620754889828049e-010
+DOPRI54: -3.126410241804933e-010
 ```
 Now the error is higher for `DOPRI54` as well.
 
