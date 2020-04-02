@@ -6,9 +6,9 @@ proc f(x: float, y: float): float = -0.1 * y
 proc fVector(x: float, y: Vector[float]): Vector[float] = -0.1 * y
 proc fTensor(x: float, y: Tensor[float]): Tensor[float] = -0.1 * y
 proc correct_answer(x: float): float = exp(-0.1*x)
-let oo = newODEoptions(tol=1e-8, dt=1e-6)
-let ooVector = newODEoptions(tol=1e-8, dt=1e-2)
-let ooTensor = newODEoptions(tol=1e-8, dt=1e-2)
+let oo = newODEoptions(relTol=1e-8, dt=1e-6)
+let ooVector = newODEoptions(relTol=1e-8, dt=1e-2)
+let ooTensor = newODEoptions(relTol=1e-8, dt=1e-2)
 let y0 = 1.0
 let y0Vector = newVector(@[y0, y0, y0])
 let y0Tensor = @[y0, y0, y0].toTensor()

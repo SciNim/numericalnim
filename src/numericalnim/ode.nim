@@ -5,51 +5,80 @@ import utils
 type
     ODEoptions* = object
         dt*: float
-        tol*: float
         dtMax*: float
         dtMin*: float
         tStart*: float
+        absTol*: float
+        relTol*: float
+        scaleMax*: float
+        scaleMin*: float
+    IntegratorProc*[T] = proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float)
 
 const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4", "rk4"]
 const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
 const allODE* = fixedODE.concat(adaptiveODE)
 
 
-template commonAdaptiveMethodCode(e1, e2: untyped, order: int, body: untyped) =
+template `+.`(d1, d2: float): float =
+    d1 + d2
+
+template `/.`(d1, d2: float): float =
+    d1 / d2
+
+template `*.`(d1, d2: float): float =
+    d1 * d2
+
+proc size(d: float): int {.inline.} = 1
+proc sum(d: float): float {.inline.} = d
+
+template commonAdaptiveMethodCode(yNew, error_y: untyped, order: int, body: untyped) =
     while limitCounter < 2:
         body
-        error = calcError(`e1`, `e2`)
+        #error = calcError(`e1`, `e2`)
+        let totalTol = absTol +. relTol * abs(`yNew`)
+        let err1 = `error_y` /. totalTol
+        let err1_square = err1 *. err1
+        let size = err1.size.toFloat
+        error = sqrt(1 / size * sum(err1_square))
+        #echo error, " ", totalTol, " ", abs(`error_y`), " ", err1_square
 
-        if error <= tol:
+
+        if error <= 1:
             break
-        dt = 0.9 * dt * pow(tol/error, 1/order)
+        dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
         if abs(dt) < dtMin:
             dt = dtMin
             limitCounter += 1
         elif dtMax < abs(dt):
             dt = dtMax
 
-proc newODEoptions*(dt = 1e-4, tol = 1e-4, dtMax = 1e-2, dtMin = 1e-4,
-                    tStart = 0.0): ODEoptions =
+proc newODEoptions*(dt: float = 1e-4, absTol: float = 1e-4, relTol: float = 1e-4, dtMax: float = 1e-2, dtMin: float = 1e-4, scaleMax: float = 4.0, scaleMin: float = 0.1,
+                    tStart: float = 0.0): ODEoptions =
     ## Create a new ODEoptions object.
     ##
     ## Input:
     ##   - dt: The time step to use in fixed timestep integrators.
-    ##   - tol: The error tolerance to use in adaptive timestep integrators.
+    ##   - absTol: The absolute error tolerance to use in adaptive timestep integrators.
+    ##   - relTol: The relative error tolerance to use in adaptive timestep integrators.
     ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
     ##   - dtMin: The minimum timestep allowed in adaptive timestep integrators.
+    ##   - scaleMax: The maximum increase factor for the time step dt between two steps.
+    ##   - ScaleMin: The minimum factor for the time step dt between two steps.
     ##   - tStart: The time to start the ODE-solver at. The time the initial
     ##     conditions are supplied at.
     ##
     ## Returns:
     ##   - ODEoptions object with the supplied parameters.
-    if dtMax < dtMin:
+    if abs(dtMax) < abs(dtMin):
         raise newException(ValueError, "dtMin must be less than dtMax")
-    result = ODEoptions(dt: abs(dt), tol: abs(tol), dtMax: abs(dtMax),
-                        dtMin: abs(dtMin), tStart: tStart)
+    if abs(scaleMax) < 1:
+        raise newException(ValueError, "scaleMax must be bigger than 1")
+    if 1 < abs(scaleMin):
+        raise newException(ValueError, "scaleMin must be smaller than 1")
+    result = ODEoptions(dt: abs(dt), absTol: abs(absTol), relTol: abs(relTol), dtMax: abs(dtMax),
+                        dtMin: abs(dtMin), scaleMax: abs(scaleMax), scaleMin: abs(scaleMin), tStart: tStart)
 
-const DEFAULT_ODEoptions = newODEoptions(dt = 1e-4, tol = 1e-4, dtMax = 1e-2,
-                                         dtMin = 1e-8, tStart = 0.0)
+const DEFAULT_ODEoptions = newODEoptions()
 
 
 proc HEUN2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
@@ -139,7 +168,8 @@ proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2: T
@@ -147,18 +177,20 @@ proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(yNew, yLow, order=2):
+    commonAdaptiveMethodCode(yNew, error_y, order=2):
         k1 = f(t, y)
         k2 = f(t + dt, y + dt * k1)
         
         yNew = y + dt * 0.5 * (k1 + k2)
         yLow = y + dt * k1
+        let error_y = yNew - yLow
     result = (yNew, yNew, dt, error)
 
 proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     options: ODEoptions): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4: T
@@ -166,7 +198,7 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(yNew, yLow, order=3):
+    commonAdaptiveMethodCode(yNew, error_y, order=3):
         k1 = f(t, y)
         k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
         k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
@@ -174,6 +206,7 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         k4 = f(t + dt, yNew)
         
         yLow = y + dt * (7/24 * k1 + 1/4 * k2 + 1/3 * k3 + 1/8 * k4)
+        let error_y = yNew - yLow
         # error = calcError(yNew, yLow)
     result = (yNew, k4, dt, error)
 
@@ -224,7 +257,8 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
         bHat5 = -92097.0/339200.0
         bHat6 = 187.0/2100.0
         bHat7 = 1.0/40.0
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4, k5, k6, k7: T
@@ -232,7 +266,7 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(yNew, yLow, order=5):
+    commonAdaptiveMethodCode(yNew, error_y, order=5):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -243,6 +277,7 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
+        let error_y = yNew - yLow
         # error = calcError(yNew, yLow)
     result = (yNew, k7, dt, error)
 
@@ -292,7 +327,8 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         bHat5 = 0.582357165452555
         bHat6 = -0.458082105929187
         bHat7 = 1.0/66.0
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4, k5, k6, k7: T
@@ -300,7 +336,7 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(y, yLow, order=5):
+    commonAdaptiveMethodCode(yNew, error_y, order=5):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -310,7 +346,7 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
-        yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
+        let error_y = dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
         # error = calcError(y, yLow)
     result = (yNew, k7, dt, error)
     
@@ -382,7 +418,8 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
         bHat7 = 0.0
         bHat8 = -0.60711948917780
         bHat9 = 0.05686113944048
-    let tol = options.tol
+    let absTol = options.absTol
+    let relTol = options.relTol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var k1, k2, k3, k4, k5, k6, k7, k8, k9: T
@@ -390,7 +427,7 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var error: float
     var limitCounter = 0
     var dt = dt
-    commonAdaptiveMethodCode(yNew, yLow, order=6):
+    commonAdaptiveMethodCode(yNew, error_y, order=6):
         k1 = FSAL
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
@@ -403,15 +440,14 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6 + b7 * k7 + b8 * k8)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7 + bHat8 * k8 + bHat9 * k9)
+        let error_y = yNew - yLow
         # error = calcError(yNew, yLow)
     result = (yNew, k9, dt, error)
 
 
 proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                   options: ODEoptions = DEFAULT_ODEoptions,
-                  integrator: proc(f: proc(t: float, y: T): T,
-                                   t: float, y, FSAL: T,
-                                   dt: float, options: ODEoptions): (T, T, float, float),
+                  integrator: IntegratorProc[T],
                   useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
     ## Handles the ODE solving. Only for internal use.
     let t0 = options.tStart
@@ -426,7 +462,6 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
     if t0 in tspan:
         yZero.add(y)
         tZero.add(t0)
-    let tol = options.tol
     let dtMax = options.dtMax
     let dtMin = options.dtMin
     var dt, dtInit: float
@@ -476,7 +511,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                 if error == 0.0:
                     dt *= 5
                 else:
-                    dt = 0.9 * dt * pow(tol/error, 1.0/order)
+                    dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
                 if dt < dtMin:
                     dt = dtMin
                 elif dtMax < dt:
@@ -518,7 +553,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                 if error == 0.0:
                     dt *= 5
                 else:
-                    dt = 0.9 * dt * pow(tol/error, 1.0/order)
+                    dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
                 if dt < dtMin:
                     dt = dtMin
                 elif dtMax < dt:
@@ -544,46 +579,46 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
     ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
     case integrator.toLower():
         of "dopri54":
-            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step,
+            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step[T],
                              useFSAL = true, order = 5.0, adaptive = true)
         of "rk21":
-            return ODESolver(f, y0, tspan.sorted(), options, RK21_step ,
+            return ODESolver(f, y0, tspan.sorted(), options, RK21_step[T],
                                 useFSAL = false, order = 2.0, adaptive = true)
         of "bs32":
-            return ODESolver(f, y0, tspan.sorted(), options, BS32_step,
+            return ODESolver(f, y0, tspan.sorted(), options, BS32_step[T],
                                 useFSAL = true, order = 3.0, adaptive = true)
         of "rk4":
-            return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RK4_step[T],
                              useFSAL = false, order = 4.0, adaptive = false)
         of "heun2":
-            return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step,
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step[T],
                              useFSAL = false, order = 2.0, adaptive = false)
         of "ralston2":
-            return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step[T],
                              useFSAL = false, order = 2.0, adaptive = false)
         of "kutta3":
-            return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "heun3":
-            return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "ralston3":
-            return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "ssprk3":
-            return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "ralston4":
-            return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step[T],
                                 useFSAL = false, order = 4.0, adaptive = false)
         of "kutta4":
-            return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step,
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step[T],
                                 useFSAL = false, order = 4.0, adaptive = false)
         of "vern65":
-            return ODESolver(f, y0, tspan.sorted(), options, VERN65_step,
+            return ODESolver(f, y0, tspan.sorted(), options, VERN65_step[T],
                                 useFSAL = true, order = 6.0, adaptive = true)
         of "tsit54":
-            return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step,
+            return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step[T],
                              useFSAL = true, order = 5.0, adaptive = true)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
