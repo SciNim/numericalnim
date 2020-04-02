@@ -12,6 +12,7 @@ type
         relTol*: float
         scaleMax*: float
         scaleMin*: float
+    IntegratorProc*[T] = proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float)
 
 const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4", "rk4"]
 const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
@@ -446,9 +447,7 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
 
 proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                   options: ODEoptions = DEFAULT_ODEoptions,
-                  integrator: proc(f: proc(t: float, y: T): T,
-                                   t: float, y, FSAL: T,
-                                   dt: float, options: ODEoptions): (T, T, float, float),
+                  integrator: IntegratorProc[T],
                   useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
     ## Handles the ODE solving. Only for internal use.
     let t0 = options.tStart
@@ -580,46 +579,46 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
     ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
     case integrator.toLower():
         of "dopri54":
-            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step,
+            return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step[T],
                              useFSAL = true, order = 5.0, adaptive = true)
         of "rk21":
-            return ODESolver(f, y0, tspan.sorted(), options, RK21_step ,
+            return ODESolver(f, y0, tspan.sorted(), options, RK21_step[T],
                                 useFSAL = false, order = 2.0, adaptive = true)
         of "bs32":
-            return ODESolver(f, y0, tspan.sorted(), options, BS32_step,
+            return ODESolver(f, y0, tspan.sorted(), options, BS32_step[T],
                                 useFSAL = true, order = 3.0, adaptive = true)
         of "rk4":
-            return ODESolver(f, y0, tspan.sorted(), options, RK4_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RK4_step[T],
                              useFSAL = false, order = 4.0, adaptive = false)
         of "heun2":
-            return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step,
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step[T],
                              useFSAL = false, order = 2.0, adaptive = false)
         of "ralston2":
-            return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step[T],
                              useFSAL = false, order = 2.0, adaptive = false)
         of "kutta3":
-            return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "heun3":
-            return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "ralston3":
-            return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "ssprk3":
-            return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step,
+            return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step[T],
                                 useFSAL = false, order = 3.0, adaptive = false)
         of "ralston4":
-            return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step,
+            return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step[T],
                                 useFSAL = false, order = 4.0, adaptive = false)
         of "kutta4":
-            return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step,
+            return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step[T],
                                 useFSAL = false, order = 4.0, adaptive = false)
         of "vern65":
-            return ODESolver(f, y0, tspan.sorted(), options, VERN65_step,
+            return ODESolver(f, y0, tspan.sorted(), options, VERN65_step[T],
                                 useFSAL = true, order = 6.0, adaptive = true)
         of "tsit54":
-            return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step,
+            return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step[T],
                              useFSAL = true, order = 5.0, adaptive = true)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
