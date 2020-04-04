@@ -2,11 +2,12 @@ import strformat, math
 import utils
 
 type
-  CubicSpline*[T] = ref object
+  SplineType *[T] = ref object of RootObj
     X: seq[float]
-    coeffs: seq[array[5, float]]
     high: int
     len: int
+  CubicSpline*[T] = ref object of SplineType[T]
+    coeffs: seq[array[5, float]]
 
 ### CubicSpline
 
