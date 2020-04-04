@@ -2,16 +2,43 @@ import strformat, math
 import utils
 
 type
-  SplineType*[T] = ref object of RootObj
+  SplineType*[T] = CubicSpline[T] or HermiteSpline[T]
+  CubicSpline*[T] = ref object
     X: seq[float]
     high: int
     len: int
-  CubicSpline*[T] = ref object of SplineType[T]
     coeffs: seq[array[5, float]]
-  HermiteSpline*[T] = ref object of SplineType[T]
+  HermiteSpline*[T] = ref object
     # Lazy evaluation
+    X: seq[float]
+    high: int
+    len: int
     Y: seq[T]
     dY: seq[T]
+
+
+proc findInterval*(list: openArray[float], x: float): int {.inline.} =
+  ## Finds the index of the element to the left of x in list using binary search. list must be ordered.
+  let highIndex = list.high
+  if x < list[0] or list[highIndex] < x:
+    raise newException(ValueError, &"x = {x} isn't in the interval [{list[0]}, {list[highIndex]}]")
+  var upper = highIndex
+  var lower = 0
+  var n = floorDiv(upper + lower, 2)
+  # find interval using binary search
+  for i in 0 .. highIndex:
+    if x < list[n]:
+      # x is below current interval
+      upper = n
+      n = floorDiv(upper + lower, 2)
+      continue
+    if list[n+1] < x:
+      # x is above current interval
+      lower = n + 1
+      n = floorDiv(upper + lower, 2)
+      continue
+    # x is in the interval
+    return n
 
 ### CubicSpline
 
@@ -61,48 +88,7 @@ proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[T]): CubicS
   let coeffs = constructCubicSpline(xSorted, ySorted)
   result = CubicSpline[T](X: xSorted, coeffs: coeffs, high: xSorted.high, len: xSorted.len)
 
-proc findInterval*(list: openArray[float], x: float): int {.inline.} =
-  ## Finds the index of the element to the left of x in list using binary search. list must be ordered.
-  let highIndex = list.high
-  if x < list[0] or list[highIndex] < x:
-    raise newException(ValueError, &"x = {x} isn't in the interval [{list[0]}, {list[highIndex]}]")
-  var upper = highIndex
-  var lower = 0
-  var n = floorDiv(upper + lower, 2)
-  # find interval using binary search
-  for i in 0 .. highIndex:
-    if x < list[n]:
-      # x is below current interval
-      upper = n
-      n = floorDiv(upper + lower, 2)
-      continue
-    if list[n+1] < x:
-      # x is above current interval
-      lower = n + 1
-      n = floorDiv(upper + lower, 2)
-      continue
-    # x is in the interval
-    return n
-
 proc eval*[T](spline: CubicSpline[T], x: float): T =
-  #[if x < spline.X[0] or spline.X[spline.high] < x:
-    raise newException(ValueError, &"x = {x} isn't in the interval [{spline.X[0]}, {spline.X[spline.high]}]")
-  var upper = spline.high
-  var lower = 0
-  var n = floorDiv(upper + lower, 2)
-  # find interval using binary search
-  for i in 0 .. spline.high:
-    if x < spline.X[n]:
-      # x is below current interval
-      upper = n
-      n = floorDiv(upper + lower, 2)
-      continue
-    if spline.X[n+1] < x:
-      # x is above current interval
-      lower = n + 1
-      n = floorDiv(upper + lower, 2)
-      continue
-    # x is in the interval]#
   let n = findInterval(spline.X, x)
   let a = spline.coeffs[n][0]
   let b = spline.coeffs[n][1]
@@ -112,17 +98,6 @@ proc eval*[T](spline: CubicSpline[T], x: float): T =
   let xDiff = x - xj
   return a + b * xDiff + c * xDiff * xDiff + d * xDiff * xDiff * xDiff
 
-proc eval*[T](spline: CubicSpline[T], x: openArray[float]): seq[T] =
-  result = newSeq[T](x.len)
-  for i, xi in x:
-    result[i] = eval(spline, xi)
-
-converter toProc*[T](spline: CubicSpline[T]): proc(x: float): T =
-  result = proc(t: float): T = eval(spline, t)
-
-converter toOptionalProc*[T](spline: CubicSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
-  result = proc(t: float, optional: seq[T] = @[]): T = eval(spline, t)
-
 proc derivEval*[T](spline: CubicSpline[T], x: float): T =
   let n = findInterval(spline.X, x)
   let b = spline.coeffs[n][1]
@@ -131,17 +106,6 @@ proc derivEval*[T](spline: CubicSpline[T], x: float): T =
   let xj = spline.coeffs[n][4]
   let xDiff = x - xj
   return b + 2 * c * xDiff + 3 * d * xDiff * xDiff
-
-proc derivEval*[T](spline: CubicSpline[T], x: openArray[float]): seq[T] =
-  result = newSeq[T](x.len)
-  for i, xi in x:
-    result[i] = derivEval(spline, xi)
-
-proc toDerivProc*[T](spline: CubicSpline[T]): proc(x: float): T =
-  result = proc(t: float): T = derivEval(spline, t)
-
-proc toDerivOptionalProc*[T](spline: CubicSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
-  result = proc(t: float, optional: seq[T] = @[]): T = derivEval(spline, t)
 
 ## HermiteSpline
 
@@ -189,17 +153,6 @@ proc eval*[T](spline: HermiteSpline[T], x: float): T =
   let m2 = spline.dY[n+1]
   result = h00*p1 + h10*xDiff*m1 + h01*p2 + h11*xDiff*m2
 
-proc eval*[T](spline: HermiteSpline[T], x: openArray[float]): seq[T] =
-  result = newSeq[T](x.len)
-  for i, xi in x:
-    result[i] = eval(spline, xi)
-
-converter toProc*[T](spline: HermiteSpline[T]): proc(x: float): T =
-  result = proc(t: float): T = eval(spline, t)
-
-converter toOptionalProc*[T](spline: HermiteSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
-  result = proc(t: float, optional: seq[T] = @[]): T = eval(spline, t)
-
 proc derivEval*[T](spline: HermiteSpline[T], x: float): T =
   let n = findInterval(spline.X, x)
   let xDiff = spline.X[n+1] - spline.X[n]
@@ -215,13 +168,26 @@ proc derivEval*[T](spline: HermiteSpline[T], x: float): T =
   let m2 = spline.dY[n+1]
   result = (h00*p1 + h10*xDiff*m1 + h01*p2 + h11*xDiff*m2) / xDiff
 
-proc derivEval*[T](spline: HermiteSpline[T], x: openArray[float]): seq[T] =
+
+# General Spline stuff
+proc eval*[T](spline: SplineType[T], x: openArray[float]): seq[T] =
+  result = newSeq[T](x.len)
+  for i, xi in x:
+    result[i] = eval(spline, xi)
+
+converter toProc*[T](spline: SplineType[T]): proc(x: float): T =
+  result = proc(t: float): T = eval(spline, t)
+
+converter toOptionalProc*[T](spline: SplineType[T]): proc(x: float, optional: seq[T] = @[]): T =
+  result = proc(t: float, optional: seq[T] = @[]): T = eval(spline, t)
+
+proc derivEval*[T](spline: SplineType[T], x: openArray[float]): seq[T] =
   result = newSeq[T](x.len)
   for i, xi in x:
     result[i] = derivEval(spline, xi)
 
-proc toDerivProc*[T](spline: HermiteSpline[T]): proc(x: float): T =
+proc toDerivProc*[T](spline: SplineType[T]): proc(x: float): T =
   result = proc(t: float): T = derivEval(spline, t)
 
-proc toDerivOptionalProc*[T](spline: HermiteSpline[T]): proc(x: float, optional: seq[T] = @[]): T =
+proc toDerivOptionalProc*[T](spline: SplineType[T]): proc(x: float, optional: seq[T] = @[]): T =
   result = proc(t: float, optional: seq[T] = @[]): T = derivEval(spline, t)
