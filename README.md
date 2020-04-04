@@ -358,6 +358,18 @@ echo derivProc(1.0)
 ```
 This code will print the derivative of the spline at x=1.
 
+## Cubic Hermite Splines
+Cubic Hermite Splines are piecewise polynomials of degree 3, the same as Natural Cubic Splines. The difference is that we can pass the the derivative at each point as well as the function value. If the derivatives are not passed, a three-point finite difference will be used instead but this will not give as accurate results compared to with derivatives. It may be better to use Natural Cubic Splines then instead. The advantage Hermite Splines have over Natural Cubic Splines in NumericalNim is that it can handle other types of y-values than floats. For example if you want to interpolate data (dependent on one variable) in Arraymancer `Tensor`s you can do it by passing those as a `seq[Tensor]`. Hermite Splines' main mission in NumericalNim is to interpolate data points you get from solving ODEs as both the function value and the derivative is known at every point in time. 
+### Usage
+Hermite Splines can be used the same way as Natural Cubic Splines with the addition that the derivatives can be passed as well. 
+```nim
+let X = [0.0, 0.5, 1.7, 2.0, 5.0]
+let Y = [1.0, 3.5, -4.6, 0.1, 2.3]
+let dY = [0.5, -0.2, 1.0, 2.0, 3.6]
+let splineWithDerivatives = newHermiteSpline(X, Y, dY)
+let splineWithoutDerivatives = newHermiteSpline(X, Y)
+```
+
 # Utils
 I have included a few handy tools in `numericalnim/utils`.
 ## Vector
