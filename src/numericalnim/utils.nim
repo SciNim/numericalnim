@@ -305,7 +305,7 @@ proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float],
 
 proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] {.inline.} =
     if X.len != Y.len:
-        raise newException(ValueError, "X and Y must have the same length")
+        raise newException(ValueError, &"X and Y must have the same length. X.len is {X.len} and Y.len is {Y.len}")
     let zipped = zip(X, Y)
     # sort with respect to x
     result = zipped.sortedByIt(it[0])

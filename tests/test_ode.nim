@@ -9,7 +9,7 @@ proc correct_answer(x: float): float = exp(-0.1*x)
 let oo = newODEoptions(relTol=1e-8, dt=1e-6)
 let ooVector = newODEoptions(relTol=1e-8, dt=1e-2)
 let ooTensor = newODEoptions(relTol=1e-8, dt=1e-2)
-let y0 = 1.0
+let y0: float = 1.0
 let y0Vector = newVector(@[y0, y0, y0])
 let y0Tensor = @[y0, y0, y0].toTensor()
 let tspan = linspace(-10.0, 10.0, 100)
@@ -20,6 +20,30 @@ for v in correctY:
     correctYTensor.add(@[v, v, v].toTensor())
     correctYVectorSeq.add(newVector(@[v, v, v]))
 let correctYVector = newVector(correctYVectorSeq)
+
+test "TSIT54, new":
+    var sol = TSIT54(f, y0, 10.0)
+    var ts: seq[float] = @[]
+    var yCorrect: seq[float] = @[]
+    for i, t in tspan:
+        if t >= 0.0:
+            ts.add(t)
+            yCorrect.add(correctY[i])
+    let y = sol.eval(ts)
+    for i, val in y:
+        check isClose(val, yCorrect[i], tol=1e-4)
+
+test "TSIT54, new tol=1e-8":
+    var sol = TSIT54(f, y0, 10.0, options=oo, saveEvery=0.2)
+    var ts: seq[float] = @[]
+    var yCorrect: seq[float] = @[]
+    for i, t in tspan:
+        if t >= 0.0:
+            ts.add(t)
+            yCorrect.add(correctY[i])
+    let y = sol.eval(ts)
+    for i, val in y:
+        check isClose(val, yCorrect[i], tol=1e-8)
 
 test "DOPRI54, default":
     let (t, y) = solveODE(f, y0, tspan, integrator="dopri54")
@@ -38,6 +62,18 @@ test "RK4, default":
     check t == tspan
     for i, val in y:
         check isClose(val, correctY[i], tol=1e-4)
+
+test "RK4, new":
+    var sol = RK4(f, y0, 10.0)
+    var ts: seq[float] = @[]
+    var yCorrect: seq[float] = @[]
+    for i, t in tspan:
+        if t >= 0.0:
+            ts.add(t)
+            yCorrect.add(correctY[i])
+    let y = sol.eval(ts)
+    for i, val in y:
+        check isClose(val, yCorrect[i], tol=1e-4)
 
 test "RK4, dt = 1e-6":
     let (t, y) = solveODE(f, y0, tspan, integrator="rk4", options=oo)
@@ -213,6 +249,18 @@ test "RK4 Tensor, default":
     check t == tspan
     for i, val in y:
         check isClose(val, correctYTensor[i], tol=1e-4)
+
+test "RK4 New Tensor, default":
+    var sol = RK4(fTensor, y0Tensor, 10.0)
+    var ts: seq[float] = @[]
+    var yCorrect: seq[Tensor[float]] = @[]
+    for i, t in tspan:
+        if t >= 0.0:
+            ts.add(t)
+            yCorrect.add(correctYTensor[i])
+    let y = sol.eval(ts)
+    for i, val in y:
+        check isClose(val, yCorrect[i], tol=1e-4)
 
 test "RK4 Tensor, dt = 1e-2":
     let (t, y) = solveODE(fTensor, y0Tensor, tspan, integrator="rk4", options=ooTensor)

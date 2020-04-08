@@ -8,3 +8,5 @@ import numericalnim/optimize
 export optimize
 import numericalnim/interpolate
 export interpolate
+import numericalnim/newOde
+export newOde

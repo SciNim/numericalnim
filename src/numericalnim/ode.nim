@@ -19,17 +19,17 @@ const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
 const allODE* = fixedODE.concat(adaptiveODE)
 
 
-template `+.`(d1, d2: float): float =
+template `+.`*(d1, d2: float): float =
     d1 + d2
 
-template `/.`(d1, d2: float): float =
+template `/.`*(d1, d2: float): float =
     d1 / d2
 
-template `*.`(d1, d2: float): float =
+template `*.`*(d1, d2: float): float =
     d1 * d2
 
-proc size(d: float): int {.inline.} = 1
-proc sum(d: float): float {.inline.} = d
+proc size*(d: float): int {.inline.} = 1
+proc sum*(d: float): float {.inline.} = d
 
 template commonAdaptiveMethodCode(yNew, error_y: untyped, order: int, body: untyped) =
     while limitCounter < 2:
@@ -78,7 +78,7 @@ proc newODEoptions*(dt: float = 1e-4, absTol: float = 1e-4, relTol: float = 1e-4
     result = ODEoptions(dt: abs(dt), absTol: abs(absTol), relTol: abs(relTol), dtMax: abs(dtMax),
                         dtMin: abs(dtMin), scaleMax: abs(scaleMax), scaleMin: abs(scaleMin), tStart: tStart)
 
-const DEFAULT_ODEoptions = newODEoptions()
+const DEFAULT_ODEoptions* = newODEoptions()
 
 
 proc HEUN2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,

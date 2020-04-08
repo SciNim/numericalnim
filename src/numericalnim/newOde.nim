@@ -1,163 +1,202 @@
+import interpolate, ode
+
+
 type
-    ODEoptions* = object
-        dt*: float
-        dtMax*: float
-        dtMin*: float
-        tStart*: float
-        absTol*: float
-        relTol*: float
-        scaleMax*: float
-        scaleMin*: float
+    ODESolution*[T] = ref object
+        interpolant*: InterpolatorType[T]
+        t*: seq[float]
+        y*: seq[T]
+        dy*: seq[T]
 
-proc newODEoptions*(dt: float = 1e-4, absTol: float = 1e-4, relTol: float = 1e-4, dtMax: float = 1e-2, dtMin: float = 1e-4, scaleMax: float = 4.0, scaleMin: float = 0.1,
-                    tStart: float = 0.0): ODEoptions =
-    ## Create a new ODEoptions object.
-    ##
-    ## Input:
-    ##   - dt: The time step to use in fixed timestep integrators.
-    ##   - absTol: The absolute error tolerance to use in adaptive timestep integrators.
-    ##   - relTol: The relative error tolerance to use in adaptive timestep integrators.
-    ##   - dtMax: The maximum timestep allowed in adaptive timestep integrators.
-    ##   - dtMin: The minimum timestep allowed in adaptive timestep integrators.
-    ##   - scaleMax: The maximum increase factor for the time step dt between two steps.
-    ##   - ScaleMin: The minimum factor for the time step dt between two steps.
-    ##   - tStart: The time to start the ODE-solver at. The time the initial
-    ##     conditions are supplied at.
-    ##
-    ## Returns:
-    ##   - ODEoptions object with the supplied parameters.
-    if abs(dtMax) < abs(dtMin):
-        raise newException(ValueError, "dtMin must be less than dtMax")
-    if abs(scaleMax) < 1:
-        raise newException(ValueError, "scaleMax must be bigger than 1")
-    if 1 < abs(scaleMin):
-        raise newException(ValueError, "scaleMin must be smaller than 1")
-    result = ODEoptions(dt: abs(dt), absTol: abs(absTol), relTol: abs(relTol), dtMax: abs(dtMax),
-                        dtMin: abs(dtMin), scaleMax: abs(scaleMax), scaleMin: abs(scaleMin), tStart: tStart)
+proc eval*[T](sol: ODESolution[T], x: float): T =
+    sol.interpolant.eval(x)
 
-const DEFAULT_ODEoptions = newODEoptions()
+proc eval*[T](sol: ODESolution[T], x: openArray[float]): seq[T] =
+    sol.interpolant.eval(x)
 
-template odeLoop(useFSAL, adaptive: bool, order: float, code: untyped) {.dirty.} =
-    let t0 = options.tStart
+template `+.`(d1, d2: float): float =
+    d1 + d2
+
+template `/.`(d1, d2: float): float =
+    d1 / d2
+
+template `*.`(d1, d2: float): float =
+    d1 * d2
+
+proc size(d: float): int {.inline.} = 1
+proc sum(d: float): float {.inline.} = d
+
+template odeLoop(useFSAL, adaptive: bool, order: float, saveEvery: float, FSAL_var: untyped, code: untyped): untyped {.dirty.} =
     var t = t0
-    var tPositive, tNegative: seq[float]
-    tPositive = tspan.filter(proc(x: float): bool = x > t0)
-    tnegative = tspan.filter(proc(x: float): bool = x < t0).reversed()
-    var yPositive, yNegative: seq[T]
-    var y = y0.clone()
-    var yZero: seq[T] = @[]
-    var tZero: seq[float] = @[]
-    if t0 in tspan:
-        yZero.add(y)
-        tZero.add(t0)
-    let dtMax = options.dtMax
-    let dtMin = options.dtMin
+    var y: T = y0.clone()
+    var yNew: T
     var dt, dtInit: float
-    if adaptive:
+    var nextSaveAt = t0 + saveEvery
+    when adaptive:
+        var error: T
+        let absTol = options.absTol
+        let relTol = options.relTol
+        let dtMax = options.dtMax
+        let dtMin = options.dtMin
+        var limitCounter = 0
+        var totalTol, err, err_square: T
+        var err_size, errTot: float
+    when useFSAL:
+        var FSAL = f(t0, y0)
+    when adaptive:
         dtInit = sqrt(dtMax * dtMin)
         dt = dtInit
     else:
         dtInit = options.dt
         dt = dtInit
-    var useDense: bool
-    var lastIter = (t: t0, y: y, dy: f(t0, y))
-    if tspan.len == 2:
-        useDense = false
-    else:
-        useDense = true
-    var denseIndex = 0
+    while t < tEnd:
+        dt = min(dt, tEnd - t)
+        when adaptive: # error, y, yNew, t, dt injected
+            limitCounter = 0
+            while limitcounter < 2:
+                code
+                totalTol = absTol +. relTol * abs(yNew)
+                err = error /. totalTol
+                err_square = err *. err
+                err_size = err.size.toFloat
+                errTot = sqrt(sum(err_square) / err_size)
 
-    var error: float
-    var FSAL = f(t0, y)
-    var tEnd: float
-    if 0 < tPositive.len:
-        dt = dtInit
-        tEnd = max(tPositive)
-        while t < tEnd:
-            if useDense:
-                if tPositive.high < denseIndex:
+                if errTot <= 1:
                     break
-                while tPositive[denseIndex] <= t:
-                    when useFSAL:
-                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
-                                                    t, lastIter.y, y, lastIter.dy, FSAL))
-                    else:
-                        yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
-                                                    t, lastIter.y, y, lastIter.dy, f(t, y)))
-                    denseIndex += 1
-                    if tPositive.high < denseIndex:
-                        break
-            dt = min(dt, tEnd - t)
-            if useDense:
-                if useFSAL:
-                    lastIter = (t: t, y: y, dy: FSAL)
-                else:
-                    lastIter = (t: t, y: y, dy: f(t, y))
-            code
-            t += dt
-            when adaptive:
-                if error == 0.0:
-                    dt *= 5
-                else:
-                    dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
-                if dt < dtMin:
+                dt = dt * min(4, max(0.125, 0.9 * pow(1/errTot, 1/order)))
+                if abs(dt) < dtMin:
                     dt = dtMin
-                elif dtMax < dt:
+                    limitCounter += 1
+                elif dtMax < abs(dt):
                     dt = dtMax
-        yPositive.add(y)
-
-    if 0 < tNegative.len:
-        let g = proc(t: float, y: T): T = -f(-t, y)
-        FSAL = g(-t0, y0.clone())
-        dt = dtInit
-        lastIter = (t: -t0, y: y0.clone(), dy: FSAL)
-        tEnd = -min(tNegative)
-        t = -t0
-        y = y0.clone()
-        denseIndex = 0
-        while t < tEnd:
-            if useDense:
-                if tNegative.high < denseIndex:
-                    break
-                while -tNegative[denseIndex] <= t:
-                    when useFSAL:
-                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t,
-                                                    t, lastIter.y, y, lastIter.dy, FSAL))
-                    else:
-                        yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t,
-                                                    lastIter.y, y, lastIter.dy, g(t, y)))
-                    denseIndex += 1
-                    if tNegative.high < denseIndex:
-                        break
-            dt = min(dt, tEnd - t)
-            if useDense:
-                if useFSAL:
-                    lastIter = (t: t, y: y, dy: FSAL)
-                else:
-                    lastIter = (t: t, y: y, dy: g(t, y))
+            when useFSAL:
+                FSAL = `FSAL_var`
+        else:
             code
-            t += dt
-            when adaptive:
-                if error == 0.0:
-                    dt *= 5
-                else:
-                    dt = dt * min(4, max(0.125, 0.9 * pow(1/error, 1/order)))
-                if dt < dtMin:
-                    dt = dtMin
-                elif dtMax < dt:
-                    dt = dtMax
-        yNegative.add(y)
-    return (tNegative.reversed().concat(tZero).concat(tPositive),
-            yNegative.reversed().concat(yZero).concat(yPositive))
+        t += dt # must update t with the successful dt before we update it
+        when adaptive:
+            dt = dt * min(4, max(0.125, 0.9 * pow(1/errTot, 1/order)))
+            if abs(dt) < dtMin:
+                dt = dtMin
+                limitCounter += 1
+            elif dtMax < abs(dt):
+                dt = dtMax
+        # Here we should have t, yNew
+        # Here saving coefficients code block can be inserted
+        if t > nextSaveAt or t >= tEnd:
+            ys.add(yNew)
+            ts.add(t)
+            when useFSAL:
+                dys.add(FSAL)
+            else:
+                dys.add(f(t, yNew))
+            nextSaveAt += saveEvery
+        y = yNew
 
-
-proc RK4*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
-                  options: ODEoptions = DEFAULT_ODEoptions): (seq[float], seq[T]) =
+proc RK4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    let t0: float = options.tStart
+    let dt_local = options.dt
+    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
+    ts.add(t0)
+    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    ys.add(y0.clone())
+    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    dys.add(f(t0, y0))
+    # Try to get above code in the template and make ts, ys, dys available outside 
     var k1, k2, k3, k4: T
-    odeLoop(false, false, 4.0):
+    odeLoop(useFSAL=false, adaptive=false, order=4.0, saveEvery=saveEvery, FSAL_var=nothing):
         k1 = f(t, y)
         k2 = f(t + 0.5*dt, y + 0.5 * dt * k1)
         k3 = f(t + 0.5*dt, y + 0.5 * dt * k2)
         k4 = f(t +     dt, y +       dt * k3)
         yNew = y + dt / 6.0 * (k1 + 2.0 * (k2 + k3) + k4)
-        # y, yNew, dt is injected from template
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc RK21*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    let t0: float = options.tStart
+    let dt_local = options.dt
+    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
+    ts.add(t0)
+    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    ys.add(y0.clone())
+    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    dys.add(f(t0, y0))
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, yLow: T
+    odeLoop(useFSAL=false, adaptive=true, order=2.0, saveEvery=saveEvery, FSAL_var=nothing):
+        k1 = f(t, y)
+        k2 = f(t + dt, y + dt * k1)
+        yNew = y + dt * 0.5 * (k1 + k2) # injected
+        yLow = y + dt * k1
+        error = yNew - yLow # injected
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc TSIT54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    let t0: float = options.tStart
+    let dt_local = options.dt
+    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
+    ts.add(t0)
+    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    ys.add(y0.clone())
+    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    dys.add(f(t0, y0))
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    const
+        c2 = 0.161
+        c3 = 0.327
+        c4 = 0.9
+        c5 = 0.9800255409045097
+        c6 = 1.0
+        c7 = 1.0
+        a21 = 0.161
+        a31 = -0.008480655492356989
+        a32 = 0.335480655492357
+        a41 = 2.8971530571054935
+        a42 = -6.359448489975075
+        a43 = 4.3622954328695815
+        a51 = 5.325864828439257
+        a52 = -11.748883564062828
+        a53 = 7.4955393428898365
+        a54 = -0.09249506636175525
+        a61 = 5.86145544294642
+        a62 = -12.92096931784711
+        a63 = 8.159367898576159
+        a64 = -0.071584973281401
+        a65 = -0.028269050394068383
+        a71 = 0.09646076681806523
+        a72 = 0.01
+        a73 = 0.4798896504144996
+        a74 = 1.379008574103742
+        a75 = -3.290069515436081
+        a76 = 2.324710524099774
+        # Fifth order
+        b1 = a71
+        b2 = a72
+        b3 = a73
+        b4 = a74
+        b5 = a75
+        b6 = a76
+        # Fourth order
+        bHat1 = -0.001780011052226
+        bHat2 = -0.000816434459657
+        bHat3 = 0.007880878010262
+        bHat4 = -0.144711007173263
+        bHat5 = 0.582357165452555
+        bHat6 = -0.458082105929187
+        bHat7 = 1.0/66.0
+    var k1, k2, k3, k4, k5, k6, k7: T
+    odeLoop(useFSAL=true, adaptive=true, order=5.0, saveEvery=saveEvery, FSAL_var=k7):
+        k1 = FSAL
+        k2 = f(t + dt*c2, y + dt * (a21 * k1))
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
+
+        yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
+        error = dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
