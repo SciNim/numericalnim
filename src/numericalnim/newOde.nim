@@ -26,6 +26,17 @@ template `*.`(d1, d2: float): float =
 proc size(d: float): int {.inline.} = 1
 proc sum(d: float): float {.inline.} = d
 
+
+template init_ode_seqs(): untyped {.dirty.} =
+    let t0: float = options.tStart
+    let dt_local = options.dt
+    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
+    ts.add(t0)
+    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    ys.add(y0.clone())
+    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
+    dys.add(f(t0, y0))
+
 template default_between_step(): untyped {.dirty.} =
     if t > nextSaveAt or t >= tEnd:
         ys.add(yNew)
@@ -101,15 +112,115 @@ template odeLoop(adaptive: bool, order: float, saveEvery: float, step_code: unty
         between_step_code
         y = yNew
 
+
+
+
+proc HEUN2*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2: T
+    odeLoop(adaptive=false, order=2.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + dt, y + dt * k1)
+        yNew = y + 0.5 * dt * (k1 + k2)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc RALSTON2*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2: T
+    odeLoop(adaptive=false, order=2.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 2/3 * dt, y + 2/3 * dt * k1)
+        yNew = y + dt * (0.25 * k1 + 0.75 * k2)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc KUTTA3*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3: T
+    odeLoop(adaptive=false, order=3.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
+        k3 = f(t + dt, y - dt * k1 + 2 * dt * k2)
+        yNew = y + dt * (1/6 * k1 + 2/3 * k2 + 1/6 * k3)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc HEUN3*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3: T
+    odeLoop(adaptive=false, order=3.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
+        k3 = f(t + 2/3 * dt, y + 2/3 * dt * k2)
+        yNew = y + dt * (0.25 * k1 + 0.75 * k3)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc RALSTON3*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3: T
+    odeLoop(adaptive=false, order=3.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 1/2 * dt, y + 1/2 * dt * k1)
+        k3 = f(t + 3/4 * dt, y + 3/4 * dt * k2)
+        yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc SSPRK3*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3: T
+    odeLoop(adaptive=false, order=3.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + dt, y + dt * k1)
+        k3 = f(t + 0.5 * dt, y + 0.25 * dt * (k1 + k2))
+        yNew = y + dt * (1/6 * k1 + 1/6 * k2 + 2/3 * k3)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc RALSTON4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3, k4: T
+    odeLoop(adaptive=false, order=4.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 0.4 * dt, y + 0.4 * dt * k1)
+        k3 = f(t + 0.45573725 * dt, y + dt * (0.29697761 * k1 + 0.15875964 * k2))
+        k4 = f(t + dt, y + dt * (0.21810040 * k1 - 3.05096516 * k2 + 3.83286476 * k3))
+        yNew = y + dt * (0.17476028 * k1 - 0.55148066 * k2 + 1.20553560 * k3 + 0.17118478 * k4)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc KUTTA4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3, k4: T
+    odeLoop(adaptive=false, order=4.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
+        k3 = f(t + 2/3 * dt, y + dt * (-1/3 * k1 + k2))
+        k4 = f(t + dt, y + dt * (k1 - k2 + k3))
+        yNew = y + dt * (1/8 * k1 + 3/8 * k2 + 3/8 * k3 + 1/8 * k4)
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
 proc RK4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
-    let t0: float = options.tStart
-    let dt_local = options.dt
-    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
-    ts.add(t0)
-    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    ys.add(y0.clone())
-    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    dys.add(f(t0, y0))
+    init_ode_seqs()
     # Try to get above code in the template and make ts, ys, dys available outside 
     var k1, k2, k3, k4: T
     odeLoop(adaptive=false, order=4.0, saveEvery=saveEvery) do:
@@ -123,14 +234,7 @@ proc RK4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
 
 proc RK21*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
-    let t0: float = options.tStart
-    let dt_local = options.dt
-    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
-    ts.add(t0)
-    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    ys.add(y0.clone())
-    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    dys.add(f(t0, y0))
+    init_ode_seqs()
     # Try to get above code in the template and make ts, ys, dys available outside 
     var k1, k2, yLow: T
     odeLoop(adaptive=true, order=2.0, saveEvery=saveEvery) do:
@@ -143,15 +247,24 @@ proc RK21*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float =
     var hermite = newHermiteSpline(ts, ys, dys)
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
 
+proc BS32*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    var k1, k2, k3, k4, yLow: T
+    odeLoop(adaptive=true, order=3.0, saveEvery=saveEvery) do:
+        k1 = f(t, y)
+        k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
+        k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
+        yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
+        k4 = f(t + dt, yNew)
+        yLow = y + dt * (7/24 * k1 + 1/4 * k2 + 1/3 * k3 + 1/8 * k4)
+        error = yNew - yLow
+    do: default_between_step()
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
 proc TSIT54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
-    let t0: float = options.tStart
-    let dt_local = options.dt
-    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
-    ts.add(t0)
-    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    ys.add(y0.clone())
-    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    dys.add(f(t0, y0))
+    init_ode_seqs()
     # Try to get above code in the template and make ts, ys, dys available outside 
     const
         c2 = 0.161
@@ -219,14 +332,7 @@ proc TSIT54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
 
 proc DOPRI54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
-    let t0: float = options.tStart
-    let dt_local = options.dt
-    var ts = newSeqOfCap[float](int(abs(tEnd - t0) / dt_local))
-    ts.add(t0)
-    var ys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    ys.add(y0.clone())
-    var dys = newSeqOfCap[T](int(abs(tEnd - t0) / dt_local))
-    dys.add(f(t0, y0))
+    init_ode_seqs()
     # Try to get above code in the template and make ts, ys, dys available outside 
     const
         c2 = 1.0/5.0
@@ -289,6 +395,97 @@ proc DOPRI54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: floa
             ys.add(yNew)
             ts.add(t)
             dys.add(k7) # FSAL
+            nextSaveAt += saveEvery
+    var hermite = newHermiteSpline(ts, ys, dys)
+    result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
+
+proc VERN65*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
+    init_ode_seqs()
+    # Try to get above code in the template and make ts, ys, dys available outside 
+    const
+        c2 = 0.06
+        c3 = 0.09593333333333333
+        c4 = 0.1439
+        c5 = 0.4973
+        c6 = 0.9725
+        c7 = 0.9995
+        c8 = 1.0
+        c9 = 1.0
+        a21 = 0.06
+        a31 = 0.019239962962962962
+        a32 = 0.07669337037037037
+        a41 = 0.035975
+        a42 = 0.0
+        a43 = 0.107925
+        a51 = 1.3186834152331484
+        a52 = 0.0
+        a53 = -5.042058063628562
+        a54 = 4.220674648395414
+        a61 = -41.87259166432751
+        a62 = 0.0
+        a63 = 159.43256216313748
+        a64 = -122.11921356501004
+        a65 = 5.531743066200053
+        a71 = -54.430156935316504
+        a72 = 0.0
+        a73 = 207.06725136501848
+        a74 = -158.61081378459
+        a75 = 6.991816585950242
+        a76 = -0.01859723106220323
+        a81 = -54.66374178728198
+        a82 = 0.0
+        a83 = 207.95280625538936
+        a84 = -159.2889574744995
+        a85 = 7.018743740796944
+        a86 = -0.018338785905045722
+        a87 = -0.0005119484997882099
+        a91 = 0.03438957868357036
+        a92 = 0.0
+        a93 = 0.0
+        a94 = 0.25826245556335037
+        a95 = 0.4209371189673537
+        a96 = 4.405396469669310
+        a97 = -176.48311902429865
+        a98 = 172.36413340141507
+        # Sixth order
+        b1 = 0.03438957868357036
+        b2 = 0.0
+        b3 = 0.0
+        b4 = 0.25826245556335034
+        b5 = 0.42093711896735372
+        b6 = 4.4053964696693102
+        b7 = -176.48311902429866
+        b8 = 172.36413340141507
+        # Fifth order
+        bHat1 = b1 - 0.04909967648382
+        bHat2 = b2 - 0.0
+        bHat3 = b3 - 0.0
+        bHat4 = b4 - 0.22511122295165
+        bHat5 = b5 - 0.46946822530296
+        bHat6 = b6 - 0.80657922499889
+        bHat7 = b7 - 0.0
+        bHat8 = b8 - -0.60711948917780
+        bHat9 = -0.05686113944048
+    var k1, k2, k3, k4, k5, k6, k7, k8, k9, yLow: T
+    k9 = f(t0, y0)
+    odeLoop(adaptive=true, order=6.0, saveEvery=saveEvery) do:
+        k1 = k9
+        k2 = f(t + dt*c2, y + dt * (a21 * k1))
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
+        k8 = f(t + dt*c8, y + dt * (a81 * k1 + a82 * k2 + a83 * k3 + a84 * k4 + a85 * k5 + a86 * k6 + a87 * k7))
+        k9 = f(t + dt*c9, y + dt * (a91 * k1 + a92 * k2 + a93 * k3 + a94 * k4 + a95 * k5 + a96 * k6 + a97 * k7 + a98 * k8))
+
+        yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6 + b7 * k7 + b8 * k8)
+        error = dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7 + bHat8 * k8 + bHat9 * k9)
+    do: 
+        saveEvery_code:
+            ys.add(yNew)
+            ts.add(t)
+            dys.add(k9) # FSAL
             nextSaveAt += saveEvery
     var hermite = newHermiteSpline(ts, ys, dys)
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
