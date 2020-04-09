@@ -45,6 +45,18 @@ test "TSIT54, new tol=1e-8":
     for i, val in y:
         check isClose(val, yCorrect[i], tol=1e-8)
 
+test "DOPRI54, new tol=1e-8":
+    var sol = DOPRI54(f, y0, 10.0, options=oo, saveEvery=0.2)
+    var ts: seq[float] = @[]
+    var yCorrect: seq[float] = @[]
+    for i, t in tspan:
+        if t >= 0.0:
+            ts.add(t)
+            yCorrect.add(correctY[i])
+    let y = sol.eval(ts)
+    for i, val in y:
+        check isClose(val, yCorrect[i], tol=1e-8)
+
 test "DOPRI54, default":
     let (t, y) = solveODE(f, y0, tspan, integrator="dopri54")
     check t == tspan
