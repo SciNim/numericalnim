@@ -26,7 +26,18 @@ template `*.`(d1, d2: float): float =
 proc size(d: float): int {.inline.} = 1
 proc sum(d: float): float {.inline.} = d
 
-template odeLoop(useFSAL, adaptive: bool, order: float, saveEvery: float, FSAL_var: untyped, code: untyped): untyped {.dirty.} =
+template default_between_step(): untyped {.dirty.} =
+    if t > nextSaveAt or t >= tEnd:
+        ys.add(yNew)
+        ts.add(t)
+        dys.add(f(t, yNew))
+        nextSaveAt += saveEvery
+
+template saveEvery_code(code: untyped): untyped {.dirty.} =
+    if t > nextSaveAt or t >= tEnd:
+        code
+
+template odeLoop(adaptive: bool, order: float, saveEvery: float, step_code: untyped, between_step_code: untyped): untyped {.dirty.} =
     var t = t0
     var y: T = y0.clone()
     var yNew: T
@@ -41,8 +52,6 @@ template odeLoop(useFSAL, adaptive: bool, order: float, saveEvery: float, FSAL_v
         var limitCounter = 0
         var totalTol, err, err_square: T
         var err_size, errTot: float
-    when useFSAL:
-        var FSAL = f(t0, y0)
     when adaptive:
         dtInit = sqrt(dtMax * dtMin)
         dt = dtInit
@@ -54,7 +63,7 @@ template odeLoop(useFSAL, adaptive: bool, order: float, saveEvery: float, FSAL_v
         when adaptive: # error, y, yNew, t, dt injected
             limitCounter = 0
             while limitcounter < 2:
-                code
+                step_code
                 totalTol = absTol +. relTol * abs(yNew)
                 err = error /. totalTol
                 err_square = err *. err
@@ -69,10 +78,8 @@ template odeLoop(useFSAL, adaptive: bool, order: float, saveEvery: float, FSAL_v
                     limitCounter += 1
                 elif dtMax < abs(dt):
                     dt = dtMax
-            when useFSAL:
-                FSAL = `FSAL_var`
         else:
-            code
+            step_code
         t += dt # must update t with the successful dt before we update it
         when adaptive:
             dt = dt * min(4, max(0.125, 0.9 * pow(1/errTot, 1/order)))
@@ -82,15 +89,16 @@ template odeLoop(useFSAL, adaptive: bool, order: float, saveEvery: float, FSAL_v
             elif dtMax < abs(dt):
                 dt = dtMax
         # Here we should have t, yNew
-        # Here saving coefficients code block can be inserted
-        if t > nextSaveAt or t >= tEnd:
+        #[if t > nextSaveAt or t >= tEnd:
             ys.add(yNew)
             ts.add(t)
             when useFSAL:
                 dys.add(FSAL)
             else:
                 dys.add(f(t, yNew))
-            nextSaveAt += saveEvery
+            nextSaveAt += saveEvery]#
+        # Here saving coefficients code block can be inserted
+        between_step_code
         y = yNew
 
 proc RK4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 0.0, options: ODEoptions = DEFAULT_ODEoptions): ODESolution[T] =
@@ -104,12 +112,13 @@ proc RK4*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float = 
     dys.add(f(t0, y0))
     # Try to get above code in the template and make ts, ys, dys available outside 
     var k1, k2, k3, k4: T
-    odeLoop(useFSAL=false, adaptive=false, order=4.0, saveEvery=saveEvery, FSAL_var=nothing):
+    odeLoop(adaptive=false, order=4.0, saveEvery=saveEvery) do:
         k1 = f(t, y)
         k2 = f(t + 0.5*dt, y + 0.5 * dt * k1)
         k3 = f(t + 0.5*dt, y + 0.5 * dt * k2)
         k4 = f(t +     dt, y +       dt * k3)
         yNew = y + dt / 6.0 * (k1 + 2.0 * (k2 + k3) + k4)
+    do: default_between_step()
     var hermite = newHermiteSpline(ts, ys, dys)
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
 
@@ -124,12 +133,13 @@ proc RK21*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float =
     dys.add(f(t0, y0))
     # Try to get above code in the template and make ts, ys, dys available outside 
     var k1, k2, yLow: T
-    odeLoop(useFSAL=false, adaptive=true, order=2.0, saveEvery=saveEvery, FSAL_var=nothing):
+    odeLoop(adaptive=true, order=2.0, saveEvery=saveEvery) do:
         k1 = f(t, y)
         k2 = f(t + dt, y + dt * k1)
         yNew = y + dt * 0.5 * (k1 + k2) # injected
         yLow = y + dt * k1
         error = yNew - yLow # injected
+    do: default_between_step()
     var hermite = newHermiteSpline(ts, ys, dys)
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
 
@@ -187,8 +197,9 @@ proc TSIT54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float
         bHat6 = -0.458082105929187
         bHat7 = 1.0/66.0
     var k1, k2, k3, k4, k5, k6, k7: T
-    odeLoop(useFSAL=true, adaptive=true, order=5.0, saveEvery=saveEvery, FSAL_var=k7):
-        k1 = FSAL
+    k7 = f(t0, y0)
+    odeLoop(adaptive=true, order=5.0, saveEvery=saveEvery) do:
+        k1 = k7
         k2 = f(t + dt*c2, y + dt * (a21 * k1))
         k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
         k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
@@ -198,5 +209,11 @@ proc TSIT54*[T](f: proc(t: float, y: T): T, y0: T, tEnd: float, saveEvery: float
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         error = dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
+    do: 
+        saveEvery_code:
+            ys.add(yNew)
+            ts.add(t)
+            dys.add(k7) # FSAL
+            nextSaveAt += saveEvery
     var hermite = newHermiteSpline(ts, ys, dys)
     result = ODESolution[T](t: ts, y: ys, dy: dys, interpolant: hermite)
