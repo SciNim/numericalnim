@@ -2,7 +2,9 @@
 
 NumericalNim is a collection of numerical methods written in Nim. Currently it has support for integration, optimization, interpolation and ODE. It can operate on floats and custom structures, such as vectors and tensors (if they support a set of operators).
 
-[Gitter Channel](https://gitter.im/NumericalNim/community)
+[NumericalNim's Gitter Channel](https://gitter.im/NumericalNim/community)
+
+[SciNim's Gitter Channel](https://gitter.im/SciNim/community)
 
 # Installation
 Install NumericalNim using Nimble:
