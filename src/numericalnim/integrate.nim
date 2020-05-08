@@ -681,7 +681,7 @@ proc adaptiveGaussLocal*[T](f: proc(x: float, optional: seq[T]): T,
 
     let zero = f(xStart, @optional) - f(xStart, @optional)
     let error = highOrderResult - lowOrderResult
-    if calcError(error, zero) < tol or abs(xEnd - xStart) < 1e-5:
+    if calcError(error, zero) < tol or abs(xEnd - xStart) < 1e-8:
         return highOrderResult
     let c1 = (xEnd - xStart) / 2.0
     let c2 = (xStart + xEnd) / 2.0
@@ -743,7 +743,7 @@ proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T,
     var middle, error: float
     var highValue, lowValue: T
 
-    while totalError > tol:
+    while totalError > tol and intervals.list.len < maxintervals:
         currentInterval = intervals.pop()
         totalError -= currentInterval.error
         totalValue -= currentInterval.value
