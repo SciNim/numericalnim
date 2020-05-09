@@ -705,8 +705,8 @@ proc insert*[T](intervalList: var IntervalList[T], el: IntervalType[T]) {.inline
 proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
     result = intervalList.list.pop()
 
-proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T,
-                       xStart, xEnd: float, tol = 1e-8, maxintervals: int = 10000, optional: openArray[T] = @[]): T =
+proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
+                       xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, optional: openArray[T] = @[]): T =
     ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature.
     ##
     ## Input:
@@ -720,6 +720,36 @@ proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T,
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using
     ##     an adaptive Gauss-Kronrod Quadrature.
+    var f: (proc(x: float, optional: seq[T]): T) = f_in
+    var xStart: float = xStart_in
+    var xEnd: float = xEnd_in
+    if xStart == -Inf and xEnd == Inf:
+        # Remember to scale supplied points to new interval
+        f = proc(x: float, optional: seq[T]): T = (f_in((1-x)/x, optional) + f_in(-(1-x)/x, optional)) / (x*x)
+        xStart = 0.0
+        xEnd = 1.0
+    elif  xStart == Inf and xEnd == -Inf:
+        f = proc(x: float, optional: seq[T]): T = -(f_in((1-x)/x, optional) + f_in(-(1-x)/x, optional)) / (x*x)
+        xStart = 0.0
+        xEnd = 1.0
+    elif xStart == -Inf:
+        f= proc(x: float, optional: seq[T]): T = f_in(xEnd_in - (1-x)/x, optional) / (x*x)
+        xStart = 0.0
+        xEnd = 1.0
+    elif xStart == Inf:
+        f = proc(x: float, optional: seq[T]): T = -f_in(xEnd_in + (1-x)/x, optional) / (x*x)
+        xStart = 0.0
+        xEnd = 1.0
+    elif xEnd == Inf:
+        f = proc(x: float, optional: seq[T]): T = f_in(xStart_in + (1-x)/x, optional) / (x*x)
+        xStart = 0.0
+        xEnd = 1.0
+    elif xEnd == -Inf:
+        f= proc(x: float, optional: seq[T]): T = -f_in(xStart_in - (1-x)/x, optional) / (x*x)
+        xStart = 0.0
+        xEnd = 1.0
+
+
     let optional = @optional
     const lowOrderWeights = [0.0666713443086881375936, 0.1494513491505805931458, 0.219086362515982043996, 0.269266719309996355091, 0.2955242247147528701739,
                              0.2955242247147528701739, 0.2692667193099963550912, 0.2190863625159820439955, 0.1494513491505805931458, 0.0666713443086881375936] # weights for low order
