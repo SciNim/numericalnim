@@ -764,6 +764,8 @@ proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
     var intervals = IntervalList[T](list: newSeqOfCap[IntervalType[T]](maxintervals))
     let (initHigh, initLow) = calcGaussKronrod(f, xStart, xEnd, optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
     let zero = initHigh - initHigh
+    if xStart_in == xEnd_in:
+        return zero
     let initError = calcError(initHigh - initLow, zero)
     let initInterval = IntervalType[T](upper: xEnd, lower: xStart, error: initError, value: initHigh)
     intervals.insert(initInterval)
