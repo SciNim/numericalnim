@@ -1,4 +1,4 @@
-import math, algorithm
+import math, algorithm, sequtils
 import utils
 import arraymancer
 
@@ -706,7 +706,7 @@ proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
     result = intervalList.list.pop()
 
 proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
-                       xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, optional: openArray[T] = @[]): T =
+                       xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], optional: openArray[T] = @[]): T =
     ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature.
     ##
     ## Input:
@@ -715,6 +715,8 @@ proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
+    ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries.
     ##   - optional: A seq of optional parameters that is passed to f.
     ##
     ## Returns:
@@ -723,31 +725,87 @@ proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
     var f: (proc(x: float, optional: seq[T]): T) = f_in
     var xStart: float = xStart_in
     var xEnd: float = xEnd_in
-    if xStart == -Inf and xEnd == Inf:
+    var points_transformed = @initialPoints
+    if xStart == -Inf and xEnd == Inf: # Done
         # Remember to scale supplied points to new interval
         f = proc(x: float, optional: seq[T]): T = (f_in((1-x)/x, optional) + f_in(-(1-x)/x, optional)) / (x*x)
+        # if x => 0: t = 1/(1+x)
+        # elif x < 0: t = 1/(1-x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            if 0 <= x:
+                points_transformed[i] = 1 / (1 + x)
+            else:
+                points_transformed[i] = 1 / (1 - x)
         xStart = 0.0
         xEnd = 1.0
-    elif  xStart == Inf and xEnd == -Inf:
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif  xStart == Inf and xEnd == -Inf: # Done
         f = proc(x: float, optional: seq[T]): T = -(f_in((1-x)/x, optional) + f_in(-(1-x)/x, optional)) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            if 0 <= x:
+                points_transformed[i] = 1 / (1 + x)
+            else:
+                points_transformed[i] = 1 / (1 - x)
         xStart = 0.0
         xEnd = 1.0
-    elif xStart == -Inf:
-        f= proc(x: float, optional: seq[T]): T = f_in(xEnd_in - (1-x)/x, optional) / (x*x)
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xStart == -Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = f_in(xEnd_in - (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1 + xEnd_in - x)
         xStart = 0.0
         xEnd = 1.0
-    elif xStart == Inf:
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xStart == Inf: # Done
         f = proc(x: float, optional: seq[T]): T = -f_in(xEnd_in + (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1 + x - xEnd_in)
         xStart = 0.0
         xEnd = 1.0
-    elif xEnd == Inf:
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xEnd == Inf: # Done
         f = proc(x: float, optional: seq[T]): T = f_in(xStart_in + (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1.0 + x - xStart_in)#xStart_in + (1-x) / x # we must inverse, this is x(t) not t(x)
         xStart = 0.0
         xEnd = 1.0
-    elif xEnd == -Inf:
-        f= proc(x: float, optional: seq[T]): T = -f_in(xStart_in - (1-x)/x, optional) / (x*x)
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xEnd == -Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = -f_in(xStart_in - (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1 + xStart_in - x)
         xStart = 0.0
         xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    else:
+        if points_transformed.len == 0:
+            points_transformed = @[xStart_in, xEnd_in]
+        else:
+            points_transformed = @[xStart_in, xEnd_in].concat(@initialPoints)
+    if xStart < xEnd:
+        points_transformed.sort(Ascending)
+    else:
+        points_transformed.sort(Descending)
+    # Trim off values outside integration domain
+    while points_transformed[0] != xStart:
+            points_transformed.delete(0)
+    while points_transformed[points_transformed.high] != xEnd:
+        points_transformed.delete(points_transformed.high)
+    # Remove duplicates, typically the endpoints
+    points_transformed = deduplicate(points_transformed, isSorted = true)
+
 
 
     let optional = @optional
@@ -761,16 +819,25 @@ proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
                               0.149445554002916905665, 0.1427759385770600807971, 0.123491976262065851078, 0.093125454583697605535, 0.05475589657435199603138, 0.0116946388673718742781] # weights for high order to use with highOrderNodes
     const highOrderNodes = [-0.9956571630258080807355, -0.9301574913557082260012, -0.7808177265864168970637, -0.562757134668604683339, -0.294392862701460198131,
                             0.0, 0.2943928627014601981311, 0.562757134668604683339, 0.7808177265864168970637, 0.9301574913557082260012, 0.9956571630258080807355] # nodes for high order
+    
     var intervals = IntervalList[T](list: newSeqOfCap[IntervalType[T]](maxintervals))
-    let (initHigh, initLow) = calcGaussKronrod(f, xStart, xEnd, optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+
+    let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[0], points_transformed[1], optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
     let zero = initHigh - initHigh
     if xStart_in == xEnd_in:
         return zero
     let initError = calcError(initHigh - initLow, zero)
-    let initInterval = IntervalType[T](upper: xEnd, lower: xStart, error: initError, value: initHigh)
+    let initInterval = IntervalType[T](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
     intervals.insert(initInterval)
     var totalValue: T = initHigh
     var totalError: float = initError
+    for i in 1 .. points_transformed.high - 1:
+        let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[i], points_transformed[i+1], optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+        let initError = calcError(initHigh - initLow, zero)
+        let initInterval = IntervalType[T](lower: points_transformed[i], upper: points_transformed[i+1], error: initError, value: initHigh)
+        intervals.insert(initInterval)
+        totalValue += initHigh
+        totalError += initError
     var currentInterval: IntervalType[T]
     var middle, error: float
     var highValue, lowValue: T
