@@ -1,6 +1,15 @@
-import math
+import math, algorithm, sequtils
 import utils
 import arraymancer
+
+type
+    IntervalType[T] = object
+        lower, upper: float # integration bounds
+        error: float # estimated error for current interval
+        value: T # estimated value for integral over current interval
+    IntervalList[T] = object
+        list: seq[IntervalType[T]] # contains all the intervals sorted from smallest to largest error
+
 
 # N: #intervals
 proc trapz*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float,
@@ -203,6 +212,46 @@ proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: f
     let left = adaptiveSimpson(f, xStart, m, tol = newtol, optional = @optional)
     let right = adaptiveSimpson(f, m, xEnd, tol = newtol, optional = @optional)
     return left + right
+
+proc internal_adaptiveSimpson[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float,
+                         tol: float, optional: openArray[T], reused_points: array[3, T]): T =
+    let zero = reused_points[0] - reused_points[0]
+    let dx1 = (xEnd - xStart) / 2
+    let dx2 = (xEnd - xStart) / 4 
+    let value1 = dx1 / 3 * (reused_points[0] + 4*reused_points[1] + reused_points[2])
+    let point2 = f(xStart + dx2,@optional)
+    let point4 = f(xStart + 3*dx2,@optional)
+    let value2 = dx2 / 3 * (reused_points[0] + 4*point2 + 2*reused_points[1] + 4*point4 + reused_points[2])
+    let error = (value2 - value1)/15
+    if calcError(error, zero) < tol or abs(xEnd - xStart) < 1e-6:
+        return value2 + error
+    let m = (xStart + xEnd) / 2.0
+    let newtol = tol / 2.0
+    let left = internal_adaptiveSimpson(f, xStart, m, tol = newtol, optional = @optional, [reused_points[0], point2, reused_points[1]])
+    let right = internal_adaptiveSimpson(f, m, xEnd, tol = newtol, optional = @optional, [reused_points[1], point4, reused_points[2]])
+    return left + right
+
+proc adaptiveSimpson2*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float,
+                         tol = 1e-8, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using an adaptive Simpson's rule.
+    ##
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and
+    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using
+    ##     an adaptive Simpson's rule.
+    var tol = tol
+    if tol < 1e-15:
+        tol = 1e-15
+    let dx = (xEnd - xStart) / 2
+    let init_points: array[3, T] = [f(xStart, @optional), f(xStart + dx, @optional), f(xEnd, @optional)]
+    return internal_adaptiveSimpson(f, xStart, xEnd, tol, @optional, init_points)
 
 
 proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
@@ -506,6 +555,29 @@ proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float,
         tempResult *= c1
         result += tempResult
 
+proc calcGaussKronrod[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, optional: openArray[T] = @[], 
+                            lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes: openArray[float]): (T, T) {.inline.} =
+    let optional = @optional
+    var lowOrderResult, highOrderResult: T
+    var savedFunctionValues = newSeq[T](lowOrderNodes.len)
+    let c1 = (xEnd - xStart) / 2.0
+    let c2 = (xStart + xEnd) / 2.0
+    for i in 0 .. lowOrderNodes.high:
+        savedFunctionValues[i] = f(c1 * lowOrderNodes[i] + c2, optional)
+    lowOrderResult = lowOrderWeights[0] * savedFunctionValues[0]
+    for i in 1 .. lowOrderNodes.high:
+        lowOrderResult += lowOrderWeights[i] * savedFunctionValues[i]
+    lowOrderResult *= c1
+
+    highOrderResult = highOrderCommonWeights[0] * savedFunctionValues[0]
+    for i in 1 .. lowOrderNodes.high:
+        highOrderResult += highOrderCommonWeights[i] * savedFunctionValues[i]
+    for i in 0 .. highOrderNodes.high:
+        highOrderResult += highOrderWeights[i] * f(c1 * highOrderNodes[i] + c2, optional)
+    highOrderResult *= c1
+    result = (highOrderResult, lowOrderResult)
+
+#[
 proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T,
                        xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T =
     ## Calculate the integral of f using an adaptive Gauss-Kronrod Quadrature.
@@ -568,3 +640,237 @@ proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T,
     let left = adaptiveGauss(f, xStart, c2, tol = tol/2, optional=optional)
     let right = adaptiveGauss(f, c2, xEnd, tol = tol/2, optional=optional)
     return left + right
+]#
+proc adaptiveGaussLocal*[T](f: proc(x: float, optional: seq[T]): T,
+                       xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using an locally adaptive Gauss-Kronrod Quadrature.
+    ##
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and
+    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using
+    ##     an adaptive Gauss-Kronrod Quadrature.
+    let optional = @optional
+
+    #[
+    const lowOrderWeights = [0.236926885056189087514, 0.4786286704993664680413, 0.5688888888888888888889, 0.4786286704993664680413, 0.2369268850561890875143] # weights for low order
+    const lowOrderNodes = [-0.9061798459386639927976, -0.5384693101056830910363, 0.0, 0.5384693101056830910363, 0.9061798459386639927976] # nodes for low order
+    const highOrderCommonWeights = [0.1152333166224733940246, 0.2410403392286475866999, 0.2829874178574912132043, 0.2410403392286475866999, 0.1152333166224733940246] # weights for high order to use with lowOrderNodes
+    const highOrderWeights = [0.04258203675108183286451, 0.186800796556492657468, 0.272849801912558922341, 0.272849801912558922341, 0.1868007965564926574678, 0.0425820367510818328645] # weights for high order to use with highOrderNodes
+    const highOrderNodes = [-0.9840853600948424644962, -0.7541667265708492204408, -0.2796304131617831934135, 0.2796304131617831934135, 0.7541667265708492204408, 0.9840853600948424644962] # nodes for high order
+    ]#
+
+    const lowOrderWeights = [0.0666713443086881375936, 0.1494513491505805931458, 0.219086362515982043996, 0.269266719309996355091, 0.2955242247147528701739,
+                             0.2955242247147528701739, 0.2692667193099963550912, 0.2190863625159820439955, 0.1494513491505805931458, 0.0666713443086881375936] # weights for low order
+    const lowOrderNodes = [-0.973906528517171720078, -0.8650633666889845107321, -0.6794095682990244062343, -0.4333953941292471907993, -0.1488743389816312108848,
+                           0.1488743389816312108848, 0.4333953941292471907993, 0.6794095682990244062343, 0.865063366688984510732, 0.973906528517171720078] # nodes for low order
+    const highOrderCommonWeights = [0.0325581623079647274788, 0.075039674810919952767, 0.1093871588022976418992, 0.134709217311473325928, 0.1477391049013384913748,
+                                    0.1477391049013384913748, 0.134709217311473325928, 0.109387158802297641899, 0.075039674810919952767, 0.032558162307964727479] # weights for high order to use with lowOrderNodes
+    const highOrderWeights = [0.0116946388673718742781, 0.0547558965743519960314, 0.093125454583697605535, 0.123491976262065851078, 0.142775938577060080797,
+                              0.149445554002916905665, 0.1427759385770600807971, 0.123491976262065851078, 0.093125454583697605535, 0.05475589657435199603138, 0.0116946388673718742781] # weights for high order to use with highOrderNodes
+    const highOrderNodes = [-0.9956571630258080807355, -0.9301574913557082260012, -0.7808177265864168970637, -0.562757134668604683339, -0.294392862701460198131,
+                            0.0, 0.2943928627014601981311, 0.562757134668604683339, 0.7808177265864168970637, 0.9301574913557082260012, 0.9956571630258080807355] # nodes for high order
+
+    let (highOrderResult, lowOrderResult) = calcGaussKronrod(f, xStart, xEnd, optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+
+    let zero = f(xStart, @optional) - f(xStart, @optional)
+    let error = highOrderResult - lowOrderResult
+    if calcError(error, zero) < tol or abs(xEnd - xStart) < 1e-8:
+        return highOrderResult
+    let c1 = (xEnd - xStart) / 2.0
+    let c2 = (xStart + xEnd) / 2.0
+    let left = adaptiveGaussLocal(f, xStart, c2, tol = tol/2, optional=optional)
+    let right = adaptiveGaussLocal(f, c2, xEnd, tol = tol/2, optional=optional)
+    return left + right
+
+# Intervals
+
+proc cmpInterval*[T](interval1, interval2: IntervalType[T]): int =
+    if interval1.error < interval2.error:
+        return -1
+    elif interval1.error > interval2.error:
+        return 1
+    else:
+        return 0
+
+proc insert*[T](intervalList: var IntervalList[T], el: IntervalType[T]) {.inline.} =
+    intervalList.list.insert(el, intervalList.list.lowerBound(el, cmpInterval))
+
+proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
+    result = intervalList.list.pop()
+
+proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T,
+                       xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], optional: openArray[T] = @[]): T =
+    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature.
+    ##
+    ## Input:
+    ##   - f: the function that is integrated. x is the independent variable and
+    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
+    ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries.
+    ##   - optional: A seq of optional parameters that is passed to f.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using
+    ##     an adaptive Gauss-Kronrod Quadrature.
+    var f: (proc(x: float, optional: seq[T]): T) = f_in
+    var xStart: float = xStart_in
+    var xEnd: float = xEnd_in
+    var points_transformed = @initialPoints
+    if xStart == -Inf and xEnd == Inf: # Done
+        # Remember to scale supplied points to new interval
+        f = proc(x: float, optional: seq[T]): T = (f_in((1-x)/x, optional) + f_in(-(1-x)/x, optional)) / (x*x)
+        # if x => 0: t = 1/(1+x)
+        # elif x < 0: t = 1/(1-x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            if 0 <= x:
+                points_transformed[i] = 1 / (1 + x)
+            else:
+                points_transformed[i] = 1 / (1 - x)
+        xStart = 0.0
+        xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif  xStart == Inf and xEnd == -Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = -(f_in((1-x)/x, optional) + f_in(-(1-x)/x, optional)) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            if 0 <= x:
+                points_transformed[i] = 1 / (1 + x)
+            else:
+                points_transformed[i] = 1 / (1 - x)
+        xStart = 0.0
+        xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xStart == -Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = f_in(xEnd_in - (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1 + xEnd_in - x)
+        xStart = 0.0
+        xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xStart == Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = -f_in(xEnd_in + (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1 + x - xEnd_in)
+        xStart = 0.0
+        xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xEnd == Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = f_in(xStart_in + (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1.0 + x - xStart_in)#xStart_in + (1-x) / x # we must inverse, this is x(t) not t(x)
+        xStart = 0.0
+        xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    elif xEnd == -Inf: # Done
+        f = proc(x: float, optional: seq[T]): T = -f_in(xStart_in - (1-x)/x, optional) / (x*x)
+        for i in 0 .. points_transformed.high:
+            let x = points_transformed[i]
+            points_transformed[i] = 1 / (1 + xStart_in - x)
+        xStart = 0.0
+        xEnd = 1.0
+        points_transformed.add(xStart)
+        points_transformed.add(xEnd)
+    else:
+        if points_transformed.len == 0:
+            points_transformed = @[xStart_in, xEnd_in]
+        else:
+            points_transformed = @[xStart_in, xEnd_in].concat(@initialPoints)
+    if xStart < xEnd:
+        points_transformed.sort(Ascending)
+    else:
+        points_transformed.sort(Descending)
+    # Trim off values outside integration domain
+    while points_transformed[0] != xStart:
+            points_transformed.delete(0)
+    while points_transformed[points_transformed.high] != xEnd:
+        points_transformed.delete(points_transformed.high)
+    # Remove duplicates, typically the endpoints
+    points_transformed = deduplicate(points_transformed, isSorted = true)
+
+
+
+    let optional = @optional
+    const lowOrderWeights = [0.0666713443086881375936, 0.1494513491505805931458, 0.219086362515982043996, 0.269266719309996355091, 0.2955242247147528701739,
+                             0.2955242247147528701739, 0.2692667193099963550912, 0.2190863625159820439955, 0.1494513491505805931458, 0.0666713443086881375936] # weights for low order
+    const lowOrderNodes = [-0.973906528517171720078, -0.8650633666889845107321, -0.6794095682990244062343, -0.4333953941292471907993, -0.1488743389816312108848,
+                           0.1488743389816312108848, 0.4333953941292471907993, 0.6794095682990244062343, 0.865063366688984510732, 0.973906528517171720078] # nodes for low order
+    const highOrderCommonWeights = [0.0325581623079647274788, 0.075039674810919952767, 0.1093871588022976418992, 0.134709217311473325928, 0.1477391049013384913748,
+                                    0.1477391049013384913748, 0.134709217311473325928, 0.109387158802297641899, 0.075039674810919952767, 0.032558162307964727479] # weights for high order to use with lowOrderNodes
+    const highOrderWeights = [0.0116946388673718742781, 0.0547558965743519960314, 0.093125454583697605535, 0.123491976262065851078, 0.142775938577060080797,
+                              0.149445554002916905665, 0.1427759385770600807971, 0.123491976262065851078, 0.093125454583697605535, 0.05475589657435199603138, 0.0116946388673718742781] # weights for high order to use with highOrderNodes
+    const highOrderNodes = [-0.9956571630258080807355, -0.9301574913557082260012, -0.7808177265864168970637, -0.562757134668604683339, -0.294392862701460198131,
+                            0.0, 0.2943928627014601981311, 0.562757134668604683339, 0.7808177265864168970637, 0.9301574913557082260012, 0.9956571630258080807355] # nodes for high order
+    
+    var intervals = IntervalList[T](list: newSeqOfCap[IntervalType[T]](maxintervals))
+
+    let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[0], points_transformed[1], optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+    let zero = initHigh - initHigh
+    if xStart_in == xEnd_in:
+        return zero
+    let initError = calcError(initHigh - initLow, zero)
+    let initInterval = IntervalType[T](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
+    intervals.insert(initInterval)
+    var totalValue: T = initHigh
+    var totalError: float = initError
+    for i in 1 .. points_transformed.high - 1:
+        let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[i], points_transformed[i+1], optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+        let initError = calcError(initHigh - initLow, zero)
+        let initInterval = IntervalType[T](lower: points_transformed[i], upper: points_transformed[i+1], error: initError, value: initHigh)
+        intervals.insert(initInterval)
+        totalValue += initHigh
+        totalError += initError
+    var currentInterval: IntervalType[T]
+    var middle, error: float
+    var highValue, lowValue: T
+
+    while totalError > tol and intervals.list.len < maxintervals:
+        currentInterval = intervals.pop()
+        totalError -= currentInterval.error
+        totalValue -= currentInterval.value
+        middle = (currentInterval.upper + currentInterval.lower) / 2
+        # first half
+        (highValue, lowValue) = calcGaussKronrod(f, currentInterval.lower, middle, optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+        error = calcError(highValue - lowValue, zero)
+        intervals.insert(IntervalType[T](lower: currentInterval.lower, upper: middle, error: error, value: highValue))
+        totalError += error
+        totalValue += highValue
+        # second half
+        (highValue, lowValue) = calcGaussKronrod(f, middle, currentInterval.upper, optional, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
+        error = calcError(highValue - lowValue, zero)
+        intervals.insert(IntervalType[T](lower: middle, upper: currentInterval.upper, error: error, value: highValue))
+        totalError += error
+        totalValue += highValue
+    return totalValue
+
+#[ var a = IntervalList[float](list: newSeq[IntervalType[float]]())
+let k1 = IntervalType[float](upper: 1.0, lower: 0.0, value: 1.0, error: 1e-1)
+let k2 = IntervalType[float](upper: 1.0, lower: 0.0, value: 1.0, error: 1e-2)
+let k3 = IntervalType[float](upper: 1.0, lower: 0.0, value: 1.0, error: 1e-3)
+echo a
+a.insert(k3)
+a.insert(k1)
+echo a
+a.insert(k2)
+echo a
+echo a.pop()
+echo a ]#
+
