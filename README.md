@@ -285,7 +285,7 @@ proc romberg*[T](Y: openArray[T], X: openArray[float]): T
 
 proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 100, nPoints = 7, optional: openArray[T] = @[]): T
 
-proc adaptiveGauss*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T
+proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T, xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], optional: openArray[T] = @[]): T
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 
