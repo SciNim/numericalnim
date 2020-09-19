@@ -2,9 +2,9 @@ import unittest, math, sequtils
 import arraymancer
 import numericalnim
 
-proc f(x: float, y: float): float = -0.1 * y
-proc fVector(x: float, y: Vector[float]): Vector[float] = -0.1 * y
-proc fTensor(x: float, y: Tensor[float]): Tensor[float] = -0.1 * y
+proc f(x: float, y: float, ctx: NumContext[float]): float = -0.1 * y
+proc fVector(x: float, y: Vector[float], ctx: NumContext[Vector[float]]): Vector[float] = -0.1 * y
+proc fTensor(x: float, y: Tensor[float], ctx: NumContext[Tensor[float]]): Tensor[float] = -0.1 * y
 proc correct_answer(x: float): float = exp(-0.1*x)
 let oo = newODEoptions(relTol=1e-8, dt=1e-6)
 let ooVector = newODEoptions(relTol=1e-8, dt=1e-2)

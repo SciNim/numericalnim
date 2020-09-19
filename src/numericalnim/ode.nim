@@ -1,6 +1,7 @@
 import algorithm, strutils, math, strformat, sequtils
 import arraymancer
-import utils
+import ./utils
+import ./common/commonTypes
 
 type
     ODEoptions* = object
@@ -12,7 +13,10 @@ type
         relTol*: float
         scaleMax*: float
         scaleMin*: float
-    IntegratorProc*[T] = proc(f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float, options: ODEoptions): (T, T, float, float)
+    
+    ODEProc*[T] = proc(t: float, y: T, ctx: NumContext[T]): T
+
+    IntegratorProc*[T] = proc(f: ODEProc[T], t: float, y, FSAL: T, dt: float, options: ODEoptions, ctx: NumContext[T]): (T, T, float, float)
 
 const fixedODE* = @["heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4", "rk4"]
 const adaptiveODE* = @["rk21", "bs32", "dopri54", "tsit54", "vern65"]
@@ -81,92 +85,92 @@ proc newODEoptions*(dt: float = 1e-4, absTol: float = 1e-4, relTol: float = 1e-4
 const DEFAULT_ODEoptions = newODEoptions()
 
 
-proc HEUN2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc HEUN2_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + dt, y + dt * k1)
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + dt, y + dt * k1, ctx)
     let yNew = y + 0.5 * dt * (k1 + k2)
     return (yNew, yNew, dt, 0.0)
 
-proc RALSTON2_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc RALSTON2_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + 2/3 * dt, y + 2/3 * dt * k1)
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + 2/3 * dt, y + 2/3 * dt * k1, ctx)
     let yNew = y + dt * (0.25 * k1 + 0.75 * k2)
     return (yNew, yNew, dt, 0.0)
 
-proc KUTTA3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc KUTTA3_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
-    let k3 = f(t + dt, y - dt * k1 + 2 * dt * k2)
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1, ctx)
+    let k3 = f(t + dt, y - dt * k1 + 2 * dt * k2, ctx)
     let yNew = y + dt * (1/6 * k1 + 2/3 * k2 + 1/6 * k3)
     return (yNew, yNew, dt, 0.0)
 
-proc HEUN3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc HEUN3_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
-    let k3 = f(t + 2/3 * dt, y + 2/3 * dt * k2)
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1, ctx)
+    let k3 = f(t + 2/3 * dt, y + 2/3 * dt * k2, ctx)
     let yNew = y + dt * (0.25 * k1 + 0.75 * k3)
     return (yNew, yNew, dt, 0.0)
 
-proc RALSTON3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc RALSTON3_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + 1/2 * dt, y + 1/2 * dt * k1)
-    let k3 = f(t + 3/4 * dt, y + 3/4 * dt * k2)
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + 1/2 * dt, y + 1/2 * dt * k1, ctx)
+    let k3 = f(t + 3/4 * dt, y + 3/4 * dt * k2, ctx)
     let yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
     return (yNew, yNew, dt, 0.0)
 
-proc SSPRK3_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc SSPRK3_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + dt, y + dt * k1)
-    let k3 = f(t + 0.5 * dt, y + 0.25 * dt * (k1 + k2))
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + dt, y + dt * k1, ctx)
+    let k3 = f(t + 0.5 * dt, y + 0.25 * dt * (k1 + k2), ctx)
     let yNew = y + dt * (1/6 * k1 + 1/6 * k2 + 2/3 * k3)
     return (yNew, yNew, dt, 0.0)
 
 
-proc RALSTON4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc RALSTON4_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + 0.4 * dt, y + 0.4 * dt * k1)
-    let k3 = f(t + 0.45573725 * dt, y + dt * (0.29697761 * k1 + 0.15875964 * k2))
-    let k4 = f(t + dt, y + dt * (0.21810040 * k1 - 3.05096516 * k2 + 3.83286476 * k3))
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + 0.4 * dt, y + 0.4 * dt * k1, ctx)
+    let k3 = f(t + 0.45573725 * dt, y + dt * (0.29697761 * k1 + 0.15875964 * k2), ctx)
+    let k4 = f(t + dt, y + dt * (0.21810040 * k1 - 3.05096516 * k2 + 3.83286476 * k3), ctx)
     let yNew = y + dt * (0.17476028 * k1 - 0.55148066 * k2 + 1.20553560 * k3 + 0.17118478 * k4)
     return (yNew, yNew, dt, 0.0)
 
-proc KUTTA4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc KUTTA4_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
-    let k1 = f(t, y)
-    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1)
-    let k3 = f(t + 2/3 * dt, y + dt * (-1/3 * k1 + k2))
-    let k4 = f(t + dt, y + dt * (k1 - k2 + k3))
+    let k1 = f(t, y, ctx)
+    let k2 = f(t + 1/3 * dt, y + 1/3 * dt * k1, ctx)
+    let k3 = f(t + 2/3 * dt, y + dt * (-1/3 * k1 + k2), ctx)
+    let k4 = f(t + dt, y + dt * (k1 - k2 + k3), ctx)
     let yNew = y + dt * (1/8 * k1 + 3/8 * k2 + 3/8 * k3 + 1/8 * k4)
     return (yNew, yNew, dt, 0.0)
 
-proc RK4_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-                 options: ODEoptions): (T, T, float, float) =
+proc RK4_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+                 options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using RK4. Only for internal use.
     var k1, k2, k3, k4: T
-    k1 = f(t, y)
-    k2 = f(t + 0.5*dt, y + 0.5 * dt * k1)
-    k3 = f(t + 0.5*dt, y + 0.5 * dt * k2)
-    k4 = f(t +     dt, y +       dt * k3)
+    k1 = f(t, y, ctx)
+    k2 = f(t + 0.5*dt, y + 0.5 * dt * k1, ctx)
+    k3 = f(t + 0.5*dt, y + 0.5 * dt * k2, ctx)
+    k4 = f(t +     dt, y +       dt * k3, ctx)
     let yNew = y + dt / 6.0 * (k1 + 2.0 * (k2 + k3) + k4)
     return (yNew, yNew, dt, 0.0)
 
-proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc RK21_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
     let absTol = options.absTol
     let relTol = options.relTol
@@ -178,16 +182,16 @@ proc RK21_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var limitCounter = 0
     var dt = dt
     commonAdaptiveMethodCode(yNew, error_y, order=2):
-        k1 = f(t, y)
-        k2 = f(t + dt, y + dt * k1)
+        k1 = f(t, y, ctx)
+        k2 = f(t + dt, y + dt * k1, ctx)
         
         yNew = y + dt * 0.5 * (k1 + k2)
         yLow = y + dt * k1
         let error_y = yNew - yLow
     result = (yNew, yNew, dt, error)
 
-proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-    options: ODEoptions): (T, T, float, float) =
+proc BS32_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+    options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using Heun. Only for internal use.
     let absTol = options.absTol
     let relTol = options.relTol
@@ -199,11 +203,11 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var limitCounter = 0
     var dt = dt
     commonAdaptiveMethodCode(yNew, error_y, order=3):
-        k1 = f(t, y)
-        k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1)
-        k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2)
+        k1 = f(t, y, ctx)
+        k2 = f(t + 0.5 * dt, y + 0.5 * dt * k1, ctx)
+        k3 = f(t + 0.75 * dt, y + 0.75 * dt * k2, ctx)
         yNew = y + dt * (2/9 * k1 + 1/3 * k2 + 4/9 * k3)
-        k4 = f(t + dt, yNew)
+        k4 = f(t + dt, yNew, ctx)
         
         yLow = y + dt * (7/24 * k1 + 1/4 * k2 + 1/3 * k3 + 1/8 * k4)
         let error_y = yNew - yLow
@@ -211,8 +215,8 @@ proc BS32_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     result = (yNew, k4, dt, error)
 
 
-proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-                     options: ODEoptions): (T, T, float, float) =
+proc DOPRI54_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using DOPRI54. Only for internal use.
     const
         c2 = 1.0/5.0
@@ -268,12 +272,12 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
     var dt = dt
     commonAdaptiveMethodCode(yNew, error_y, order=5):
         k1 = FSAL
-        k2 = f(t + dt*c2, y + dt * (a21 * k1))
-        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
-        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
-        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
-        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
-        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
+        k2 = f(t + dt*c2, y + dt * (a21 * k1), ctx)
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2), ctx)
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3), ctx)
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4), ctx)
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5), ctx)
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6), ctx)
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
@@ -281,8 +285,8 @@ proc DOPRI54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float
         # error = calcError(yNew, yLow)
     result = (yNew, k7, dt, error)
 
-proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-                     options: ODEoptions): (T, T, float, float) =
+proc TSIT54_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using TSIT54. Only for internal use.
     const
         c2 = 0.161
@@ -338,12 +342,12 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var dt = dt
     commonAdaptiveMethodCode(yNew, error_y, order=5):
         k1 = FSAL
-        k2 = f(t + dt*c2, y + dt * (a21 * k1))
-        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
-        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
-        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
-        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
-        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
+        k2 = f(t + dt*c2, y + dt * (a21 * k1), ctx)
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2), ctx)
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3), ctx)
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4), ctx)
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5), ctx)
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6), ctx)
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6)
         let error_y = dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7)
@@ -351,8 +355,8 @@ proc TSIT54_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     result = (yNew, k7, dt, error)
     
 
-proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
-                     options: ODEoptions): (T, T, float, float) =
+proc VERN65_step[T](f: ODEProc[T], t: float, y, FSAL: T, dt: float,
+                     options: ODEoptions, ctx: NumContext[T]): (T, T, float, float) =
     ## Take a single timestep using DOPRI54. Only for internal use.
     const
         c2 = 0.06
@@ -429,14 +433,14 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     var dt = dt
     commonAdaptiveMethodCode(yNew, error_y, order=6):
         k1 = FSAL
-        k2 = f(t + dt*c2, y + dt * (a21 * k1))
-        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2))
-        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3))
-        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4))
-        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5))
-        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6))
-        k8 = f(t + dt*c8, y + dt * (a81 * k1 + a82 * k2 + a83 * k3 + a84 * k4 + a85 * k5 + a86 * k6 + a87 * k7))
-        k9 = f(t + dt*c9, y + dt * (a91 * k1 + a92 * k2 + a93 * k3 + a94 * k4 + a95 * k5 + a96 * k6 + a97 * k7 + a98 * k8))
+        k2 = f(t + dt*c2, y + dt * (a21 * k1), ctx)
+        k3 = f(t + dt*c3, y + dt * (a31 * k1 + a32 * k2), ctx)
+        k4 = f(t + dt*c4, y + dt * (a41 * k1 + a42 * k2 + a43 * k3), ctx)
+        k5 = f(t + dt*c5, y + dt * (a51 * k1 + a52 * k2 + a53 * k3 + a54 * k4), ctx)
+        k6 = f(t + dt*c6, y + dt * (a61 * k1 + a62 * k2 + a63 * k3 + a64 * k4 + a65 * k5), ctx)
+        k7 = f(t + dt*c7, y + dt * (a71 * k1 + a72 * k2 + a73 * k3 + a74 * k4 + a75 * k5 + a76 * k6), ctx)
+        k8 = f(t + dt*c8, y + dt * (a81 * k1 + a82 * k2 + a83 * k3 + a84 * k4 + a85 * k5 + a86 * k6 + a87 * k7), ctx)
+        k9 = f(t + dt*c9, y + dt * (a91 * k1 + a92 * k2 + a93 * k3 + a94 * k4 + a95 * k5 + a96 * k6 + a97 * k7 + a98 * k8), ctx)
 
         yNew = y + dt * (b1 * k1 + b2 * k2 + b3 * k3 + b4 * k4 + b5 * k5 + b6 * k6 + b7 * k7 + b8 * k8)
         yLow = y + dt * (bHat1 * k1 + bHat2 * k2 + bHat3 * k3 + bHat4 * k4 + bHat5 * k5 + bHat6 * k6 + bHat7 * k7 + bHat8 * k8 + bHat9 * k9)
@@ -445,10 +449,10 @@ proc VERN65_step[T](f: proc(t: float, y: T): T, t: float, y, FSAL: T, dt: float,
     result = (yNew, k9, dt, error)
 
 
-proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
+proc ODESolver[T](f: ODEProc[T], y0: T, tspan: openArray[float],
                   options: ODEoptions = DEFAULT_ODEoptions,
                   integrator: IntegratorProc[T],
-                  useFSAL = false, order: float, adaptive = false): (seq[float], seq[T]) =
+                  useFSAL = false, order: float, adaptive = false, ctx: NumContext[T]): (seq[float], seq[T]) =
     ## Handles the ODE solving. Only for internal use.
     let t0 = options.tStart
     var t = t0
@@ -472,7 +476,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
         dtInit = options.dt
         dt = dtInit
     var useDense: bool
-    var lastIter = (t: t0, y: y, dy: f(t0, y))
+    var lastIter = (t: t0, y: y, dy: f(t0, y, ctx))
     if tspan.len == 2:
         useDense = false
     else:
@@ -480,7 +484,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
     var denseIndex = 0
 
     var error: float
-    var FSAL = f(t0, y)
+    var FSAL = f(t0, y, ctx)
     var tEnd: float
     if 0 < tPositive.len:
         dt = dtInit
@@ -495,7 +499,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                                                     t, lastIter.y, y, lastIter.dy, FSAL))
                     else:
                         yPositive.add(hermiteSpline(tPositive[denseIndex], lastIter.t,
-                                                    t, lastIter.y, y, lastIter.dy, f(t, y)))
+                                                    t, lastIter.y, y, lastIter.dy, f(t, y, ctx)))
                     denseIndex += 1
                     if tPositive.high < denseIndex:
                         break
@@ -504,8 +508,8 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                 if useFSAL:
                     lastIter = (t: t, y: y, dy: FSAL)
                 else:
-                    lastIter = (t: t, y: y, dy: f(t, y))
-            (y, FSAL, dt, error) = integrator(f, t, y, FSAL, dt, options)
+                    lastIter = (t: t, y: y, dy: f(t, y, ctx))
+            (y, FSAL, dt, error) = integrator(f, t, y, FSAL, dt, options, ctx)
             t += dt
             if adaptive:
                 if error == 0.0:
@@ -519,8 +523,8 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
         yPositive.add(y)
 
     if 0 < tNegative.len:
-        let g = proc(t: float, y: T): T = -f(-t, y)
-        FSAL = g(-t0, y0.clone())
+        let g = proc(t: float, y: T, ctx: NumContext[T]): T = -f(-t, y, ctx)
+        FSAL = g(-t0, y0.clone(), ctx)
         dt = dtInit
         lastIter = (t: -t0, y: y0.clone(), dy: FSAL)
         tEnd = -min(tNegative)
@@ -537,7 +541,7 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                                                     t, lastIter.y, y, lastIter.dy, FSAL))
                     else:
                         yNegative.add(hermiteSpline(-tNegative[denseIndex], lastIter.t, t,
-                                                    lastIter.y, y, lastIter.dy, g(t, y)))
+                                                    lastIter.y, y, lastIter.dy, g(t, y, ctx)))
                     denseIndex += 1
                     if tNegative.high < denseIndex:
                         break
@@ -546,8 +550,8 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
                 if useFSAL:
                     lastIter = (t: t, y: y, dy: FSAL)
                 else:
-                    lastIter = (t: t, y: y, dy: g(t, y))
-            (y, FSAL, dt, error) = integrator(g, t, y, FSAL, dt, options)
+                    lastIter = (t: t, y: y, dy: g(t, y, ctx))
+            (y, FSAL, dt, error) = integrator(g, t, y, FSAL, dt, options, ctx)
             t += dt
             if adaptive:
                 if error == 0.0:
@@ -563,8 +567,8 @@ proc ODESolver[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
             yNegative.reversed().concat(yZero).concat(yPositive))
 
 
-proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
-                  options: ODEoptions = DEFAULT_ODEoptions,
+proc solveODE*[T](f: ODEProc[T], y0: T, tspan: openArray[float],
+                  options: ODEoptions = DEFAULT_ODEoptions, ctx: NumContext[T] = nil,
                   integrator="dopri54"): (seq[float], seq[T]) =
     ## Solve an ODE initial value problem.
     ##
@@ -573,52 +577,56 @@ proc solveODE*[T](f: proc(t: float, y: T): T, y0: T, tspan: openArray[float],
     ##   - y0: Initial value.
     ##   - tspan: Seq of t values that y will be returned at.
     ##   - options: ODEoptions object with ODE parameters.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example. Or to pass in big Tensors for example. 
     ##   - integrator: String with the integrator to use. Choices: "dopri54", "rk4".
     ##
     ## Returns:
     ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
+    var ctx = ctx
+    if ctx.isNil:
+        ctx = newNumContext[T]()
     case integrator.toLower():
         of "dopri54":
             return ODESolver(f, y0, tspan.sorted(), options, DOPRI54_step[T],
-                             useFSAL = true, order = 5.0, adaptive = true)
+                             useFSAL = true, order = 5.0, adaptive = true, ctx = ctx)
         of "rk21":
             return ODESolver(f, y0, tspan.sorted(), options, RK21_step[T],
-                                useFSAL = false, order = 2.0, adaptive = true)
+                                useFSAL = false, order = 2.0, adaptive = true, ctx = ctx)
         of "bs32":
             return ODESolver(f, y0, tspan.sorted(), options, BS32_step[T],
-                                useFSAL = true, order = 3.0, adaptive = true)
+                                useFSAL = true, order = 3.0, adaptive = true, ctx = ctx)
         of "rk4":
             return ODESolver(f, y0, tspan.sorted(), options, RK4_step[T],
-                             useFSAL = false, order = 4.0, adaptive = false)
+                             useFSAL = false, order = 4.0, adaptive = false, ctx = ctx)
         of "heun2":
             return ODESolver(f, y0, tspan.sorted(), options, HEUN2_step[T],
-                             useFSAL = false, order = 2.0, adaptive = false)
+                             useFSAL = false, order = 2.0, adaptive = false, ctx = ctx)
         of "ralston2":
             return ODESolver(f, y0, tspan.sorted(), options, RALSTON2_step[T],
-                             useFSAL = false, order = 2.0, adaptive = false)
+                             useFSAL = false, order = 2.0, adaptive = false, ctx = ctx)
         of "kutta3":
             return ODESolver(f, y0, tspan.sorted(), options, KUTTA3_step[T],
-                                useFSAL = false, order = 3.0, adaptive = false)
+                                useFSAL = false, order = 3.0, adaptive = false, ctx = ctx)
         of "heun3":
             return ODESolver(f, y0, tspan.sorted(), options, HEUN3_step[T],
-                                useFSAL = false, order = 3.0, adaptive = false)
+                                useFSAL = false, order = 3.0, adaptive = false, ctx = ctx)
         of "ralston3":
             return ODESolver(f, y0, tspan.sorted(), options, RALSTON3_step[T],
-                                useFSAL = false, order = 3.0, adaptive = false)
+                                useFSAL = false, order = 3.0, adaptive = false, ctx = ctx)
         of "ssprk3":
             return ODESolver(f, y0, tspan.sorted(), options, SSPRK3_step[T],
-                                useFSAL = false, order = 3.0, adaptive = false)
+                                useFSAL = false, order = 3.0, adaptive = false, ctx = ctx)
         of "ralston4":
             return ODESolver(f, y0, tspan.sorted(), options, RALSTON4_step[T],
-                                useFSAL = false, order = 4.0, adaptive = false)
+                                useFSAL = false, order = 4.0, adaptive = false, ctx = ctx)
         of "kutta4":
             return ODESolver(f, y0, tspan.sorted(), options, KUTTA4_step[T],
-                                useFSAL = false, order = 4.0, adaptive = false)
+                                useFSAL = false, order = 4.0, adaptive = false, ctx = ctx)
         of "vern65":
             return ODESolver(f, y0, tspan.sorted(), options, VERN65_step[T],
-                                useFSAL = true, order = 6.0, adaptive = true)
+                                useFSAL = true, order = 6.0, adaptive = true, ctx = ctx)
         of "tsit54":
             return ODESolver(f, y0, tspan.sorted(), options, TSIT54_step[T],
-                             useFSAL = true, order = 5.0, adaptive = true)
+                             useFSAL = true, order = 5.0, adaptive = true, ctx = ctx)
         else:
             raise newException(ValueError, &"{integrator} is not a valid integrator")
