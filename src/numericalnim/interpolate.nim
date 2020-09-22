@@ -1,5 +1,6 @@
 import strformat, math
 import utils
+import ./common/commonTypes
 
 type
   SplineType*[T] = CubicSpline[T] or HermiteSpline[T]
@@ -178,8 +179,8 @@ proc eval*[T](spline: SplineType[T], x: openArray[float]): seq[T] =
 converter toProc*[T](spline: SplineType[T]): proc(x: float): T =
   result = proc(t: float): T = eval(spline, t)
 
-converter toOptionalProc*[T](spline: SplineType[T]): proc(x: float, optional: seq[T] = @[]): T =
-  result = proc(t: float, optional: seq[T] = @[]): T = eval(spline, t)
+converter toOptionalProc*[T](spline: SplineType[T]): proc(x: float, ctx: NumContext[T]): T =
+  result = proc(x: float, ctx: NumContext[T]): T = eval(spline, x)
 
 proc derivEval*[T](spline: SplineType[T], x: openArray[float]): seq[T] =
   result = newSeq[T](x.len)
