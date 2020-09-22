@@ -20,12 +20,11 @@ proc trapz*[T](f: IntegrateProc[T], xStart, xEnd: float,
     ## Calculate the integral of f using the trapezoidal rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - N: The number of subintervals to divide the integration interval into.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using the trapezoidal rule.
@@ -79,10 +78,9 @@ proc cumtrapz*[T](f: IntegrateProc[T], X: openArray[float],
     ## Calculate the cumulative integral of f using the trapezoidal rule at the points in X.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated.
     ##   - X: The x-values of the returned values.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##   - dx: The step length to use when integrating.
     ##
     ## Returns:
@@ -119,13 +117,12 @@ proc simpson*[T](f: IntegrateProc[T], xStart, xEnd: float,
     ## Calculate the integral of f using Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated. 
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - N: The number of subintervals to divide the integration interval into.
     ##     Must be 2 or greater.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using Simpson's rule.
@@ -197,12 +194,11 @@ proc adaptiveSimpson*[T](f: IntegrateProc[T], xStart, xEnd: float,
     ## Calculate the integral of f using an adaptive Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using
@@ -248,12 +244,11 @@ proc adaptiveSimpson2*[T](f: IntegrateProc[T], xStart, xEnd: float,
     ## Calculate the integral of f using an adaptive Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated. 
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using
@@ -322,10 +317,9 @@ proc cumsimpson*[T](f: IntegrateProc[T], X: openArray[float],
     ## Calculate the cumulative integral of f using Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated. 
     ##   - X: The x-values of the returned values.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##   - dx: The step length to use when integrating.
     ##
     ## Returns:
@@ -346,13 +340,12 @@ proc romberg*[T](f: IntegrateProc[T], xStart, xEnd: float,
     ## Calculate the integral of f using Romberg Integration.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - depth: The maximum depth of the Richardson Extrapolation.
     ##   - tol: The error tolerance that must be satisfied.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using Romberg integration.
@@ -543,14 +536,13 @@ proc gaussQuad*[T](f: IntegrateProc[T], xStart, xEnd: float,
     ## Has 20 different sets of weights, ranging from 1 to 20 function evaluations per subinterval.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated. 
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - N: The number of subintervals to divide the integration interval into.
     ##   - nPoints: The number of points to evaluate f at per interval.
     ##     Choose between 1 to 20 with increasing accuracy.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The integral evaluated from the xStart to xEnd calculated using Gaussian Quadrature.
@@ -666,12 +658,11 @@ proc adaptiveGaussLocal*[T](f: IntegrateProc[T],
     ## Calculate the integral of f using an locally adaptive Gauss-Kronrod Quadrature.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated. 
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using
@@ -729,17 +720,16 @@ proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
 
 proc adaptiveGauss*[T](f_in: IntegrateProc[T],
                        xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], ctx: NumContext[T] = nil): T =
-    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature.
+    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
     ##
     ## Input:
-    ##   - f: the function that is integrated. x is the independent variable and
-    ##     optional is a seq of optional parameters (must be of same type as the output of f).
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
     ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
     ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries.
-    ##   - optional: A seq of optional parameters that is passed to f.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
     ##   - The value of the integral of f from xStart to xEnd calculated using

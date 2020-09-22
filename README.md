@@ -11,6 +11,70 @@ Install NumericalNim using Nimble:
 
 `nimble install numericalnim`
 
+# Recent major changes
+ODE and integrate have gotten support for a context `NumContext` which provides a persistent storage between function calls. It can be used to pass in parameters or to save extra information during the processing. For example:
+- If you have a matrix you want to reuse often in your function, you can save it in the `NumContext` once and then access it with a key. This way you only have to evaluate it once instead of creating it on every function call or making it a global variable.
+- You want to modify a parameter during the processing and access the modified value during later calls.
+
+**Warning**: `NumContext` is a ref-type. So it means that the context variable you pass in will be altered if you do anything to it in your function. The `ctx` in your function is the exact same as the one you pass in, so if you change it, you will also change the original variable.
+
+What does this mean for your old code? It means you have to change the proc signature for your functions:
+1. ODE: 
+```nim
+# Old code
+proc f[T](x: float, y: T): T =
+  # do your calculation here
+
+# New code
+proc(t: float, y: T, ctx: NumContext[T]): T =
+  # do your calculations here
+```
+2. integrate: 
+```nim
+# Old code
+proc(x: float, optional: seq[T]): T =
+  # do your calculations here
+
+# New code
+proc(x: float, ctx: NumContext[T]): T =
+  # do your calculations here
+```
+
+So how do we create a `NumContext` then? Here is an example:
+```nim
+import arraymancer, numericalnim
+var ctx = newNumContext[Tensor[float]]()
+# Values of type `T`, `Tensor[float]` in this case is accessed using `[]` with either a string or enum as key.
+ctx["A"] = @[@[1.0, 2.0], @[3.0, 4.0]].toTensor
+# `NumContext` does always have a float storage as well accessed using `setF` and `getF`.
+ctx.setF("k", 3.14)
+# it can then be accessed using ctx.getF("k")
+```
+
+As for passing in the `NumContext` you pass it in as the parameter `ctx` to the integration proc or `solveODE`:
+```nim
+proc f_integrate(x: float, ctx: NumContext[float]): float = sin(x)
+let I = adaptiveGauss(f_integrate, 0.0, 2.0, ctx = ctx)
+
+proc f_ode(t: float, y: float, ctx: NumContext[float]): float = sin(t)*y
+let (ts, ys) = solveODE(f_ode, y0 = 1.0, tspan = [0.0, 2.0], ctx = ctx)
+```
+
+If you don't pass in a `ctx`, an empty one will be created for you but you won't be able to access after the proc has finished and returned the results. 
+## Using enums as keys for `NumContext`
+If you want to avoid KeyErrors regarding mistyped keys, you can use enums for the keys instead. The enum value will be converted to a string internally so there is no constraint that all keys must be from the same enum. Here is one example of how to use it:
+```nim
+type
+  MyKeys = enum
+    key1
+    key2
+    key3
+var ctx = newNumContext[float]()
+ctx[key1] = 3.14
+ctx[key2] = 6.28
+```
+
+-----
 ## Suggested compilation flags
 
 With [FMA](https://en.wikipedia.org/wiki/FMA_instruction_set) and [AVX2](https://en.wikipedia.org/wiki/AVX2) there exist some [SIMD](https://en.wikipedia.org/wiki/SIMD) instruction sets which can increase the performance on [x86](https://en.wikipedia.org/wiki/X86) machines.
@@ -65,10 +129,12 @@ If we translate this to code we get:
 import math
 import numericalnim
 
-proc f(t, y: float): float = 0.1*y
+proc f(t, y: float, ctx: NumContext[float]): float = 0.1*y
 
 let y0 = 1.0
 ```
+
+`ctx: NumContext[float]` is a context variable that can be used to save things between function calls. You can read more on it in it's own section.
 
 Now we must decide at which timepoints we want the solution at. NumericalNim provides two easy functions for creating seqs of floats:
 
@@ -151,7 +217,7 @@ Now the error is higher for `DOPRI54` as well.
 - `cumtrapz` - Uses the trapezoidal rule to integrate both functions and discrete points but it outputs a seq of the integral values at provided x-values. 
 - `cumsimpson` - Uses Simpson's rule to integrate both functions and discrete points but it outputs a seq of the integral values at provided x-values.
 - `gaussQuad` - Uses Gauss-Legendre Quadrature to integrate functions. Choose between 20 different accuracies by setting how many function evaluations should be made on each subinterval with the `nPoints` parameter (1 - 20 is valid options).
-- `adaptiveGauss` - Uses Gauss-Kronrod Quadrature to adaptivly integrate function.
+- `adaptiveGauss` - Uses Gauss-Kronrod Quadrature to adaptivly integrate function. This is the recommended proc to use! It is the only one of the methods that supports using `Inf` and `-Inf` as integration limits.
 
 ## Usage
 Using the default parameters you need to provide one of these sets:
@@ -165,7 +231,7 @@ For the cumulative versions you need to provide either of:
 
 The proc `f` must be of the form: 
 ```nim
-proc f[T](x: float, optional: seq[T]): T
+proc f[T](x: float, ctx: NumContext[T]): T
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 ## Quick Tutorial
@@ -173,7 +239,7 @@ We want to evaluate the integral of f(x) = sin(x) from 0 to Pi. For this we can 
 ```nim
 import math
 import numericalnim
-proc f(x: float, optional: seq[float]): float = sin(x)
+proc f(x: float, ctx: NumContext[float]): float = sin(x)
 let xStart = 0.0
 let xEnd = PI
 
@@ -261,31 +327,33 @@ We see that simpson gets it spot on while trapz is a bit off. The velocity is a 
 ## Optional parameters / API
 You can pass some additional parameters to the functions if you don't want to play with the defaults. For now here are the procs:
 ```nim
-proc trapz*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, optional: openArray[T] = @[]): T
+type IntegrateProc*[T] = proc(x: float, ctx: NumContext[T]): T
+
+proc trapz*[T](f: IntegrateProc[T], xStart, xEnd: float, N = 500, ctx: NumContext[T] = nil): T
 
 proc trapz*[T](Y: openArray[T], X: openArray[float]): T
 
 proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T]
 
-proc cumtrapz*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T]
+proc cumtrapz*[T](f: IntegrateProc[T], X: openArray[float], ctx: NumContext[T] = nil, dx = 1e-5): seq[T]
 
-proc simpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 500, optional: openArray[T] = @[]): T
+proc simpson*[T](f: IntegrateProc[T], xStart, xEnd: float, N = 500, ctx: NumContext[T] = nil): T
 
 proc simpson*[T](Y: openArray[T], X: openArray[float]): T
 
-proc adaptiveSimpson*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, tol = 1e-8, optional: openArray[T] = @[]): T
+proc adaptiveSimpson*[T](f: IntegrateProc[T], xStart, xEnd: float, tol = 1e-8, ctx: NumContext[T] = nil): T
 
 proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T]
 
-proc cumsimpson*[T](f: proc(x: float, optional: seq[T]): T, X: openArray[float], optional: openArray[T] = @[], dx = 1e-5): seq[T]
+proc cumsimpson*[T](f: IntegrateProc[T], X: openArray[float], ctx: NumContext[T] = nil, dx = 1e-5): seq[T]
 
-proc romberg*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, depth = 8, tol = 1e-8, optional: openArray[T] = @[]): T
+proc romberg*[T](f: IntegrateProc[T], xStart, xEnd: float, depth = 8, tol = 1e-8, ctx: NumContext[T] = nil): T
 
 proc romberg*[T](Y: openArray[T], X: openArray[float]): T
 
-proc gaussQuad*[T](f: proc(x: float, optional: seq[T]): T, xStart, xEnd: float, N = 100, nPoints = 7, optional: openArray[T] = @[]): T
+proc gaussQuad*[T](f: IntegrateProc[T], xStart, xEnd: float, N = 100, nPoints = 7, ctx: NumContext[T] = nil): T
 
-proc adaptiveGauss*[T](f_in: proc(x: float, optional: seq[T]): T, xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], optional: openArray[T] = @[]): T
+proc adaptiveGauss*[T](f_in: IntegrateProc[T], xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[],ctx:NumContext[T] = nil): T
 ```
 If you don't understand what the "T" stands for, you can replace it with "float" in your head and read up on "Generics" in Nim.
 

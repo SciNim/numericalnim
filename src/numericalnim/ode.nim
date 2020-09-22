@@ -577,8 +577,8 @@ proc solveODE*[T](f: ODEProc[T], y0: T, tspan: openArray[float],
     ##   - y0: Initial value.
     ##   - tspan: Seq of t values that y will be returned at.
     ##   - options: ODEoptions object with ODE parameters.
-    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example. Or to pass in big Tensors for example. 
-    ##   - integrator: String with the integrator to use. Choices: "dopri54", "rk4".
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors. 
+    ##   - integrator: String with the integrator to use. Choices: "dopri54", "tsit54", "vern65", "rk4", "rk21", "bs32", "heun2", "ralston2", "kutta3", "heun3", "ralston3", "ssprk3", "ralston4", "kutta4"
     ##
     ## Returns:
     ##   - A tuple containing a seq of t-values and a seq of y-values (t, y).
