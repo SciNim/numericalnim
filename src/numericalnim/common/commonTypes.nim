@@ -25,13 +25,13 @@ proc `[]=`*[T](ctx: NumContext[T], key: enum, val: T) =
 proc getF*[T](ctx: NumContext[T], key: string): float =
   ctx.fValues[key]
 
-proc setF*[T](ctx: NumContext[T], key: string, val: float): float =
+proc setF*[T](ctx: NumContext[T], key: string, val: float) =
   ctx.fValues[key] = val
 
 proc getF*[T](ctx: NumContext[T], key: enum): float =
   ctx.fValues[$key]
 
-proc setF*[T](ctx: NumContext[T], key: enum, val: float): float =
+proc setF*[T](ctx: NumContext[T], key: enum, val: float) =
   ctx.fValues[$key] = val
 
 when isMainModule:
