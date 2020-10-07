@@ -16,7 +16,7 @@ type
     len: int
     Y: seq[T]
     dY: seq[T]
-
+  SplineProc*[T] = proc(x: float): T
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
   ## Finds the index of the element to the left of x in list using binary search. list must be ordered.
@@ -176,8 +176,8 @@ proc eval*[T](spline: SplineType[T], x: openArray[float]): seq[T] =
   for i, xi in x:
     result[i] = eval(spline, xi)
 
-converter toProc*[T](spline: SplineType[T]): proc(x: float): T =
-  result = proc(t: float): T = eval(spline, t)
+converter toProc*[T](spline: SplineType[T]): SplineProc[T] =
+  result = proc(x: float): T = eval(spline, x)
 
 converter toOptionalProc*[T](spline: SplineType[T]): proc(x: float, ctx: NumContext[T]): T =
   result = proc(x: float, ctx: NumContext[T]): T = eval(spline, x)
@@ -187,8 +187,8 @@ proc derivEval*[T](spline: SplineType[T], x: openArray[float]): seq[T] =
   for i, xi in x:
     result[i] = derivEval(spline, xi)
 
-proc toDerivProc*[T](spline: SplineType[T]): proc(x: float): T =
-  result = proc(t: float): T = derivEval(spline, t)
+proc toDerivProc*[T](spline: SplineType[T]): SplineProc[T] =
+  result = proc(x: float): T = derivEval(spline, x)
 
-proc toDerivOptionalProc*[T](spline: SplineType[T]): proc(x: float, optional: seq[T] = @[]): T =
-  result = proc(t: float, optional: seq[T] = @[]): T = derivEval(spline, t)
+proc toDerivOptionalProc*[T](spline: SplineType[T]): proc(x: float, ctx: NumContext[T]): T =
+  result = proc(x: float, ctx: NumContext[T]): T = derivEval(spline, x)
