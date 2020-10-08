@@ -193,7 +193,7 @@ proc eval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
 proc toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   result = proc(x: float): T = eval(spline, x)
 
-converter toOptionalProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
+converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
   result = proc(x: float, ctx: NumContext[T]): T = eval(spline, x)
 
 proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
@@ -204,5 +204,5 @@ proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
 proc toDerivProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   result = proc(x: float): T = derivEval(spline, x)
 
-proc toDerivOptionalProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
+proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
   result = proc(x: float, ctx: NumContext[T]): T = derivEval(spline, x)
