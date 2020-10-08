@@ -190,7 +190,7 @@ proc eval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
   for i, xi in x:
     result[i] = eval(spline, xi)
 
-converter toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
+proc toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   result = proc(x: float): T = eval(spline, x)
 
 converter toOptionalProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
