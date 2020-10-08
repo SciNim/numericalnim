@@ -18,6 +18,7 @@ test "steepest_descent func starting at zero":
     let value = steepest_descent(df, start)
     check isClose(value, correct, tol = 1e-5)
 
+#[
 test "conjugate_gradient func":
     var A = toSeq([4.0, 1.0, 1.0, 3.0]).toTensor.reshape(2,2).astype(float64)
     var x = toSeq([2.0, 1.0]).toTensor.reshape(2,1)
@@ -27,7 +28,7 @@ test "conjugate_gradient func":
 
     let value = conjugate_gradient(A, b, x, tol)
     check isClose(value, correct, tol = 1e-5)
-
+]#
 test "Newtons 1 dimension func":
     proc f(x:float64): float64 = (1.0 / 3.0) * x ^ 3 - 2 * x ^ 2 + 3 * x
     proc df(x:float64): float64 = x ^ 2 - 4 * x + 3
