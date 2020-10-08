@@ -11,11 +11,10 @@ type
         value: T # estimated value for integral over current interval
     IntervalList[T] = object
         list: seq[IntervalType[T]] # contains all the intervals sorted from smallest to largest error
-    IntegrateProc*[T] = proc(x: float, ctx: NumContext[T]): T
 
 
 # N: #intervals
-proc trapz*[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc trapz*[T](f: NumContextProc[T], xStart, xEnd: float,
                N = 500, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using the trapezoidal rule.
     ##
@@ -73,7 +72,7 @@ proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T] =
         result.add(integral)
 
 # function values calculated according to the dx and then interpolated
-proc cumtrapz*[T](f: IntegrateProc[T], X: openArray[float],
+proc cumtrapz*[T](f: NumContextProc[T], X: openArray[float],
                   ctx: NumContext[T] = nil, dx = 1e-5): seq[T] =
     ## Calculate the cumulative integral of f using the trapezoidal rule at the points in X.
     ##
@@ -112,7 +111,7 @@ proc cumtrapz*[T](f: IntegrateProc[T], X: openArray[float],
     result = hermiteInterpolate(X, times, y, dy)
 
 
-proc simpson*[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc simpson*[T](f: NumContextProc[T], xStart, xEnd: float,
                  N = 500, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using Simpson's rule.
     ##
@@ -189,7 +188,7 @@ proc simpson*[T](Y: openArray[T], X: openArray[float]): T =
         eta = (2.0 * h1 ^ 3 - h2 ^ 3 + 3.0 * h2 * h1 ^ 2) / (6.0 * h1 * (h2 + h1))
         result += alpha * dataset[2*i + 2][1] + beta * dataset[2*i + 1][1] + eta * dataset[2*i][1]
 
-proc adaptiveSimpson*[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc adaptiveSimpson*[T](f: NumContextProc[T], xStart, xEnd: float,
                          tol = 1e-8, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using an adaptive Simpson's rule.
     ##
@@ -221,7 +220,7 @@ proc adaptiveSimpson*[T](f: IntegrateProc[T], xStart, xEnd: float,
     let right = adaptiveSimpson(f, m, xEnd, tol = newtol, ctx = ctx)
     return left + right
 
-proc internal_adaptiveSimpson[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc internal_adaptiveSimpson[T](f: NumContextProc[T], xStart, xEnd: float,
                          tol: float, ctx: NumContext[T], reused_points: array[3, T]): T =
     let zero = reused_points[0] - reused_points[0]
     let dx1 = (xEnd - xStart) / 2
@@ -239,7 +238,7 @@ proc internal_adaptiveSimpson[T](f: IntegrateProc[T], xStart, xEnd: float,
     let right = internal_adaptiveSimpson(f, m, xEnd, tol = newtol, ctx = ctx, [reused_points[1], point4, reused_points[2]])
     return left + right
 
-proc adaptiveSimpson2*[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc adaptiveSimpson2*[T](f: NumContextProc[T], xStart, xEnd: float,
                          tol = 1e-8, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using an adaptive Simpson's rule.
     ##
@@ -312,7 +311,7 @@ proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
         xs.add(dataset[dataset.high][0])
     result = hermiteInterpolate(X, xs, y, dy)
 
-proc cumsimpson*[T](f: IntegrateProc[T], X: openArray[float],
+proc cumsimpson*[T](f: NumContextProc[T], X: openArray[float],
                     ctx: NumContext[T] = nil, dx = 1e-5): seq[T] =
     ## Calculate the cumulative integral of f using Simpson's rule.
     ##
@@ -335,7 +334,7 @@ proc cumsimpson*[T](f: IntegrateProc[T], X: openArray[float],
     let ys = cumsimpson(dy, t)
     result = hermiteInterpolate(X, t, ys, dy)
 
-proc romberg*[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc romberg*[T](f: NumContextProc[T], xStart, xEnd: float,
                  depth = 8, tol = 1e-8, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using Romberg Integration.
     ##
@@ -530,7 +529,7 @@ proc getGaussLegendreWeights(nPoints: int): tuple[nodes: seq[float], weights: se
         ]
     return gaussWeights[nPoints]
 
-proc gaussQuad*[T](f: IntegrateProc[T], xStart, xEnd: float,
+proc gaussQuad*[T](f: NumContextProc[T], xStart, xEnd: float,
                    N = 100, nPoints = 7, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using Gaussian Quadrature.
     ## Has 20 different sets of weights, ranging from 1 to 20 function evaluations per subinterval.
@@ -568,7 +567,7 @@ proc gaussQuad*[T](f: IntegrateProc[T], xStart, xEnd: float,
         tempResult *= c1
         result += tempResult
 
-proc calcGaussKronrod[T](f: IntegrateProc[T], xStart, xEnd: float, ctx: NumContext[T] = nil, 
+proc calcGaussKronrod[T](f: NumContextProc[T], xStart, xEnd: float, ctx: NumContext[T] = nil, 
                             lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes: openArray[float]): (T, T) {.inline.} =
     var lowOrderResult, highOrderResult: T
     var savedFunctionValues = newSeq[T](lowOrderNodes.len)
@@ -590,7 +589,7 @@ proc calcGaussKronrod[T](f: IntegrateProc[T], xStart, xEnd: float, ctx: NumConte
     result = (highOrderResult, lowOrderResult)
 
 #[
-proc adaptiveGauss*[T](f: IntegrateProc[T],
+proc adaptiveGauss*[T](f: NumContextProc[T],
                        xStart, xEnd: float, tol = 1e-8, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using an adaptive Gauss-Kronrod Quadrature.
     ##
@@ -653,7 +652,7 @@ proc adaptiveGauss*[T](f: IntegrateProc[T],
     let right = adaptiveGauss(f, c2, xEnd, tol = tol/2, optional=optional)
     return left + right
 ]#
-proc adaptiveGaussLocal*[T](f: IntegrateProc[T],
+proc adaptiveGaussLocal*[T](f: NumContextProc[T],
                        xStart, xEnd: float, tol = 1e-8, ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using an locally adaptive Gauss-Kronrod Quadrature.
     ##
@@ -718,7 +717,7 @@ proc insert*[T](intervalList: var IntervalList[T], el: IntervalType[T]) {.inline
 proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
     result = intervalList.list.pop()
 
-proc adaptiveGauss*[T](f_in: IntegrateProc[T],
+proc adaptiveGauss*[T](f_in: NumContextProc[T],
                        xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], ctx: NumContext[T] = nil): T =
     ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
     ##
