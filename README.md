@@ -6,6 +6,9 @@ NumericalNim is a collection of numerical methods written in Nim. Currently it h
 
 [SciNim's Gitter Channel](https://gitter.im/SciNim/community)
 
+# Tutorials
+- My own [NumericalNim tutorial series](https://hugogranstrom.com/category/Nim/)
+
 # Installation
 Install NumericalNim using Nimble:
 
