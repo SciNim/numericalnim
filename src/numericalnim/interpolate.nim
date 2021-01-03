@@ -302,13 +302,10 @@ proc newBilinearSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolat
 
 # Bicubic interpolator (Credits to @Vindaar for main calculations here)
 
-proc grad(tIn: Tensor[float], xdiff: float = 1.0): Tensor[float] =
+proc grad[T](tIn: Tensor[T], xdiff: float = 1.0): Tensor[T] =
   let t = tIn.squeeze
   doAssert t.rank == 1, " no was " & $t
-  result = newTensor[float](t.size.int)
-  var
-    yMinus, yPlus: float
-    mxdiff = xdiff
+  result = newTensor[T](t.size.int)
   for i in 0 ..< t.size:
     if i == 0:
       result[i] = (t[1] - t[0]) / xdiff
@@ -317,9 +314,9 @@ proc grad(tIn: Tensor[float], xdiff: float = 1.0): Tensor[float] =
     else:
       result[i] = (t[i + 1] - t[i - 1]) / (2 * xdiff)
 
-proc grad(t: Tensor[float], axis: int): Tensor[float] =
+proc grad[T](t: Tensor[T], axis: int): Tensor[T] =
   ## given 2D tensor, calc gradient in axis direction
-  result = newTensor[float](t.shape)
+  result = newTensor[T](t.shape)
   for idx, ax in enumerateAxis(t, axis):
     ## TODO: eh, how to do this in one?
     case axis
@@ -333,8 +330,8 @@ proc bicubicGrad[T](z: Tensor[T], dx, dy: float): tuple[xGrad: Tensor[T], yGrad:
   result.yGrad = grad(z, 0)
   result.xyGrad = grad(result.yGrad, 1)
 
-proc computeAlpha(interp: Interpolator2DType,
-                  x, y: int): Tensor[float] =
+proc computeAlpha[T](interp: Interpolator2DType[T],
+                  x, y: int): Tensor[T] =
   if (x, y) in interp.alphaCache:
     result = interp.alphaCache[(x, y)]
     return
@@ -342,19 +339,22 @@ proc computeAlpha(interp: Interpolator2DType,
   let fx = interp.xGrad
   let fy = interp.yGrad
   let fxy = interp.xyGrad
-  var m1 = [[1, 0, 0, 0],
-            [0, 0, 1, 0],
-            [-3, 3, -2, -1],
-            [2, -2, 1, 1]].toTensor.asType(float)
-  var m2 = [[1, 0, -3, 2],
-            [0, 0, 3, -2],
-            [0, 1, -2, 1],
-            [0, 0, -1, 1]].toTensor.asType(float)
+  var m1 = [[1.0, 0, 0, 0],
+            [0.0, 0, 1, 0],
+            [-3.0, 3, -2, -1],
+            [2.0, -2, 1, 1]].toTensor
+  var m2 = [[1.0, 0, -3, 2],
+            [0.0, 0, 3, -2],
+            [0.0, 1, -2, 1],
+            [0.0, 0, -1, 1]].toTensor
   var A = [[f[x, y],  f[x, y + 1],  fy[x, y],  fy[x, y+1]],
            [f[x + 1, y],  f[x + 1, y + 1],  fy[x+1, y],  fy[x+1, y+1]],
            [fx[x, y], fx[x, y+1], fxy[x, y], fxy[x, y+1]],
-           [fx[x+1, y], fx[x+1, y+1], fxy[x+1, y], fxy[x+1, y+1]]].toTensor().asType(float)
-  result = m1 * A * m2
+           [fx[x+1, y], fx[x+1, y+1], fxy[x+1, y], fxy[x+1, y+1]]].toTensor()
+  when T is SomeNumber and T isnot float:
+    result = m1.asType(T) * A * m2.asType(T)
+  else:
+    result = m1 * A * m2
   interp.alphaCache[(x, y)] = result
 
 proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
@@ -368,7 +368,10 @@ proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   let yCorner = self.yLim.lower + j.toFloat * self.dy
   let y = (y - yCorner) / self.dy
   let alpha = computeAlpha(self, i, j)
-  result = dot([1.0, x, x*x, x*x*x].toTensor, alpha * [1.0, y, y*y, y*y*y].toTensor)
+  when T is SomeNumber and T isnot float:
+    result = dot([1.0, x, x*x, x*x*x].toTensor.asType(T), alpha * [1.0, y, y*y, y*y*y].toTensor.asType(T))
+  else:
+    result = dot([1.0, x, x*x, x*x*x].toTensor, alpha * [1.0, y, y*y, y*y*y].toTensor)
 
 proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
   ## Returns a bicubic spline for regularly gridded data.
