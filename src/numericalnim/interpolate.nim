@@ -239,7 +239,7 @@ proc eval_nearestneigh*[T](self: Interpolator2DType[T], x, y: float): T {.nimcal
   let j = round((y - self.yLim.lower) / self.dy).toInt
   result = self.z[i, j]
 
-proc newNearestNeighboursInterpolator*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
+proc newNearestNeighbour2D*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
   ## Returns a nearest neighbour interpolator for regularly gridded data.
   ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
   ## xlim - the lowest and highest x-value
@@ -429,8 +429,8 @@ when isMainModule:
   z[1, _] = z[1, _] +. 1.0
   z[2, _] = z[2, _] +. 2.0
   echo z
-  let v = newVector([1.0, 1.0, 1.0])
-  var zVector: Tensor[Vector[float]] = [[v, v, v], [v+1.0, v+1.0, v+1.0], [v+2.0, v+2.0, v+2.0]].toTensor
+  let v = Vec3(x: 1.0, y: 1.0, z: 1.0)
+  var zVector: Tensor[Vec3] = [[v, v], [v+1.0, v+1.0], [v+2.0, v+2.0]].toTensor
   echo zVector
   let blVector = newBilinearSpline(zVector, (0.0, 9.0), (0.0, 9.0))
   let bcVector = newBicubicSpline(zVector, (0.0, 9.0), (0.0, 9.0))
@@ -443,7 +443,7 @@ when isMainModule:
   echo "LinearV:", blVector.eval(x, y)
   echo "CubicV: ", bcVector.eval(x, y)
   let randTensor = randomTensor([10, 10], 75).asType(float)
-  let nearestInterp = newNearestNeighboursInterpolator(randTensor, (0.0, 9.0), (0.0, 9.0))
+  let nearestInterp = newNearestNeighbour2D(randTensor, (0.0, 9.0), (0.0, 9.0))
   let linearSpline = newBilinearSpline(randTensor, (0.0, 9.0), (0.0, 9.0))
   let cubicSpline = newBicubicSpline(randTensor, (0.0, 9.0), (0.0, 9.0))
   plot(nearestInterp, "nearest")

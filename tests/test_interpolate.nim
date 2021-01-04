@@ -141,3 +141,66 @@ test "HermiteSpline derivEval, seq input":
         #check isClose(val, cos(tTest[i]), 1e-3)
         check abs(val - cos(tTest[i])) < 1e-5
 
+# 2D Interpolation
+
+let onesZ = ones[float](100, 100)
+
+test "Nearest neighbour all ones":
+    let nn = newNearestNeighbour2D(onesZ, (0.0, 100.0), (-100.0, 0.0))
+    let x = linspace(0.0, 100.0, 789)
+    let y = linspace(-100.0, 0.0, 567)
+    for i in x:
+        for j in y:
+            check nn.eval(i, j) == 1.0
+
+test "Bilinear all ones":
+    let spline = newBilinearSpline(onesZ, (0.0, 100.0), (-100.0, 0.0))
+    let x = linspace(0.0, 100.0, 789)
+    let y = linspace(-100.0, 0.0, 567)
+    for i in x:
+        for j in y:
+            check abs(spline.eval(i, j) - 1.0) < 1e-15
+
+test "Bicubic all ones":
+    let spline = newBicubicSpline(onesZ, (0.0, 100.0), (-100.0, 0.0))
+    let x = linspace(0.0, 100.0, 789)
+    let y = linspace(-100.0, 0.0, 567)
+    for i in x:
+        for j in y:
+            check abs(spline.eval(i, j) - 1.0) < 1e-16
+
+let zPoints = [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2, 2]].toTensor
+let xPoints = [0.0, 1.0, 2.0]
+let xTestPoints = linspace(0.0, 2.0, 7)
+var nnCorrect = newTensor[float](7, 7)
+for i in 0 ..< 7:
+    for j in 0 ..< 7:
+        if i < 2:
+            nnCorrect[i, j] = 0.0
+        elif i > 4:
+            nnCorrect[i, j] = 2.0
+        else:
+            nnCorrect[i, j] = 1.0
+
+test "Nearest neighbour 3x3":
+    let nn = newNearestNeighbour2D(zPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check nn.eval(x, y) == nnCorrect[i, j]
+
+var bilinearCorrect = newTensor[float](7,7)
+for i in 0 ..< 7:
+    for j in 0 ..< 7:
+        bilinearCorrect[i, j] = i.toFloat / 3
+
+test "Bilinear 3x3":
+    let spline = newBilinearSpline(zPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check abs(spline.eval(x, y) - bilinearCorrect[i, j]) < 3e-16
+
+test "Bicubic 3x3":
+    let spline = newBicubicSpline(zPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check abs(spline.eval(x, y) - bilinearCorrect[i, j]) < 3e-16
