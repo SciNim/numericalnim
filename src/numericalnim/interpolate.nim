@@ -2,7 +2,8 @@ import strformat, math, tables
 import arraymancer, ggplotnim
 import
   ./utils,
-  ./common/commonTypes
+  ./common/commonTypes,
+  ./private/arraymancerOverloads
 
 type
   InterpolatorType*[T] = ref object
@@ -370,8 +371,10 @@ proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   let alpha = computeAlpha(self, i, j)
   when T is SomeNumber and T isnot float:
     result = dot([1.0, x, x*x, x*x*x].toTensor.asType(T), alpha * [1.0, y, y*y, y*y*y].toTensor.asType(T))
-  else:
+  elif T is float:
     result = dot([1.0, x, x*x, x*x*x].toTensor, alpha * [1.0, y, y*y, y*y*y].toTensor)
+  else:
+    result = dot([1.0, x, x*x, x*x*x].toTensor, alpha * [1.0, y, y*y, y*y*y].toTensor.reshape(4, 1))
 
 proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
   ## Returns a bicubic spline for regularly gridded data.
@@ -426,12 +429,19 @@ when isMainModule:
   z[1, _] = z[1, _] +. 1.0
   z[2, _] = z[2, _] +. 2.0
   echo z
+  let v = newVector([1.0, 1.0, 1.0])
+  var zVector: Tensor[Vector[float]] = [[v, v, v], [v+1.0, v+1.0, v+1.0], [v+2.0, v+2.0, v+2.0]].toTensor
+  echo zVector
+  let blVector = newBilinearSpline(zVector, (0.0, 9.0), (0.0, 9.0))
+  let bcVector = newBicubicSpline(zVector, (0.0, 9.0), (0.0, 9.0))
   let blspline = newBilinearSpline(z, (0.0, 2.0), (0.0, 2.0))
   let bcspline = newBicubicSpline(z, (0.0, 2.0), (0.0, 2.0))
   let x = 1.8
   let y = 2.0
   echo "Linear: ", blspline.eval(x, y)
   echo "Cubic:  ", bcspline.eval(x, y)
+  echo "LinearV:", blVector.eval(x, y)
+  echo "CubicV: ", bcVector.eval(x, y)
   let randTensor = randomTensor([10, 10], 75).asType(float)
   let nearestInterp = newNearestNeighboursInterpolator(randTensor, (0.0, 9.0), (0.0, 9.0))
   let linearSpline = newBilinearSpline(randTensor, (0.0, 9.0), (0.0, 9.0))
@@ -454,6 +464,14 @@ when isMainModule:
     for x in xTest:
       for y in yTest:
         keep(cubicSpline.eval(x, y))
+  timeIt "LinearV":
+    for x in xTest:
+      for y in yTest:
+        keep(blVector.eval(x, y))
+  timeIt "CubicV":
+    for x in xTest:
+      for y in yTest:
+        keep(bcVector.eval(x, y))
   # Result:
   # Nearest ............................ 14.972 ms    ±0.478  x10
   # Linear ............................. 37.913 ms    ±1.122  x10
