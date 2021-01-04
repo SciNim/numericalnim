@@ -305,7 +305,7 @@ proc newBilinearSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolat
 
 proc grad[T](tIn: Tensor[T], xdiff: float = 1.0): Tensor[T] =
   let t = tIn.squeeze
-  doAssert t.rank == 1, " no was " & $t
+  doAssert t.rank == 1
   result = newTensor[T](t.size.int)
   for i in 0 ..< t.size:
     if i == 0:
