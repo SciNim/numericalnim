@@ -1,5 +1,5 @@
 import strformat, math, tables
-import arraymancer, ggplotnim
+import arraymancer
 import
   ./utils,
   ./common/commonTypes,
@@ -407,7 +407,7 @@ proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolato
 template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
   interpolator.eval_handler(interpolator, x, y)
 
-
+#[
 proc plot(interp: Interpolator2DType, name: string) =
   var x, y, z: seq[float]
   for i in linspace(interp.xLim.lower, interp.xLim.upper, 1000):
@@ -429,8 +429,8 @@ when isMainModule:
   z[1, _] = z[1, _] +. 1.0
   z[2, _] = z[2, _] +. 2.0
   echo z
-  let v = Vec3(x: 1.0, y: 1.0, z: 1.0)
-  var zVector: Tensor[Vec3] = [[v, v], [v+1.0, v+1.0], [v+2.0, v+2.0]].toTensor
+  let v = newVector[float]([1.0, 1.0, 1.0])
+  var zVector: Tensor[Vector[float]] = [[v, v], [v+1.0, v+1.0], [v+2.0, v+2.0]].toTensor
   echo zVector
   let blVector = newBilinearSpline(zVector, (0.0, 9.0), (0.0, 9.0))
   let bcVector = newBicubicSpline(zVector, (0.0, 9.0), (0.0, 9.0))
@@ -476,3 +476,4 @@ when isMainModule:
   # Nearest ............................ 14.972 ms    ±0.478  x10
   # Linear ............................. 37.913 ms    ±1.122  x10
   # Cubic ............................. 693.276 ms    ±4.326  x10
+]#

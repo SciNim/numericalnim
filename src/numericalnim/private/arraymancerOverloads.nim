@@ -37,7 +37,7 @@ proc dot*[T: not SomeNumber](t1: Tensor[float], t2: Tensor[T]): T =
   let t2 = t2.squeeze
   let t1 = t1.squeeze
   assert t2.rank == 1 and t1.rank == 1, "Only 1D Tensors are supported"
-  assert t1.len == t2.len, "Tensors must have same length"
+  assert t1.shape[0] == t2.shape[0], "Tensors must have same length"
   result = t2[0] - t2[0] # zero
   for x, y in zip(t1, t2):
     result += x * y

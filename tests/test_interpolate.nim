@@ -2,6 +2,7 @@ import unittest, math, sequtils
 import numericalnim
 import arraymancer
 
+
 proc f(x: float): float = sin(x)
 proc df(x: float): float = cos(x)
 let t = linspace(0.0, 10.0, 100)
@@ -204,3 +205,64 @@ test "Bicubic 3x3":
     for i, x in xTestPoints:
         for j, y in xTestPoints:
             check abs(spline.eval(x, y) - bilinearCorrect[i, j]) < 3e-16
+
+let zVectorPoints: Tensor[Vector[float]] = [
+    [newVector[float]([0.0, 0.0, 0.0]), newVector([0.0, 0.0, 0.0]), newVector([0.0, 0.0, 0.0])], 
+    [newVector[float]([1.0, 1.0, 1.0]), newVector([1.0, 1.0, 1.0]), newVector([1.0, 1.0, 1.0])], 
+    [newVector[float]([2.0, 2.0, 2.0]), newVector([2.0, 2.0, 2.0]), newVector([2.0, 2.0, 2.0])]
+    ].toTensor
+
+test "Nearest neighbour T: Vector[float]":
+    let nn = newNearestNeighbour2D(zVectorPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check nn.eval(x, y)[0] == nnCorrect[i, j]
+            check nn.eval(x, y)[1] == nnCorrect[i, j]
+            check nn.eval(x, y)[2] == nnCorrect[i, j]
+
+test "Bilinear T: Vector[float]":
+    let nn = newBilinearSpline(zVectorPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check abs(nn.eval(x, y)[0] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[1] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[2] - bilinearCorrect[i, j]) < 3e-16
+
+test "Bicubic T: Vector[float]":
+    let nn = newBicubicSpline(zVectorPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check abs(nn.eval(x, y)[0] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[1] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[2] - bilinearCorrect[i, j]) < 3e-16
+
+let zTensorPoints: Tensor[Tensor[float]] = [
+    [toTensor([0.0, 0.0, 0.0]), toTensor([0.0, 0.0, 0.0]), toTensor([0.0, 0.0, 0.0])], 
+    [toTensor([1.0, 1.0, 1.0]), toTensor([1.0, 1.0, 1.0]), toTensor([1.0, 1.0, 1.0])], 
+    [toTensor([2.0, 2.0, 2.0]), toTensor([2.0, 2.0, 2.0]), toTensor([2.0, 2.0, 2.0])]
+    ].toTensor
+
+test "Nearest neighbour T: Tensor[float]":
+    let nn = newNearestNeighbour2D(zTensorPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check nn.eval(x, y)[0] == nnCorrect[i, j]
+            check nn.eval(x, y)[1] == nnCorrect[i, j]
+            check nn.eval(x, y)[2] == nnCorrect[i, j]
+
+test "Bilinear T: Tensor[float]":
+    let nn = newBilinearSpline(zTensorPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check abs(nn.eval(x, y)[0] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[1] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[2] - bilinearCorrect[i, j]) < 3e-16
+
+test "Bicubic T: Tensor[float]":
+    let nn = newBicubicSpline(zTensorPoints, (0.0, 2.0), (0.0, 2.0))
+    for i, x in xTestPoints:
+        for j, y in xTestPoints:
+            check abs(nn.eval(x, y)[0] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[1] - bilinearCorrect[i, j]) < 3e-16
+            check abs(nn.eval(x, y)[2] - bilinearCorrect[i, j]) < 3e-16
+            
