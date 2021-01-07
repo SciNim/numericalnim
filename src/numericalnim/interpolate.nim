@@ -1,7 +1,9 @@
-import strformat, math
+import strformat, math, tables
+import arraymancer
 import
   ./utils,
-  ./common/commonTypes
+  ./common/commonTypes,
+  ./private/arraymancerOverloads
 
 type
   InterpolatorType*[T] = ref object
@@ -13,6 +15,12 @@ type
     eval_handler*: EvalHandler[T]
     deriveval_handler*: EvalHandler[T]
   EvalHandler*[T] = proc(self: InterpolatorType[T], x: float): T {.nimcall.}
+  Interpolator2DType*[T] = ref object
+    z*, xGrad*, yGrad*, xyGrad*: Tensor[T] # 2D tensor
+    alphaCache*: Table[(int, int), Tensor[T]]
+    dx*, dy*: float
+    xLim*, yLim*: tuple[lower: float, upper: float]
+    eval_handler*: proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
 
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
@@ -74,7 +82,7 @@ proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): seq[seq[floa
   result = newSeq[seq[float]](n)
   for i in 0 ..< n:
     result[i] = @[a[i], b[i], c[i], d[i], X[i]]
-    
+
 
 proc eval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
   let n = findInterval(spline.X, x)
@@ -95,7 +103,8 @@ proc derivEval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
   let xDiff = x - xj
   return b + 2 * c * xDiff + 3 * d * xDiff * xDiff
 
-proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[T]): InterpolatorType[T] =
+proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
+    T]): InterpolatorType[T] =
   let sortedData = sortDataset(X, Y)
   var xSorted = newSeq[float](X.len)
   var ySorted = newSeq[T](Y.len)
@@ -103,7 +112,9 @@ proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[T]): Interp
     xSorted[i] = sortedData[i][0]
     ySorted[i] = sortedData[i][1]
   let coeffs = constructCubicSpline(xSorted, ySorted)
-  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high, len: xSorted.len, eval_handler: eval_cubicspline, deriveval_handler: derivEval_cubicspline)
+  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+      len: xSorted.len, eval_handler: eval_cubicspline,
+      deriveval_handler: derivEval_cubicspline)
 
 
 ## HermiteSpline
@@ -139,7 +150,8 @@ proc derivEval_hermitespline*[T](spline: InterpolatorType[T], x: float): T =
   let m2 = spline.coeffs_T[n+1][1]
   result = (h00*p1 + h10*xDiff*m1 + h01*p2 + h11*xDiff*m2) / xDiff
 
-proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[T]): InterpolatorType[T] =
+proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
+    T]): InterpolatorType[T] =
   ## X, Y and dY must be sorted by X in ascending order
   #let sortedData = sortDataset(X, Y)
   #let sortedData_dY = sortDataset(X, dY)
@@ -151,14 +163,17 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[T]): Interpolato
   #  ySorted[i] = sortedData[i][1]
   #  dySorted[i] = sortedData_dY[i][1]
   if X.len != Y.len or X.len != dY.len:
-        raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len} and dY is {dY.len}")
+    raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len} and dY is {dY.len}")
   var coeffs = newSeq[seq[T]](Y.len)
   for i in 0 .. Y.high:
     coeffs[i] = @[Y[i], dY[i]]
-  result = InterpolatorType[T](X: @X, coeffs_T: coeffs, high: X.high, len: X.len, eval_handler: eval_hermitespline, deriveval_handler: derivEval_hermitespline)
+  result = InterpolatorType[T](X: @X, coeffs_T: coeffs, high: X.high,
+      len: X.len, eval_handler: eval_hermitespline,
+      deriveval_handler: derivEval_hermitespline)
 
-proc newHermiteSpline*[T](X: openArray[float], Y: openArray[T]): InterpolatorType[T] =
-  # if only (x, y) is given, use three-point differenceto calculate dY.
+proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
+    T]): InterpolatorType[T] =
+  # if only (x, y) is given, use three-point difference to calculate dY.
   let sortedData = sortDataset(X, Y)
   var xSorted = newSeq[float](X.len)
   var ySorted = newSeq[T](Y.len)
@@ -168,13 +183,17 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[T]): InterpolatorTyp
     ySorted[i] = sortedData[i][1]
   let highest = dySorted.high
   dySorted[0] = (ySorted[1] - ySorted[0]) / (xSorted[1] - xSorted[0])
-  dySorted[highest] = (ySorted[highest] - ySorted[highest-1]) / (xSorted[highest] - xSorted[highest-1])
+  dySorted[highest] = (ySorted[highest] - ySorted[highest-1]) / (xSorted[
+      highest] - xSorted[highest-1])
   for i in 1 .. highest-1:
-    dySorted[i] = 0.5 * ((ySorted[i+1] - ySorted[i])/(xSorted[i+1] - xSorted[i]) + (ySorted[i] - ySorted[i-1])/(xSorted[i] - xSorted[i-1]))
+    dySorted[i] = 0.5 * ((ySorted[i+1] - ySorted[i])/(xSorted[i+1] - xSorted[
+        i]) + (ySorted[i] - ySorted[i-1])/(xSorted[i] - xSorted[i-1]))
   var coeffs = newSeq[seq[T]](Y.len)
   for i in 0 .. Y.high:
     coeffs[i] = @[ySorted[i], dySorted[i]]
-  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high, len: xSorted.len, eval_handler: eval_hermitespline, deriveval_handler: derivEval_hermitespline)
+  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+      len: xSorted.len, eval_handler: eval_hermitespline,
+      deriveval_handler: derivEval_hermitespline)
 
 
 # General Spline stuff
@@ -206,3 +225,255 @@ proc toDerivProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
 
 proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
   result = proc(x: float, ctx: NumContext[T]): T = derivEval(spline, x)
+
+
+##############################################
+############ 2D Interpolation ################
+##############################################
+
+# Nearest Neighbour interpolation
+
+proc eval_nearestneigh*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
+  assert self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper, "x and y must be inside the given points"
+  let i = round((x - self.xLim.lower) / self.dx).toInt
+  let j = round((y - self.yLim.lower) / self.dy).toInt
+  result = self.z[i, j]
+
+proc newNearestNeighbour2D*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
+  ## Returns a nearest neighbour interpolator for regularly gridded data.
+  ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
+  ## xlim - the lowest and highest x-value
+  ## ylim - the lowest and highest y-value
+  assert z.rank == 2, "z must be a 2D tensor"
+  new result
+  let nx = z.shape[0]
+  let ny = z.shape[1]
+  let xStart = xlim[0]
+  let xEnd = xlim[1]
+  let yStart = ylim[0]
+  let yEnd = ylim[1]
+  let dx = (xEnd - xStart) / (nx - 1).toFloat
+  let dy = (yEnd - yStart) / (ny - 1).toFloat
+  result.z = z
+  result.dx = dx
+  result.dy = dy
+  result.xLim = (lower: xStart, upper: xEnd)
+  result.yLim = (lower: yStart, upper: yEnd)
+  result.eval_handler = eval_nearestneigh[T]
+
+# Bilinear interpolation
+
+proc eval_bilinear*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
+  # find interval
+  assert self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper, "x and y must be inside the given points"
+  let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.z.shape[0] - 2)
+  let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.z.shape[1] - 2)
+  # transform x and y to unit square
+  let xCorner = self.xLim.lower + i.toFloat * self.dx
+  let x = (x - xCorner) / self.dx
+  let yCorner = self.yLim.lower + j.toFloat * self.dy
+  let y = (y - yCorner) / self.dy
+  let f00 = self.z[i, j]
+  let f10 = self.z[i+1, j]
+  let f01 = self.z[i, j+1]
+  let f11 = self.z[i+1, j+1]
+  result = f00 * (1-x) * (1-y) + f10 * x * (1-y) + f01 * (1-x) * y + f11 * x * y
+
+proc newBilinearSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
+  ## Returns a bilinear spline for regularly gridded data.
+  ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
+  ## xlim - the lowest and highest x-value
+  ## ylim - the lowest and highest y-value
+  assert z.rank == 2, "z must be a 2D tensor"
+  new result
+  let nx = z.shape[0]
+  let ny = z.shape[1]
+  let xStart = xlim[0]
+  let xEnd = xlim[1]
+  let yStart = ylim[0]
+  let yEnd = ylim[1]
+  let dx = (xEnd - xStart) / (nx - 1).toFloat
+  let dy = (yEnd - yStart) / (ny - 1).toFloat
+  result.z = z
+  result.dx = dx
+  result.dy = dy
+  result.xLim = (lower: xStart, upper: xEnd)
+  result.yLim = (lower: yStart, upper: yEnd)
+  result.eval_handler = eval_bilinear[T]
+
+# Bicubic interpolator (Credits to @Vindaar for main calculations here)
+
+proc grad[T](tIn: Tensor[T], xdiff: float = 1.0): Tensor[T] =
+  let t = tIn.squeeze
+  doAssert t.rank == 1
+  result = newTensor[T](t.size.int)
+  for i in 0 ..< t.size:
+    if i == 0:
+      result[i] = (t[1] - t[0]) / xdiff
+    elif i == t.size - 1:
+      result[i] = (t[i] - t[i - 1]) / xdiff
+    else:
+      result[i] = (t[i + 1] - t[i - 1]) / (2 * xdiff)
+
+proc grad[T](t: Tensor[T], axis: int): Tensor[T] =
+  ## given 2D tensor, calc gradient in axis direction
+  result = newTensor[T](t.shape)
+  for idx, ax in enumerateAxis(t, axis):
+    ## TODO: eh, how to do this in one?
+    case axis
+    of 0: result[idx, _] = grad(ax, 1.0).unsqueeze(0)
+    of 1: result[_, idx] = grad(ax, 1.0).unsqueeze(1)
+    else: doAssert false
+
+proc bicubicGrad[T](z: Tensor[T], dx, dy: float): tuple[xGrad: Tensor[T], yGrad: Tensor[T],
+    xyGrad: Tensor[T]] =
+  result.xGrad = grad(z, 1)
+  result.yGrad = grad(z, 0)
+  result.xyGrad = grad(result.yGrad, 1)
+
+proc computeAlpha[T](interp: Interpolator2DType[T],
+                  x, y: int): Tensor[T] =
+  if (x, y) in interp.alphaCache:
+    result = interp.alphaCache[(x, y)]
+    return
+  let f = interp.z
+  let fx = interp.xGrad
+  let fy = interp.yGrad
+  let fxy = interp.xyGrad
+  var m1 = [[1.0, 0, 0, 0],
+            [0.0, 0, 1, 0],
+            [-3.0, 3, -2, -1],
+            [2.0, -2, 1, 1]].toTensor
+  var m2 = [[1.0, 0, -3, 2],
+            [0.0, 0, 3, -2],
+            [0.0, 1, -2, 1],
+            [0.0, 0, -1, 1]].toTensor
+  var A = [[f[x, y],  f[x, y + 1],  fy[x, y],  fy[x, y+1]],
+           [f[x + 1, y],  f[x + 1, y + 1],  fy[x+1, y],  fy[x+1, y+1]],
+           [fx[x, y], fx[x, y+1], fxy[x, y], fxy[x, y+1]],
+           [fx[x+1, y], fx[x+1, y+1], fxy[x+1, y], fxy[x+1, y+1]]].toTensor()
+  when T is SomeNumber and T isnot float:
+    result = m1.asType(T) * A * m2.asType(T)
+  else:
+    result = m1 * A * m2
+  interp.alphaCache[(x, y)] = result
+
+proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
+  # find interval
+  assert self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper, "x and y must be inside the given points"
+  let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.z.shape[0] - 2)
+  let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.z.shape[1] - 2)
+  # transform x and y to unit square
+  let xCorner = self.xLim.lower + i.toFloat * self.dx
+  let x = (x - xCorner) / self.dx
+  let yCorner = self.yLim.lower + j.toFloat * self.dy
+  let y = (y - yCorner) / self.dy
+  let alpha = computeAlpha(self, i, j)
+  when T is SomeNumber and T isnot float:
+    result = dot([1.0, x, x*x, x*x*x].toTensor.asType(T), alpha * [1.0, y, y*y, y*y*y].toTensor.asType(T))
+  elif T is float:
+    result = dot([1.0, x, x*x, x*x*x].toTensor, alpha * [1.0, y, y*y, y*y*y].toTensor)
+  else:
+    result = dot([1.0, x, x*x, x*x*x].toTensor, alpha * [1.0, y, y*y, y*y*y].toTensor.reshape(4, 1))
+
+proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
+  ## Returns a bicubic spline for regularly gridded data.
+  ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
+  ## xlim - the lowest and highest x-value
+  ## ylim - the lowest and highest y-value
+  assert z.rank == 2, "z must be a 2D tensor"
+  new result
+  let nx = z.shape[0]
+  let ny = z.shape[1]
+  let xStart = xlim[0]
+  let xEnd = xlim[1]
+  let yStart = ylim[0]
+  let yEnd = ylim[1]
+  let dx = (xEnd - xStart) / (nx - 1).toFloat
+  let dy = (yEnd - yStart) / (ny - 1).toFloat
+  let grads = bicubicGrad(z, dx, dy)
+  result.xGrad = grads.xGrad
+  result.yGrad = grads.yGrad
+  result.xyGrad = grads.xyGrad
+  result.z = z
+  result.dx = dx
+  result.dy = dy
+  result.xLim = (lower: xStart, upper: xEnd)
+  result.yLim = (lower: yStart, upper: yEnd)
+  result.eval_handler = eval_bicubic[T]
+
+# General Interpolator2D stuff
+
+template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
+  interpolator.eval_handler(interpolator, x, y)
+
+#[
+proc plot(interp: Interpolator2DType, name: string) =
+  var x, y, z: seq[float]
+  for i in linspace(interp.xLim.lower, interp.xLim.upper, 1000):
+    for j in linspace(interp.yLim.lower, interp.yLim.upper, 1000):
+      z.add interp.eval(i, j)
+      x.add i
+      y.add j
+  let df = seqsToDf(x, y, z)
+  ggplot(df, aes("x", "y", fill = "z")) +
+    geom_raster() +
+    #scale_x_continuous() + scale_y_continuous() +
+    scale_fill_continuous(scale = (low: -70.0, high: 70.0)) +
+    xlim(interp.xLim.lower, interp.xLim.upper) + ylim(interp.yLim.lower, interp.yLim.upper) +
+    theme_opaque() +
+    ggsave(name & ".png", width = 900, height = 800)
+
+when isMainModule:
+  var z = ones[float](3, 3)
+  z[1, _] = z[1, _] +. 1.0
+  z[2, _] = z[2, _] +. 2.0
+  echo z
+  let v = newVector[float]([1.0, 1.0, 1.0])
+  var zVector: Tensor[Vector[float]] = [[v, v], [v+1.0, v+1.0], [v+2.0, v+2.0]].toTensor
+  echo zVector
+  let blVector = newBilinearSpline(zVector, (0.0, 9.0), (0.0, 9.0))
+  let bcVector = newBicubicSpline(zVector, (0.0, 9.0), (0.0, 9.0))
+  let blspline = newBilinearSpline(z, (0.0, 2.0), (0.0, 2.0))
+  let bcspline = newBicubicSpline(z, (0.0, 2.0), (0.0, 2.0))
+  let x = 1.8
+  let y = 2.0
+  echo "Linear: ", blspline.eval(x, y)
+  echo "Cubic:  ", bcspline.eval(x, y)
+  echo "LinearV:", blVector.eval(x, y)
+  echo "CubicV: ", bcVector.eval(x, y)
+  let randTensor = randomTensor([10, 10], 75).asType(float)
+  let nearestInterp = newNearestNeighbour2D(randTensor, (0.0, 9.0), (0.0, 9.0))
+  let linearSpline = newBilinearSpline(randTensor, (0.0, 9.0), (0.0, 9.0))
+  let cubicSpline = newBicubicSpline(randTensor, (0.0, 9.0), (0.0, 9.0))
+  plot(nearestInterp, "nearest")
+  plot(linearSpline, "bilinear")
+  plot(cubicSpline, "bicubic")
+  import benchy
+  let xTest = linspace(0.0, 9.0, 999)
+  let yTest = linspace(0.0, 9.0, 999)
+  timeIt "Nearest":
+    for x in xTest:
+      for y in yTest:
+        keep(nearestInterp.eval(x, y))
+  timeIt "Linear":
+    for x in xTest:
+      for y in yTest:
+        keep(linearSpline.eval(x, y))
+  timeIt "Cubic":
+    for x in xTest:
+      for y in yTest:
+        keep(cubicSpline.eval(x, y))
+  timeIt "LinearV":
+    for x in xTest:
+      for y in yTest:
+        keep(blVector.eval(x, y))
+  timeIt "CubicV":
+    for x in xTest:
+      for y in yTest:
+        keep(bcVector.eval(x, y))
+  # Result:
+  # Nearest ............................ 14.972 ms    ±0.478  x10
+  # Linear ............................. 37.913 ms    ±1.122  x10
+  # Cubic ............................. 693.276 ms    ±4.326  x10
+]#
