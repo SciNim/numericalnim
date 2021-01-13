@@ -234,8 +234,21 @@ proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
 # Nearest Neighbour interpolation
 
 proc checkInterpolationInterval[T](self: Interpolator2DType[T], x, y: float) =
-  if not(self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper):
-    raise newException(ValueError, &"(x, y) = ({x}, {y}) isn't in the interval [({self.xLim.lower}, {self.yLim.lower}), ({self.xLim.upper}, {self.yLim.upper})]")
+  let raiseX = not(self.xLim.lower <= x and x <= self.xLim.upper)
+  let raiseY = not(self.yLim.lower <= y and y <= self.yLim.upper)
+
+  if raiseX and raiseY:
+    var raiseMsg = &"x={x} and y={y} respectively not in grid intervals [{self.xLim.lower}, {self.xLim.upper}] and [{self.yLim.lower}, {self.yLim.upper}]."
+    raise newException(ValueError, raiseMsg)
+
+  if raiseX:
+    var raiseMsg = &"x={x} not in grid interval [{self.xLim.lower}, {self.xLim.upper}]."
+    raise newException(ValueError, raiseMsg)
+
+  if raiseY:
+    var raiseMsg = &"y={y} not in grid interval [{self.yLim.lower}, {self.yLim.upper}]."
+    raise newException(ValueError, raiseMsg)
+
 
 proc eval_nearestneigh*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   checkInterpolationInterval(self, x, y)
