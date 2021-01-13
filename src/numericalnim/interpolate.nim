@@ -249,9 +249,9 @@ proc checkInterpolationInterval[T](self: Interpolator2DType[T], x, y: float) =
     var raiseMsg = &"y={y} not in grid interval [{self.yLim.lower}, {self.yLim.upper}]."
     raise newException(ValueError, raiseMsg)
 
-
 proc eval_nearestneigh*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
-  checkInterpolationInterval(self, x, y)
+  when compileOption("boundChecks"):
+    checkInterpolationInterval(self, x, y)
   let i = round((x - self.xLim.lower) / self.dx).toInt
   let j = round((y - self.yLim.lower) / self.dy).toInt
   result = self.z[i, j]
@@ -282,7 +282,8 @@ proc newNearestNeighbour2D*[T](z: Tensor[T], xlim, ylim: (float, float)): Interp
 
 proc eval_bilinear*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   # find interval
-  checkInterpolationInterval(self, x, y)
+  when compileOption("boundChecks"):
+    checkInterpolationInterval(self, x, y)
   let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.z.shape[0] - 2)
   let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.z.shape[1] - 2)
   # transform x and y to unit square
@@ -377,7 +378,8 @@ proc computeAlpha[T](interp: Interpolator2DType[T],
 
 proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   # find interval
-  checkInterpolationInterval(self, x, y)
+  when compileOption("boundChecks"):
+    checkInterpolationInterval(self, x, y)
   let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.z.shape[0] - 2)
   let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.z.shape[1] - 2)
   # transform x and y to unit square
