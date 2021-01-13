@@ -233,8 +233,12 @@ proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
 
 # Nearest Neighbour interpolation
 
+proc checkInterpolationInterval[T](self: Interpolator2DType[T], x, y: float) =
+  if not(self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper):
+    raise newException(ValueError, &"(x, y) = ({x}, {y}) isn't in the interval [({self.xLim.lower}, {self.yLim.lower}), ({self.xLim.upper}, {self.yLim.upper})]")
+
 proc eval_nearestneigh*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
-  assert self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper, "x and y must be inside the given points"
+  checkInterpolationInterval(self, x, y)
   let i = round((x - self.xLim.lower) / self.dx).toInt
   let j = round((y - self.yLim.lower) / self.dy).toInt
   result = self.z[i, j]
@@ -265,7 +269,7 @@ proc newNearestNeighbour2D*[T](z: Tensor[T], xlim, ylim: (float, float)): Interp
 
 proc eval_bilinear*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   # find interval
-  assert self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper, "x and y must be inside the given points"
+  checkInterpolationInterval(self, x, y)
   let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.z.shape[0] - 2)
   let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.z.shape[1] - 2)
   # transform x and y to unit square
@@ -360,7 +364,7 @@ proc computeAlpha[T](interp: Interpolator2DType[T],
 
 proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
   # find interval
-  assert self.xLim.lower <= x and x <= self.xLim.upper and self.yLim.lower <= y and y <= self.yLim.upper, "x and y must be inside the given points"
+  checkInterpolationInterval(self, x, y)
   let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.z.shape[0] - 2)
   let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.z.shape[1] - 2)
   # transform x and y to unit square
