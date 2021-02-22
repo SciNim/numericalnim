@@ -21,6 +21,11 @@ type
     dx*, dy*: float
     xLim*, yLim*: tuple[lower: float, upper: float]
     eval_handler*: proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
+  Interpolator3DType*[T] = ref object
+    f*: Tensor[T] # 3D tensor
+    dx*, dy*, dz*: float
+    xLim*, yLim*, zLim*: tuple[lower: float, upper: float]
+    eval_handler*: proc (self: Interpolator3DType[T], x, y, z: float): T {.nimcall.}
 
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
@@ -425,6 +430,83 @@ proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolato
 
 template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
   interpolator.eval_handler(interpolator, x, y)
+
+
+##############################################
+############ 3D Interpolation ################
+##############################################
+
+proc checkInterpolationInterval[T](self: Interpolator3DType[T], x, y, z: float) =
+  let raiseX = not(self.xLim.lower <= x and x <= self.xLim.upper)
+  let raiseY = not(self.yLim.lower <= y and y <= self.yLim.upper)
+  let raiseZ = not(self.zLim.lower <= z and z <= self.zLim.upper)
+
+  if raiseX or raiseY or raiseZ:
+    var raiseMsg = "The following inputs was not inside the spline's domain:"
+    if raiseX:
+      raiseMsg.add &"\nx={x} not in grid interval [{self.xLim.lower}, {self.xLim.upper}]."
+    if raiseY:
+      raiseMsg.add &"\ny={y} not in grid interval [{self.yLim.lower}, {self.yLim.upper}]."
+    if raiseZ:
+      raiseMsg.add &"\nz={z} not in grid interval [{self.zLim.lower}, {self.zLim.upper}]."
+    raise newException(ValueError, raiseMsg)
+
+proc eval_trilinear*[T](self: Interpolator3DType[T], x, y, z: float): T {.nimcall.} =
+  when compileOption("boundChecks"):
+    checkInterpolationInterval(self, x, y, z)
+  # find interval
+  let i = min(floor((x - self.xLim.lower) / self.dx).toInt, self.f.shape[0] - 2)
+  let j = min(floor((y - self.yLim.lower) / self.dy).toInt, self.f.shape[1] - 2)
+  let k = min(floor((z - self.zLim.lower) / self.dz).toInt, self.f.shape[2] - 2)
+  # transform x and y to unit square
+  let xCorner = self.xLim.lower + i.toFloat * self.dx
+  let x = (x - xCorner) / self.dx
+  let yCorner = self.yLim.lower + j.toFloat * self.dy
+  let y = (y - yCorner) / self.dy
+  let zCorner = self.zLim.lower + k.toFloat * self.dz
+  let z = (z - zCorner) / self.dz
+  let oneMinusX = 1 - x
+  let c00 = self.f[i, j, k] * oneMinusX + self.f[i+1, j, k] * x
+  let c01 = self.f[i, j, k+1] * oneMinusX + self.f[i+1, j, k+1] * x
+  let c10 = self.f[i, j+1, k] * oneMinusX + self.f[i+1, j+1, k] * x
+  let c11 = self.f[i, j+1, k+1] * oneMinusX + self.f[i+1, j+1, k+1] * x
+  let oneMinusY = 1 - y
+  let c0 = c00 * oneMinusY + c10 * y
+  let c1 = c01 * oneMinusY + c11 * y
+  result = c0 * (1 - z) + c1 * z 
+
+proc newTrilinearSpline*[T](f: Tensor[T], xlim, ylim, zlim: (float, float)): Interpolator3DType[T] =
+  ## Returns a trilinear spline for regularly gridded data.
+  ## z - Tensor with the function values. x corrensponds to the first dimension, y to the second and z to the third. Must be sorted so ascendingly in both variables.
+  ## xlim - the lowest and highest x-value
+  ## ylim - the lowest and highest y-value
+  ## zlim - the lowest and highest z-value
+  assert f.rank == 3, "f must be a 3D tensor"
+  new result
+  let nx = f.shape[0]
+  let ny = f.shape[1]
+  let nz = f.shape[2]
+  let xStart = xlim[0]
+  let xEnd = xlim[1]
+  let yStart = ylim[0]
+  let yEnd = ylim[1]
+  let zStart = zlim[0]
+  let zEnd = zlim[1]
+  let dx = (xEnd - xStart) / (nx - 1).toFloat
+  let dy = (yEnd - yStart) / (ny - 1).toFloat
+  let dz = (zEnd - zStart) / (nz - 1).toFloat
+  result.f = f
+  result.dx = dx
+  result.dy = dy
+  result.dz = dz
+  result.xLim = (lower: xStart, upper: xEnd)
+  result.yLim = (lower: yStart, upper: yEnd)
+  result.zLim = (lower: zStart, upper: zEnd)
+  result.eval_handler = eval_trilinear[T]
+
+# General Interpolator3D stuff
+template eval*[T](interpolator: Interpolator3DType[T], x, y, z: float): untyped =
+  interpolator.eval_handler(interpolator, x, y, z)
 
 #[
 proc plot(interp: Interpolator2DType, name: string) =

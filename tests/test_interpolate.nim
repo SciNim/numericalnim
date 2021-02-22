@@ -266,3 +266,86 @@ test "Bicubic T: Tensor[float]":
             check abs(nn.eval(x, y)[1] - bilinearCorrect[i, j]) < 3e-16
             check abs(nn.eval(x, y)[2] - bilinearCorrect[i, j]) < 3e-16
             
+test "Trilinear all ones":
+    let f = ones[float](100, 100, 100)
+    let spline = newTrilinearSpline(f, (0.0, 100.0), (-100.0, 0.0), (-50.0, 50.0))
+    let x = linspace(0.0, 100.0, 113)
+    let y = linspace(-100.0, 0.0, 57)
+    let z = linspace(-50, 50, 21)
+    for i in x:
+        for j in y:
+            for k in z:
+                check abs(spline.eval(i, j, k) - 1.0) < 1e-14
+
+test "Trilinear f = x*y*z":
+    var f = zeros[float](101, 101, 101)
+    for i in 0..<101:
+        for j in 0..<101:
+            for k in 0..<101:
+                f[i, j, k] = i.toFloat * j.toFloat * k.toFloat
+    let spline = newTrilinearSpline(f, (0.0, 100.0), (0.0, 100.0), (0.0, 100.0))
+    let x = linspace(0.0, 100, 37)
+    let y = linspace(0.0, 100, 57)
+    let z = linspace(0, 100, 24)
+    for i in x:
+       for j in y:
+           for k in z:
+               check abs(spline.eval(i, j, k) - i*j*k) < 3e-10
+
+test "Trilinear f = x*y*z different sizes":
+    # x: (0, 10)
+    # y: (0, 2)
+    # z: (-20, 0)
+    var f = zeros[float](101, 101, 101)
+    for i in 0..<101:
+        for j in 0..<101:
+            for k in 0..<101:
+                f[i, j, k] = 10/100*i.toFloat * 2/100*j.toFloat * 50/100*k.toFloat
+    let spline = newTrilinearSpline(f, (0.0, 10.0), (0.0, 2.0), (0.0, 50.0))
+    let x = linspace(0.0, 10, 37)
+    let y = linspace(0.0, 2, 57)
+    let z = linspace(0.0, 50, 23)
+    for i in x:
+       for j in y:
+           for k in z:
+               check abs(spline.eval(i, j, k) - i*j*k) < 1e-12
+
+test "Trilinear f = x*y*z T: Vector[float]":
+    # x: (0, 10)
+    # y: (0, 2)
+    # z: (-20, 0)
+    var f = newTensor[Vector[float]](101, 101, 101)
+    for i in 0..<101:
+        for j in 0..<101:
+            for k in 0..<101:
+                f[i, j, k] = newVector([10/100*i.toFloat * 2/100*j.toFloat * 50/100*k.toFloat, 10/100*i.toFloat * 2/100*j.toFloat * 50/100*k.toFloat, 1])
+    let spline = newTrilinearSpline(f, (0.0, 10.0), (0.0, 2.0), (0.0, 50.0))
+    let x = linspace(0.0, 10, 37)
+    let y = linspace(0.0, 2, 57)
+    let z = linspace(0.0, 50, 23)
+    for i in x:
+       for j in y:
+           for k in z:
+               check abs(spline.eval(i, j, k)[0] - i*j*k) < 1e-12
+               check abs(spline.eval(i, j, k)[1] - i*j*k) < 1e-12
+               check abs(spline.eval(i, j, k)[2] - 1) < 1e-16
+
+test "Trilinear f = x*y*z T: Tensor[float]":
+    # x: (0, 10)
+    # y: (0, 2)
+    # z: (-20, 0)
+    var f = newTensor[Tensor[float]](101, 101, 101)
+    for i in 0..<101:
+        for j in 0..<101:
+            for k in 0..<101:
+                f[i, j, k] = toTensor([10/100*i.toFloat * 2/100*j.toFloat * 50/100*k.toFloat, 10/100*i.toFloat * 2/100*j.toFloat * 50/100*k.toFloat, 1])
+    let spline = newTrilinearSpline(f, (0.0, 10.0), (0.0, 2.0), (0.0, 50.0))
+    let x = linspace(0.0, 10, 37)
+    let y = linspace(0.0, 2, 57)
+    let z = linspace(0.0, 50, 23)
+    for i in x:
+       for j in y:
+           for k in z:
+               check abs(spline.eval(i, j, k)[0] - i*j*k) < 1e-12
+               check abs(spline.eval(i, j, k)[1] - i*j*k) < 1e-12
+               check abs(spline.eval(i, j, k)[2] - 1) < 1e-16
