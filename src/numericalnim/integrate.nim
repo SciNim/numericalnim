@@ -4,6 +4,8 @@ import
     ./common/commonTypes
 import arraymancer
 
+from ./interpolate import InterpolatorType, newHermiteSpline
+
 type
     IntervalType[T] = object
         lower, upper: float # integration bounds
@@ -646,22 +648,7 @@ proc insert*[T](intervalList: var IntervalList[T], el: IntervalType[T]) {.inline
 proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
     result = intervalList.list.pop()
 
-proc adaptiveGauss*[T](f_in: NumContextProc[T],
-                       xStart_in, xEnd_in: float, tol = 1e-8, maxintervals: int = 10000, initialPoints: openArray[float] = @[], ctx: NumContext[T] = nil): T =
-    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
-    ##
-    ## Input:
-    ##   - f: the function that is integrated.
-    ##   - xStart: The start of the integration interval.
-    ##   - xEnd: The end of the integration interval.
-    ##   - tol: The error tolerance that must be satisfied on every subinterval.
-    ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
-    ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries.
-    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
-    ##
-    ## Returns:
-    ##   - The value of the integral of f from xStart to xEnd calculated using
-    ##     an adaptive Gauss-Kronrod Quadrature.
+template adaptiveGaussImpl(): untyped {.dirty.} =
     var ctx = ctx
     if ctx.isNil:
         ctx = newNumContext[T]()
@@ -766,7 +753,8 @@ proc adaptiveGauss*[T](f_in: NumContextProc[T],
     let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[0], points_transformed[1], ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
     let zero = initHigh - initHigh
     if xStart_in == xEnd_in:
-        return zero
+            raise newException(ValueError, "xStart can't be the same as xEnd")
+
     let initError = calcError(initHigh - initLow, zero)
     let initInterval = IntervalType[T](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
     intervals.insert(initInterval)
@@ -800,5 +788,64 @@ proc adaptiveGauss*[T](f_in: NumContextProc[T],
         intervals.insert(IntervalType[T](lower: middle, upper: currentInterval.upper, error: error, value: highValue))
         totalError += error
         totalValue += highValue
+
+proc adaptiveGauss*[T](f_in: NumContextProc[T],
+                       xStart_in, xEnd_in: float, tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000,  ctx: NumContext[T] = nil): T =
+    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
+    ##
+    ## Input:
+    ##   - f: the function that is integrated.
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
+    ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using
+    ##     an adaptive Gauss-Kronrod Quadrature.
+    adaptiveGaussImpl()
     return totalValue
 
+proc cumGaussSpline*[T](f_in: NumContextProc[T],
+                       xStart_in, xEnd_in: float, tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T] = nil): InterpolatorType[T] =
+    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
+    ##
+    ## Input:
+    ##   - f: the function that is integrated.
+    ##   - xStart: The start of the integration interval.
+    ##   - xEnd: The end of the integration interval.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
+    ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries. This is also the minimum number of points it will evaluate f at, if the function is too smooth it may be evaluated in too few points to give a good enough interpolation.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
+    ##
+    ## Returns:
+    ##   - The value of the integral of f from xStart to xEnd calculated using
+    ##     an adaptive Gauss-Kronrod Quadrature.
+    var initialPoints = @initialPoints
+    if initialPoints.len == 0:
+        initialPoints = linspace(min(xStart_in, xEnd_in), max(xStart_in, xEnd_in), 100)
+    adaptiveGaussImpl()
+    let interval_list = intervals.list.sortedByIt(it.lower)
+    var y: T = interval_list[0].value - interval_list[0].value # zero
+    if interval_list.len == 1:
+        return newHermiteSpline[T]([interval_list[0].lower, interval_list[0].upper], [y, interval_list[0].value])
+    var xs = newSeq[float](interval_list.len + 1)
+    var ys = newSeq[T](interval_list.len + 1)
+    xs[0] = interval_list[0].lower
+    ys[0] = y
+    for i in 0..interval_list.high:
+        y += interval_list[i].value
+        ys[i+1] = y
+        xs[i+1] = interval_list[i].upper
+    result = newHermiteSpline[T](xs, ys)
+
+proc cumGauss*[T](f_in: NumContextProc[T],
+                       X: openArray[float], tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T] = nil): seq[T] =
+    let xStart = min(X)
+    let xEnd = max(X)
+    let totalX = concat(@X, @initialPoints)
+    let spline = cumGaussSpline(f_in, xStart, xEnd, tol=tol, initialPoints=totalX, maxintervals=maxintervals, ctx=ctx)
+    result = spline.eval(X)

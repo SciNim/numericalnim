@@ -424,3 +424,20 @@ test "adaptiveGauss Tensor default":
     check isClose(value, correctTensor, tol=1e-8)
 
 
+test "cumGaussSpline":
+    let spline = cumGaussSpline(f, xStart, xEnd, ctx=optional)
+    let x = linspace(xStart, xEnd, 23)
+    var correct: seq[float]
+    for i in 0..x.high:
+        correct.add optional["a"] * sin(x[i])
+    for i in 0..correct.high:
+        check abs(spline.eval(x[i]) - correct[i]) < 1e-6
+
+test "cumGauss":
+    let x = linspace(xStart, xEnd, 23)
+    let spline = cumGauss(f, x, ctx=optional)
+    var correct: seq[float]
+    for i in 0..x.high:
+        correct.add optional["a"] * sin(x[i])
+    for i in 0..correct.high:
+        check abs(spline[i] - correct[i]) < 1e-6
