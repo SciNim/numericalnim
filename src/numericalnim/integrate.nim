@@ -810,7 +810,10 @@ proc adaptiveGauss*[T](f_in: NumContextProc[T],
 
 proc cumGaussSpline*[T](f_in: NumContextProc[T],
                        xStart_in, xEnd_in: float, tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T] = nil): InterpolatorType[T] =
-    ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
+    ## Calculate the cumulative integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
+    ## Returns a Hermite spline that can be evaluated at any point between xStart and xEnd.
+    ## Important: because of the much higher order of the Gauss-Kronrod quadrature (order 21) compared to the interpolating Hermite spline (order 3) you have to give it a large amount of initialPoints.
+    ## Otherwise it may only use a couple of points which gives quite a bad interpolant. By default if no initial points are given, 100 uniformly spaced points are used. The more points the better interpolant but the longer it will take to run the integration.
     ##
     ## Input:
     ##   - f: the function that is integrated.
@@ -822,8 +825,7 @@ proc cumGaussSpline*[T](f_in: NumContextProc[T],
     ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##
     ## Returns:
-    ##   - The value of the integral of f from xStart to xEnd calculated using
-    ##     an adaptive Gauss-Kronrod Quadrature.
+    ##   - A 1D spline which represents the cumulative integral of f from xStart to xEnd.
     var initialPoints = @initialPoints
     if initialPoints.len == 0:
         initialPoints = linspace(min(xStart_in, xEnd_in), max(xStart_in, xEnd_in), 100)
@@ -844,8 +846,26 @@ proc cumGaussSpline*[T](f_in: NumContextProc[T],
 
 proc cumGauss*[T](f_in: NumContextProc[T],
                        X: openArray[float], tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T] = nil): seq[T] =
+    ## Calculate the cumulative integral of f using an globally adaptive Gauss-Kronrod Quadrature.
+    ## Returns a sequence of values which is the cumulative integral of f at the points defined in X.
+    ## Important: because of the much higher order of the Gauss-Kronrod quadrature (order 21) compared to the interpolating Hermite spline (order 3) you have to give it a large amount of initialPoints.
+    ## Otherwise it may only use a couple of points which gives quite a bad interpolant. By default if no initial points are given, 100 uniformly spaced points are used. The more points the better interpolant but the longer it will take to run the integration.
+    ##
+    ## Input:
+    ##   - f: the function that is integrated.
+    ##   - X: the points the cumulative integral should be evaluated at.
+    ##   - tol: The error tolerance that must be satisfied on every subinterval.
+    ##   - maxintervals: maximum numbers of intervals to divide integral in before stopping.
+    ##   - initialPoints: A list of known difficult points (integrable singularities, discontinouities etc) that will be used as the inital interval boundaries. This is also the minimum number of points it will evaluate f at, if the function is too smooth it may be evaluated in too few points to give a good enough interpolation.
+    ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
+    ##
+    ## Returns:
+    ##   - A sequence of values which is the cumulative integral of f at the points defined in X.
     let xStart = min(X)
     let xEnd = max(X)
     let totalX = concat(@X, @initialPoints)
+    var initialPoints = @initialPoints
+    if initialPoints.len == 0:
+        initialPoints = linspace(xStart, xEnd, 100)
     let spline = cumGaussSpline(f_in, xStart, xEnd, tol=tol, initialPoints=totalX, maxintervals=maxintervals, ctx=ctx)
     result = spline.eval(X)
