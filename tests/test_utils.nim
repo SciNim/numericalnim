@@ -65,13 +65,13 @@ test "sortDataset":
   let x = @[0,1,2,3,4]
   let y1 = @[0.0,1,2,3,4]
   let y2 = @[10.0,11,12,13,14]
-  var (xSorted, ysSorted) = sortDataset(x, [y1, y2])
+  var (xSorted, ysSorted) = sortDataset(x, @[y1, y2])
   check xSorted == x
   check ysSorted[0] == y1
   check ysSorted[1] == y2
 
   let x2 = x.reversed
-  (xSorted, ysSorted) = sortDataset(x2, [y1, y2])
+  (xSorted, ysSorted) = sortDataset(x2, @[y1, y2])
   check xSorted == x
   check ysSorted[0] == y1.reversed
   check ysSorted[1] == y2.reversed
