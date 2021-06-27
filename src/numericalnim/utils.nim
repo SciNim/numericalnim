@@ -328,13 +328,16 @@ proc findDuplicates*[T](x: openArray[T], isSorted: bool = false): seq[seq[int]] 
     if val.len > 1:
       result.add val
 
-proc removeDuplicates*[Tx, Ty](x: openArray[Tx], y: openArray[seq[Ty]]): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
+
+proc removeDuplicates*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]]): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
   ## Pure duplicates, ie exactly the same x and y values, are removed. If impure duplicate, same x but different y, exception will be raised.
+  assert x.len > 0, "x is empty"
   let yLen = y.len
   let duplicates = findDuplicates(x)
   for dups in duplicates: # loop over all seqs of duplicates
     var ys: seq[Ty] = newSeq[Ty](yLen) # values at first index in seq of duplicates
     for i in 0 .. y.high:
+      assert y[i].len == x.len, &"x and y[{i}] doesn't have the same length. They are {x.len} and {y[i].len}"
       ys[i] = y[i][dups[0]]
     for i in dups: # loop over all duplicated indices for this set of duplicates
       for iy in 0 .. y.high: # loop over all ys and check if they are pure or impure duplicates
@@ -351,9 +354,7 @@ proc removeDuplicates*[Tx, Ty](x: openArray[Tx], y: openArray[seq[Ty]]): tuple[x
     result.y[i].delete(idxDelete)
 
 
-  
-
-proc sortDataset*[Tx, Ty](x: openArray[Tx], y: openArray[seq[Ty]], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
+proc sortDataset*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
   ## Sorts seqs of according to the first seq in the openarray.
   assert x.len > 0, "x is empty!"
   assert y.len > 0, "y is empty"
@@ -373,6 +374,20 @@ proc sortDataset*[Tx, Ty](x: openArray[Tx], y: openArray[seq[Ty]], sortOrder: So
       for i, idxNew in idx_sorted:
         # The item at index i in idx_sorted is the original index of the item.
         result.y[resultIdx][i] = y[resultIdx][idxNew]
+
+proc sortDataset*[Tx, Ty](x: seq[Tx], y: seq[Ty], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[Ty]] =
+  let sortedDataset = sortDataset(x, @[y], sortOrder)
+  result.x = sortedDataset.x
+  result.y = sortedDataset.y[0] 
+
+proc sortAndTrimDataset*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
+  let (xSorted, ySorted) = sortDataset(x, y, sortOrder)
+  (result.x, result.y) = removeDuplicates(xSorted, ySorted)
+
+proc sortAndTrimDataset*[Tx, Ty](x: seq[Tx], y: seq[Ty], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[Ty]] =
+  let trimmedDataset = sortAndTrimDataset(x, @[y], sortOrder)
+  result.x = trimmedDataset.x
+  result.y = trimmedDataset.y[0]
 
 proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] {.inline.} =
   if X.len != Y.len:
