@@ -37,9 +37,9 @@ test "Delete multiple indices":
   original.delete(idx)
   check original == @[1, 2, 6]
 
-test "getIndiceTable":
+test "getIndexTable":
   let s = @[0,1,2,3,4,0,2,4,0]
-  let idxTable = s.getIndiceTable
+  let idxTable = s.getIndexTable
   check idxTable == {0: @[0, 5, 8], 1: @[1], 2: @[2, 6], 3: @[3], 4: @[4, 7]}.toTable
 
 test "findDuplicates":

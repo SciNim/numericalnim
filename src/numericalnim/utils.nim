@@ -274,7 +274,10 @@ proc hermiteSpline*[T](x, x1, x2: float, y1, y2, dy1, dy2: T): T {.inline.}=
 
 proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float],
               y, dy: openArray[T]): seq[T] {.inline.} =
+  ## x is the points to evaluate the spline in
+  ## t, y, dy are the raw input values used to form the spline
   # loop over each interval and check if x is in there, if x is sorted
+  result = newSeqOfCap[T](x.len)
   var xIndex = 0
   if isSorted(x):
     for i in 0 .. t.high - 1:
@@ -311,7 +314,7 @@ proc delete*[T](s: var seq[T], idx: seq[int]) =
     s.delete(i)
   
 
-proc getIndiceTable*[T](x: openArray[T]): Table[T, seq[int]] =
+proc getIndexTable*[T](x: openArray[T]): Table[T, seq[int]] =
   for i in 0 .. x.high:
     if x[i] notin result:
       result[x[i]] = @[i]
@@ -323,7 +326,7 @@ proc findDuplicates*[T](x: openArray[T], isSorted: bool = false): seq[seq[int]] 
   ## [1, 1, 2, 1, 4, 5, 4] would yield @[@[0, 1, 3], @[4, 6]] for the duplicate 1's and 4's
   # Should we have a non-table version if isSorted is true?
   # while i < x.len: while x[i] == x[j]: inc j; si.add;
-  let counts = getIndiceTable(x)
+  let counts = getIndexTable(x)
   for val in counts.values:
     if val.len > 1:
       result.add val
