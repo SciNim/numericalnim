@@ -110,12 +110,7 @@ proc derivEval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
 
 proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
-  let sortedData = sortDataset(X, Y)
-  var xSorted = newSeq[float](X.len)
-  var ySorted = newSeq[T](Y.len)
-  for i in 0 .. sortedData.high:
-    xSorted[i] = sortedData[i][0]
-    ySorted[i] = sortedData[i][1]
+  let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   let coeffs = constructCubicSpline(xSorted, ySorted)
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_cubicspline,
@@ -169,23 +164,22 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
   #  dySorted[i] = sortedData_dY[i][1]
   if X.len != Y.len or X.len != dY.len:
     raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len} and dY is {dY.len}")
+  let sortedDataset = sortAndTrimDataset(@X, @[@Y, @dY])
+  let xSorted = sortedDataset.x
+  let ySorted = sortedDataset.y[0]
+  let dySorted = sortedDataset.y[1]
   var coeffs = newSeq[seq[T]](Y.len)
-  for i in 0 .. Y.high:
-    coeffs[i] = @[Y[i], dY[i]]
-  result = InterpolatorType[T](X: @X, coeffs_T: coeffs, high: X.high,
-      len: X.len, eval_handler: eval_hermitespline,
+  for i in 0 .. ySorted.high:
+    coeffs[i] = @[ySorted[i], dySorted[i]]
+  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+      len: xSorted.len, eval_handler: eval_hermitespline,
       deriveval_handler: derivEval_hermitespline)
 
 proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
   # if only (x, y) is given, use three-point difference to calculate dY.
-  let sortedData = sortDataset(X, Y)
-  var xSorted = newSeq[float](X.len)
-  var ySorted = newSeq[T](Y.len)
-  var dySorted = newSeq[T](Y.len)
-  for i in 0 .. sortedData.high:
-    xSorted[i] = sortedData[i][0]
-    ySorted[i] = sortedData[i][1]
+  let (xSorted, ySorted) = sortDataset(@X, @Y)
+  var dySorted = newSeq[T](ySorted.len)
   let highest = dySorted.high
   dySorted[0] = (ySorted[1] - ySorted[0]) / (xSorted[1] - xSorted[0])
   dySorted[highest] = (ySorted[highest] - ySorted[highest-1]) / (xSorted[
@@ -193,8 +187,8 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
   for i in 1 .. highest-1:
     dySorted[i] = 0.5 * ((ySorted[i+1] - ySorted[i])/(xSorted[i+1] - xSorted[
         i]) + (ySorted[i] - ySorted[i-1])/(xSorted[i] - xSorted[i-1]))
-  var coeffs = newSeq[seq[T]](Y.len)
-  for i in 0 .. Y.high:
+  var coeffs = newSeq[seq[T]](ySorted.len)
+  for i in 0 .. ySorted.high:
     coeffs[i] = @[ySorted[i], dySorted[i]]
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_hermitespline,

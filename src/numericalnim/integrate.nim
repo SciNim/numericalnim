@@ -50,10 +50,10 @@ proc trapz*[T](Y: openArray[T], X: openArray[float]): T =
     ## Returns:
     ##   - The integral evaluated from the smallest to the largest value in X
     ##     calculated using the trapezoidal rule.
-    let dataset = sortDataset(X, Y)
-    for i in 0 .. dataset.high - 1:
+    let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
+    for i in 0 .. xSorted.high - 1:
         #                ( x_i+1         -    x_i)        *   (y_i+1         +    y_i)
-        result += 0.5 * (dataset[i+1][0] - dataset[i][0]) * (dataset[i+1][1] + dataset[i][1])
+        result += 0.5 * (xSorted[i+1] - xSorted[i]) * (ySorted[i+1] + ySorted[i])
 
 # discrete points
 proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T] =
@@ -66,11 +66,11 @@ proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T] =
     ## Returns:
     ##   - The cumulative integral evaluated from the smallest to the largest
     ##     value in X calculated using the trapezoidal rule.
-    let dataset = sortDataset(X, Y)
-    result.add(dataset[0][1] - dataset[0][1]) # get the right kind of zero
-    var integral: float
-    for i in 0 .. dataset.high - 1:
-        integral += 0.5 * (dataset[i+1][0] - dataset[i][0]) * (dataset[i+1][1] + dataset[i][1])
+    let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
+    result.add(ySorted[0] - ySorted[0]) # get the right kind of zero
+    var integral: T = ySorted[0] - ySorted[0]
+    for i in 0 .. xSorted.high - 1:
+        integral += 0.5 * (xSorted[i+1] - xSorted[i]) * (ySorted[i+1] + ySorted[i])
         result.add(integral)
 
 # function values calculated according to the dx and then interpolated
@@ -167,28 +167,29 @@ proc simpson*[T](Y: openArray[T], X: openArray[float]): T =
     ## Returns:
     ##   - The integral evaluated from the smallest to the largest value in X
     ##     calculated using Simpson's rule.
-    var dataset = sortDataset(X, Y)
-    var N = dataset.len
+    var (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
+    var N = xSorted.len
     if N < 3:
         raise newException(ValueError, "X and Y must have at least 3 elements to perform Simpson")
     var alpha, beta, eta: float
     if N mod 2 == 0:
-        let lastIndex = dataset.high
-        let h1 = dataset[lastIndex - 1][0] - dataset[lastIndex - 2][0]
-        let h2 = dataset[lastIndex][0] - dataset[lastIndex - 1][0]
+        let lastIndex = xSorted.high
+        let h1 = xSorted[lastIndex - 1] - xSorted[lastIndex - 2]
+        let h2 = xSorted[lastIndex] - xSorted[lastIndex - 1]
         alpha = (2.0 * h2 ^ 2 + 3.0 * h1 * h2) / (6.0 * (h1 + h2))
         beta = (h2 ^ 2 + 3.0 * h1 * h2) / (6.0 * h1)
         eta = -(h2 ^ 3) / (6.0 * h1 * (h1 + h2))
-        result = eta * dataset[lastIndex - 2][1] + beta * dataset[lastIndex - 1][1] + alpha * dataset[lastIndex][1]
-        dataset = dataset[0 ..< lastIndex]
+        result = eta * ySorted[lastIndex - 2] + beta * ySorted[lastIndex - 1] + alpha * ySorted[lastIndex]
+        xSorted = xSorted[0 ..< lastIndex]
+        ySorted = ySorted[0 ..< lastIndex]
         N -= 1
     for i in 0 ..< ((N-1)/2).toInt:
-        let h1 = dataset[2*i + 1][0] - dataset[2*i][0]
-        let h2 = dataset[2*i + 2][0] - dataset[2*i + 1][0]
+        let h1 = xSorted[2*i + 1] - xSorted[2*i]
+        let h2 = xSorted[2*i + 2] - xSorted[2*i + 1]
         alpha = (2.0 * h2 ^ 3 - h1 ^ 3 + 3.0 * h1 * h2 ^ 2) / (6.0 * h2 * (h2 + h1))
         beta = (h2 ^ 3 + h1 ^ 3 + 3.0 * h1 * h2 * (h2 + h1)) / (6.0 * h2 * h1)
         eta = (2.0 * h1 ^ 3 - h2 ^ 3 + 3.0 * h2 * h1 ^ 2) / (6.0 * h1 * (h2 + h1))
-        result += alpha * dataset[2*i + 2][1] + beta * dataset[2*i + 1][1] + eta * dataset[2*i][1]
+        result += alpha * ySorted[2*i + 2] + beta * ySorted[2*i + 1] + eta * ySorted[2*i]
 
 proc adaptiveSimpson*[T](f: NumContextProc[T], xStart, xEnd: float,
                          tol = 1e-8, ctx: NumContext[T] = nil): T =
@@ -275,8 +276,8 @@ proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
     ## Returns:
     ##   - The cumulative integral evaluated from the smallest to the largest
     ##     value in X calculated using Simpson's rule.
-    var dataset = sortDataset(X, Y)
-    var N = dataset.len
+    var (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
+    var N = xSorted.len
     var alpha, beta, eta: float
     var y, dy: seq[T]
     var xs: seq[float]
@@ -286,31 +287,32 @@ proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
     if N mod 2 == 0:
         evenN = true
         N -= 1
-    var integral = dataset[0][1] - dataset[0][1] # get the right kind of zero
+    var integral = ySorted[0] - ySorted[0] # get the right kind of zero
     y.add(integral)
-    dy.add(dataset[0][1])
-    xs.add(dataset[0][0])
+    dy.add(ySorted[0])
+    xs.add(xSorted[0])
     for i in 0 ..< ((N-1)/2).toInt:
-        let h1 = dataset[2*i + 1][0] - dataset[2*i][0]
-        let h2 = dataset[2*i + 2][0] - dataset[2*i + 1][0]
+        let h1 = xSorted[2*i + 1] - xSorted[2*i]
+        let h2 = xSorted[2*i + 2] - xSorted[2*i + 1]
         alpha = (2.0 * h2 ^ 3 - h1 ^ 3 + 3.0 * h1 * h2 ^ 2) / (6.0 * h2 * (h2 + h1))
         beta = (h2 ^ 3 + h1 ^ 3 + 3.0 * h1 * h2 * (h2 + h1)) / (6.0 * h2 * h1)
         eta = (2.0 * h1 ^ 3 - h2 ^ 3 + 3.0 * h2 * h1 ^ 2) / (6.0 * h1 * (h2 + h1))
-        integral += alpha * dataset[2*i + 2][1] + beta * dataset[2*i + 1][1] + eta * dataset[2*i][1]
+        integral += alpha * ySorted[2*i + 2] + beta * ySorted[2*i + 1] + eta * ySorted[2*i]
         y.add(integral)
-        dy.add(dataset[2*i+2][1])
-        xs.add(dataset[2*i+2][0])
+        dy.add(ySorted[2*i+2])
+        xs.add(xSorted[2*i+2])
     if evenN:
-        let lastIndex = dataset.high
-        let h1 = dataset[lastIndex - 1][0] - dataset[lastIndex - 2][0]
-        let h2 = dataset[lastIndex][0] - dataset[lastIndex - 1][0]
+        let lastIndex = xSorted.high
+        let h1 = xSorted[lastIndex - 1] - xSorted[lastIndex - 2]
+        let h2 = xSorted[lastIndex] - xSorted[lastIndex - 1]
         alpha = (2.0 * h2 ^ 2 + 3.0 * h1 * h2) / (6.0 * (h1 + h2))
         beta = (h2 ^ 2 + 3.0 * h1 * h2) / (6.0 * h1)
         eta = -(h2 ^ 3) / (6.0 * h1 * (h1 + h2))
-        integral += eta * dataset[lastIndex - 2][1] + beta * dataset[lastIndex - 1][1] + alpha * dataset[lastIndex][1]
+        integral += eta * ySorted[lastIndex - 2] + beta * ySorted[lastIndex - 1] + alpha * ySorted[lastIndex]
         y.add(integral)
-        dy.add(dataset[dataset.high][1])
-        xs.add(dataset[dataset.high][0])
+        dy.add(ySorted[xSorted.high])
+        xs.add(xSorted[xSorted.high])
+    # because simpson uses multiple input-points per integral-point we must to get the integral at all input-points 
     result = hermiteInterpolate(X, xs, y, dy)
 
 proc cumsimpson*[T](f: NumContextProc[T], X: openArray[float],
@@ -383,8 +385,8 @@ proc romberg*[T](Y: openArray[T], X: openArray[float]): T =
     ## Returns:
     ##   - The integral evaluated from the smallest to the largest value in X
     ##     calculated using Romberg Integration.
-    let dataset = sortDataset(X, Y)
-    let N = dataset.len
+    let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
+    let N = xSorted.len
     if N < 3:
         raise newException(ValueError, "X and Y must have at least 3 elements, use trapz instead")
     elif ceil(log2((N - 1).toFloat)) != log2((N - 1).toFloat):
@@ -398,8 +400,8 @@ proc romberg*[T](Y: openArray[T], X: openArray[float]): T =
         var xs: seq[float]
         var x = 0
         for j in 0 .. 2 ^ i:
-            xs.add(dataset[x][0])
-            vals.add(dataset[x][1])
+            xs.add(xSorted[x])
+            vals.add(ySorted[x])
             x += step
         firstIteration.add(trapz(vals, xs))
     values.add(firstIteration)
