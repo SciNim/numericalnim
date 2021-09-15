@@ -1,5 +1,5 @@
 import strformat, math, tables
-import arraymancer
+import arraymancer, cdt/[dt, vectors, edges, types]
 import
   ./utils,
   ./common/commonTypes,
@@ -21,6 +21,12 @@ type
     dx*, dy*: float
     xLim*, yLim*: tuple[lower: float, upper: float]
     eval_handler*: proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
+  InterpolatorUnstructured2DType*[T] = ref object
+    values*, points*: Tensor[T]
+    dt*: DelaunayTriangulation
+    z*, gradX*, gradY*: Table[(float, float), T]
+    boundPoints*: array[4, Vector2]
+    eval_handler*: proc (self: InterpolatorUnstructured2DType[T], x, y: float): T {.nimcall.}
   Interpolator3DType*[T] = ref object
     f*: Tensor[T] # 3D tensor
     dx*, dy*, dz*: float
@@ -110,12 +116,7 @@ proc derivEval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
 
 proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
-  let sortedData = sortDataset(X, Y)
-  var xSorted = newSeq[float](X.len)
-  var ySorted = newSeq[T](Y.len)
-  for i in 0 .. sortedData.high:
-    xSorted[i] = sortedData[i][0]
-    ySorted[i] = sortedData[i][1]
+  let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   let coeffs = constructCubicSpline(xSorted, ySorted)
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_cubicspline,
@@ -169,23 +170,22 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
   #  dySorted[i] = sortedData_dY[i][1]
   if X.len != Y.len or X.len != dY.len:
     raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len} and dY is {dY.len}")
+  let sortedDataset = sortAndTrimDataset(@X, @[@Y, @dY])
+  let xSorted = sortedDataset.x
+  let ySorted = sortedDataset.y[0]
+  let dySorted = sortedDataset.y[1]
   var coeffs = newSeq[seq[T]](Y.len)
-  for i in 0 .. Y.high:
-    coeffs[i] = @[Y[i], dY[i]]
-  result = InterpolatorType[T](X: @X, coeffs_T: coeffs, high: X.high,
-      len: X.len, eval_handler: eval_hermitespline,
+  for i in 0 .. ySorted.high:
+    coeffs[i] = @[ySorted[i], dySorted[i]]
+  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+      len: xSorted.len, eval_handler: eval_hermitespline,
       deriveval_handler: derivEval_hermitespline)
 
 proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
   # if only (x, y) is given, use three-point difference to calculate dY.
-  let sortedData = sortDataset(X, Y)
-  var xSorted = newSeq[float](X.len)
-  var ySorted = newSeq[T](Y.len)
-  var dySorted = newSeq[T](Y.len)
-  for i in 0 .. sortedData.high:
-    xSorted[i] = sortedData[i][0]
-    ySorted[i] = sortedData[i][1]
+  let (xSorted, ySorted) = sortDataset(@X, @Y)
+  var dySorted = newSeq[T](ySorted.len)
   let highest = dySorted.high
   dySorted[0] = (ySorted[1] - ySorted[0]) / (xSorted[1] - xSorted[0])
   dySorted[highest] = (ySorted[highest] - ySorted[highest-1]) / (xSorted[
@@ -193,8 +193,8 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
   for i in 1 .. highest-1:
     dySorted[i] = 0.5 * ((ySorted[i+1] - ySorted[i])/(xSorted[i+1] - xSorted[
         i]) + (ySorted[i] - ySorted[i-1])/(xSorted[i] - xSorted[i-1]))
-  var coeffs = newSeq[seq[T]](Y.len)
-  for i in 0 .. Y.high:
+  var coeffs = newSeq[seq[T]](ySorted.len)
+  for i in 0 .. ySorted.high:
     coeffs[i] = @[ySorted[i], dySorted[i]]
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_hermitespline,
@@ -426,9 +426,48 @@ proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolato
   result.yLim = (lower: yStart, upper: yEnd)
   result.eval_handler = eval_bicubic[T]
 
+
+# Barycentric Interpolator 2D
+
+proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float): float =
+  let p = Vector2(x: x, y: y)
+  let (edge, loc) = self.dt.locatePoint(p)
+  if loc == lpFace:
+    let point1 = edge.org.point
+    let point2 = edge.dest.point
+    let point3 = edge.oNext.dest.point
+    assert not (point1 in self.boundPoints or point2 in self.boundPoints or point3 in self.boundPoints), "Point outside domain"
+    let denom = (point2.y - point3.y) * (point1.x - point3.x) + (point3.x - point2.x) * (point1.y - point3.y)
+    let w1 = ((point2.y - point3.y)*(p.x - point3.x) + (point3.x - point2.x)*(p.y - point3.y)) / denom
+    let w2 = ((point3.y - point1.y)*(p.x - point3.x) + (point1.x - point3.x)*(p.y - point3.y)) / denom
+    let w3 = 1 - w1 - w2
+    let z1 = self.z[(point1.x, point1.y)]
+    let z2 = self.z[(point2.x, point2.y)]
+    let z3 = self.z[(point3.x, point3.y)]
+    result = w1*z1 + w2*z2 + w3*z3
+  elif loc == lpEdge:
+    let point1 = edge.org.point
+    let point2 = edge.dest.point
+    assert not (point1 in self.boundPoints or point2 in self.boundPoints), "Point outside domain"
+    let denom = point1.x*point2.y - point2.x*point1.y
+    let w1 = -(p.y * point2.x - p.x*point2.y) / denom
+    let w2 = (p.y*point1.x - p.x*point1.y) / denom
+    let z1 = self.z[(point1.x, point1.y)]
+    let z2 = self.z[(point2.x, point2.y)]
+    result = w1*z1 + w2*z2
+  elif loc == lpOrg:
+    let point1 = edge.org.point
+    assert point1 notin self.boundPoints, "Point outside domain"
+    result = self.z[(x: point1.x, y: point1.y)]
+  elif loc == lpDest:
+    let point1 = edge.dest.point
+    assert point1 notin self.boundPoints, "Point outside domain"
+    result = self.z[(x: point1.x, y: point1.y)]
+
+
 # General Interpolator2D stuff
 
-template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
+template eval*[T](interpolator: Interpolator2DType[T] or InterpolatorUnstructured2DType[T], x, y: float): untyped =
   interpolator.eval_handler(interpolator, x, y)
 
 
