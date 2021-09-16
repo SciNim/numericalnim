@@ -275,10 +275,11 @@ test "Barycentric2D Ones":
     let bary = newBarycentric2D(pointsXY, ones_like(gridX))
     let x = linspace(0.0, 10.0, 789)
     let y = linspace(0.0, 10.0, 567)
+    #echo bary.eval(0.8756345177664975, 0.0)
     for i in x:
         for j in y:
-            echo (i, j) # nan if j == 0
-            check abs(bary.eval(i, j) - 1) < 2e-14
+            check abs(bary.eval(i, j) - 1) < 1.2e-16
+    
 
 # 3D Interpolation
 

@@ -429,10 +429,11 @@ proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolato
 
 # Barycentric Interpolator 2D
 
-proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float): float =
+proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float): T =
   let p = Vector2(x: x, y: y)
   let (edge, loc) = self.dt.locatePoint(p)
-  if loc == lpFace:
+  case loc
+  of lpFace:
     let point1 = edge.org.point
     let point2 = edge.dest.point
     let point3 = edge.oNext.dest.point
@@ -445,21 +446,23 @@ proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float
     let z2 = self.z[(point2.x, point2.y)]
     let z3 = self.z[(point3.x, point3.y)]
     result = w1*z1 + w2*z2 + w3*z3
-  elif loc == lpEdge:
+  of lpEdge:
     let point1 = edge.org.point
     let point2 = edge.dest.point
     assert not (point1 in self.boundPoints or point2 in self.boundPoints), "Point outside domain"
-    let denom = point1.x*point2.y - point2.x*point1.y
-    let w1 = -(p.y * point2.x - p.x*point2.y) / denom
-    let w2 = (p.y*point1.x - p.x*point1.y) / denom
+    var t: float
+    if point1.x == point2.x:
+      t = (y - point1.y) / (point2.y - point1.y)
+    else:
+      t = (x - point1.x) / (point2.x - point1.x)
     let z1 = self.z[(point1.x, point1.y)]
     let z2 = self.z[(point2.x, point2.y)]
-    result = w1*z1 + w2*z2
-  elif loc == lpOrg:
+    result = z1 + (z2 - z1)*t
+  of lpOrg:
     let point1 = edge.org.point
     assert point1 notin self.boundPoints, "Point outside domain"
     result = self.z[(x: point1.x, y: point1.y)]
-  elif loc == lpDest:
+  of lpDest:
     let point1 = edge.dest.point
     assert point1 notin self.boundPoints, "Point outside domain"
     result = self.z[(x: point1.x, y: point1.y)]
