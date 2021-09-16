@@ -464,6 +464,27 @@ proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float
     assert point1 notin self.boundPoints, "Point outside domain"
     result = self.z[(x: point1.x, y: point1.y)]
 
+proc newBarycentric2D*[T](points, values: Tensor[T]): InterpolatorUnstructured2DType[T] =
+  assert points.rank == 2 and points.shape[1] == 2
+  assert values.rank == 1
+  assert values.shape[0] == points.shape[0]
+  let x = points[_, 0].squeeze
+  let y = points[_, 1].squeeze
+  new result
+  result.dt = initDelaunayTriangulation(Vector2(x: min(x)-0.1, y: min(y)-0.1), Vector2(x: max(x)+0.1, y: max(y)+0.1))
+  result.boundPoints = [
+    Vector2(x: min(x)-0.1, y: max(y)+0.1),
+    Vector2(x: min(x)-0.1, y: min(y)-0.1),
+    Vector2(x: max(x)+0.1, y: min(y)-0.1),
+    Vector2(x: max(x)+0.1, y: max(y)+0.1)             
+  ]
+  for i in 0 .. x.shape[0]-1:
+    let coord = (x[i], y[i])
+    assert coord notin result.z, &"Point {coord} has appeared twice!"
+    result.z[coord] = values[i]
+    discard result.dt.insert(Vector2(x: coord[0], y: coord[1]))
+  result.eval_handler = eval_barycentric2d[T]
+  return result
 
 # General Interpolator2D stuff
 

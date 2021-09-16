@@ -1,4 +1,5 @@
 import unittest, math, sequtils, algorithm
+import arraymancer
 import ./numericalnim
 
 test "isClose float":
@@ -76,4 +77,10 @@ test "sortDataset":
   check ysSorted[0] == y1.reversed
   check ysSorted[1] == y2.reversed
 
+test "meshgridFlat":
+  let x = [0, 1, 2].toTensor
+  let y = [3, 4, 5].toTensor
+  let (gridX, gridY) = meshgridFlat(x, y)
+  check gridX == [0, 1, 2, 0, 1, 2, 0, 1, 2].toTensor
+  check gridY == [3, 3, 3, 4, 4, 4, 5, 5, 5].toTensor
 

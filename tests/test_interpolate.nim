@@ -265,7 +265,23 @@ test "Bicubic T: Tensor[float]":
             check abs(nn.eval(x, y)[0] - bilinearCorrect[i, j]) < 3e-16
             check abs(nn.eval(x, y)[1] - bilinearCorrect[i, j]) < 3e-16
             check abs(nn.eval(x, y)[2] - bilinearCorrect[i, j]) < 3e-16
-            
+
+# Unstructured 2D Interpolation
+
+let (gridX, gridY) = meshgridFlat(arraymancer.linspace(0.0, 10.0, 50), arraymancer.linspace(0.0, 10.0, 50))
+let pointsXY = gridX.unsqueeze(1).concat(gridY.unsqueeze(1), axis=1)
+
+test "Barycentric2D Ones":
+    let bary = newBarycentric2D(pointsXY, ones_like(gridX))
+    let x = linspace(0.0, 10.0, 789)
+    let y = linspace(0.0, 10.0, 567)
+    for i in x:
+        for j in y:
+            echo (i, j) # nan if j == 0
+            check abs(bary.eval(i, j) - 1) < 2e-14
+
+# 3D Interpolation
+
 test "Trilinear all ones":
     let f = ones[float](100, 100, 100)
     let spline = newTrilinearSpline(f, (0.0, 100.0), (-100.0, 0.0), (-50.0, 50.0))
