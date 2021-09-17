@@ -21,12 +21,13 @@ type
     dx*, dy*: float
     xLim*, yLim*: tuple[lower: float, upper: float]
     eval_handler*: proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
-  InterpolatorUnstructured2DType*[T] = ref object
-    values*, points*: Tensor[T]
+  InterpolatorUnstructured2DType*[T: SomeFloat, U] = ref object
+    values*: Tensor[T]
+    points*: Tensor[U]
     dt*: DelaunayTriangulation
-    z*, gradX*, gradY*: Table[(float, float), T]
+    z*, gradX*, gradY*: Table[(T, T), U]
     boundPoints*: array[4, Vector2]
-    eval_handler*: proc (self: InterpolatorUnstructured2DType[T], x, y: float): T {.nimcall.}
+    eval_handler*: proc (self: InterpolatorUnstructured2DType[T, U], x, y: float): U {.nimcall.}
   Interpolator3DType*[T] = ref object
     f*: Tensor[T] # 3D tensor
     dx*, dy*, dz*: float
@@ -429,7 +430,7 @@ proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolato
 
 # Barycentric Interpolator 2D
 
-proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float): T =
+proc eval_barycentric2d*[T, U](self: InterpolatorUnstructured2DType[T, U]; x, y: float): U =
   let p = Vector2(x: x, y: y)
   let (edge, loc) = self.dt.locatePoint(p)
   case loc
@@ -450,7 +451,7 @@ proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float
     let point1 = edge.org.point
     let point2 = edge.dest.point
     assert not (point1 in self.boundPoints or point2 in self.boundPoints), "Point outside domain"
-    var t: float
+    var t: T
     if point1.x == point2.x:
       t = (y - point1.y) / (point2.y - point1.y)
     else:
@@ -467,7 +468,7 @@ proc eval_barycentric2d*[T](self: InterpolatorUnstructured2DType[T]; x, y: float
     assert point1 notin self.boundPoints, "Point outside domain"
     result = self.z[(x: point1.x, y: point1.y)]
 
-proc newBarycentric2D*[T](points, values: Tensor[T]): InterpolatorUnstructured2DType[T] =
+proc newBarycentric2D*[T: SomeFloat, U](points: Tensor[T], values: Tensor[U]): InterpolatorUnstructured2DType[T, U] =
   assert points.rank == 2 and points.shape[1] == 2
   assert values.rank == 1
   assert values.shape[0] == points.shape[0]
@@ -486,14 +487,16 @@ proc newBarycentric2D*[T](points, values: Tensor[T]): InterpolatorUnstructured2D
     assert coord notin result.z, &"Point {coord} has appeared twice!"
     result.z[coord] = values[i]
     discard result.dt.insert(Vector2(x: coord[0], y: coord[1]))
-  result.eval_handler = eval_barycentric2d[T]
+  result.eval_handler = eval_barycentric2d[T, U]
   return result
 
 # General Interpolator2D stuff
 
-template eval*[T](interpolator: Interpolator2DType[T] or InterpolatorUnstructured2DType[T], x, y: float): untyped =
+template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
   interpolator.eval_handler(interpolator, x, y)
 
+template eval*[T, U](interpolator: InterpolatorUnstructured2DType[T, U], x, y: T): untyped =
+  interpolator.eval_handler(interpolator, x, y)
 
 ##############################################
 ############ 3D Interpolation ################
