@@ -1,5 +1,5 @@
 import strformat, math, tables
-import arraymancer
+import arraymancer, cdt/[dt, vectors, edges, types]
 import
   ./utils,
   ./common/commonTypes,
@@ -21,6 +21,13 @@ type
     dx*, dy*: float
     xLim*, yLim*: tuple[lower: float, upper: float]
     eval_handler*: proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
+  InterpolatorUnstructured2DType*[T: SomeFloat, U] = ref object
+    values*: Tensor[T]
+    points*: Tensor[U]
+    dt*: DelaunayTriangulation
+    z*, gradX*, gradY*: Table[(T, T), U]
+    boundPoints*: array[4, Vector2]
+    eval_handler*: proc (self: InterpolatorUnstructured2DType[T, U], x, y: float): U {.nimcall.}
   Interpolator3DType*[T] = ref object
     f*: Tensor[T] # 3D tensor
     dx*, dy*, dz*: float
@@ -420,11 +427,76 @@ proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolato
   result.yLim = (lower: yStart, upper: yEnd)
   result.eval_handler = eval_bicubic[T]
 
+
+# Barycentric Interpolator 2D
+
+proc eval_barycentric2d*[T, U](self: InterpolatorUnstructured2DType[T, U]; x, y: float): U =
+  let p = Vector2(x: x, y: y)
+  let (edge, loc) = self.dt.locatePoint(p)
+  case loc
+  of lpFace:
+    let point1 = edge.org.point
+    let point2 = edge.dest.point
+    let point3 = edge.oNext.dest.point
+    assert not (point1 in self.boundPoints or point2 in self.boundPoints or point3 in self.boundPoints), "Point outside domain"
+    let denom = (point2.y - point3.y) * (point1.x - point3.x) + (point3.x - point2.x) * (point1.y - point3.y)
+    let w1 = ((point2.y - point3.y)*(p.x - point3.x) + (point3.x - point2.x)*(p.y - point3.y)) / denom
+    let w2 = ((point3.y - point1.y)*(p.x - point3.x) + (point1.x - point3.x)*(p.y - point3.y)) / denom
+    let w3 = 1 - w1 - w2
+    let z1 = self.z[(point1.x, point1.y)]
+    let z2 = self.z[(point2.x, point2.y)]
+    let z3 = self.z[(point3.x, point3.y)]
+    result = w1*z1 + w2*z2 + w3*z3
+  of lpEdge:
+    let point1 = edge.org.point
+    let point2 = edge.dest.point
+    assert not (point1 in self.boundPoints or point2 in self.boundPoints), "Point outside domain"
+    var t: T
+    if point1.x == point2.x:
+      t = (y - point1.y) / (point2.y - point1.y)
+    else:
+      t = (x - point1.x) / (point2.x - point1.x)
+    let z1 = self.z[(point1.x, point1.y)]
+    let z2 = self.z[(point2.x, point2.y)]
+    result = z1 + (z2 - z1)*t
+  of lpOrg:
+    let point1 = edge.org.point
+    assert point1 notin self.boundPoints, "Point outside domain"
+    result = self.z[(x: point1.x, y: point1.y)]
+  of lpDest:
+    let point1 = edge.dest.point
+    assert point1 notin self.boundPoints, "Point outside domain"
+    result = self.z[(x: point1.x, y: point1.y)]
+
+proc newBarycentric2D*[T: SomeFloat, U](points: Tensor[T], values: Tensor[U]): InterpolatorUnstructured2DType[T, U] =
+  assert points.rank == 2 and points.shape[1] == 2
+  assert values.rank == 1
+  assert values.shape[0] == points.shape[0]
+  let x = points[_, 0].squeeze
+  let y = points[_, 1].squeeze
+  new result
+  result.dt = initDelaunayTriangulation(Vector2(x: min(x)-0.1, y: min(y)-0.1), Vector2(x: max(x)+0.1, y: max(y)+0.1))
+  result.boundPoints = [
+    Vector2(x: min(x)-0.1, y: max(y)+0.1),
+    Vector2(x: min(x)-0.1, y: min(y)-0.1),
+    Vector2(x: max(x)+0.1, y: min(y)-0.1),
+    Vector2(x: max(x)+0.1, y: max(y)+0.1)             
+  ]
+  for i in 0 .. x.shape[0]-1:
+    let coord = (x[i], y[i])
+    assert coord notin result.z, &"Point {coord} has appeared twice!"
+    result.z[coord] = values[i]
+    discard result.dt.insert(Vector2(x: coord[0], y: coord[1]))
+  result.eval_handler = eval_barycentric2d[T, U]
+  return result
+
 # General Interpolator2D stuff
 
 template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
   interpolator.eval_handler(interpolator, x, y)
 
+template eval*[T, U](interpolator: InterpolatorUnstructured2DType[T, U], x, y: T): untyped =
+  interpolator.eval_handler(interpolator, x, y)
 
 ##############################################
 ############ 3D Interpolation ################

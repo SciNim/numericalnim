@@ -6,4 +6,6 @@ license = "MIT"
 srcDir = "src"
 
 # Dependencies
-requires "nim >= 0.20.0", "arraymancer >= 0.5.0"
+requires "nim >= 1.0"
+requires "arraymancer >= 0.5.0"
+requires "https://github.com/HugoGranstrom/cdt#head"

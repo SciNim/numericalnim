@@ -399,6 +399,18 @@ proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] {.in
   result.sort() # sort with respect to x
   
 
+proc meshgridFlat*[T](x, y: Tensor[T]): (Tensor[T], Tensor[T]) =
+  ## Returns two flat (rank 1) tensors with the grid coordinates specified by `x` and `y`.
+  assert x.rank == 1 and y.rank == 1
+  let nx = x.shape[0]
+  let ny = y.shape[0]
+  result[0] = zeros[T](nx*ny)
+  result[1] = zeros[T](nx*ny)
+  for i in 0 .. nx-1:
+    for j in 0 .. ny-1:
+      result[0][i+j*nx] = x[i]
+      result[1][i+j*nx] = y[j]
+
 
 proc isClose*[T](y1, y2: T, tol: float = 1e-3): bool {.inline.} =
   let diff = calcError(y1, y2)
