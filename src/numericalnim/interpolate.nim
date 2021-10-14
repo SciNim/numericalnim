@@ -185,7 +185,7 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
 proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
   # if only (x, y) is given, use three-point difference to calculate dY.
-  let (xSorted, ySorted) = sortDataset(@X, @Y)
+  let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   var dySorted = newSeq[T](ySorted.len)
   let highest = dySorted.high
   dySorted[0] = (ySorted[1] - ySorted[0]) / (xSorted[1] - xSorted[0])
