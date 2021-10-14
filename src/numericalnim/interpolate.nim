@@ -202,6 +202,36 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
       deriveval_handler: derivEval_hermitespline)
 
 
+# Linear1D
+
+proc eval_linear1d*[T](spline: InterpolatorType[T], x: float): T =
+  let n = findInterval(spline.X, x)
+  let xDiff = spline.X[n+1] - spline.X[n]
+  let yDiff = spline.coeffs_T[n+1][0] - spline.coeffs_T[n][0]
+  let k = yDiff / xDiff
+  result = spline.coeffs_T[n][0] + k * (x - spline.X[n])
+
+proc derivEval_linear1d*[T](spline: InterpolatorType[T], x: float): T =
+  let n = findInterval(spline.X, x)
+  let xDiff = spline.X[n+1] - spline.X[n]
+  let yDiff = spline.coeffs_T[n+1][0] - spline.coeffs_T[n][0]
+  let k = yDiff / xDiff
+  result = k
+
+proc newLinear1D*[T](X: openArray[float], Y: openArray[
+    T]): InterpolatorType[T] =
+  if X.len != Y.len:
+    raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len} and dY is {dY.len}")
+  let sortedDataset = sortAndTrimDataset(@X, @Y)
+  let xSorted = sortedDataset.x
+  let ySorted: seq[T] = sortedDataset.y
+  var coeffs = newSeq[seq[T]](ySorted.len)
+  for i in 0 .. coeffs.high:
+    coeffs[i] = @[ySorted[i]]
+  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+      len: xSorted.len, eval_handler: eval_linear1d,
+      deriveval_handler: derivEval_linear1d)
+
 # General Spline stuff
 
 template eval*[T](interpolator: InterpolatorType[T], x: float): untyped =
