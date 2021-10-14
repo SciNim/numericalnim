@@ -11,11 +11,13 @@ let dy = t.map(df)
 let cubicSpline = newCubicSpline(t, y)
 let hermiteSpline = newHermiteSpline(t, y)
 let hermiteSpline2 = newHermiteSpline(t, y, dy)
+let linear1DSpline = newLinear1D(t, y) 
 let tTest = arange(0.0, 10.0, 0.2345, includeStart=true, includeEnd=false)
 let yTest = tTest.map(f)
 let cubicSplineProc = cubicSpline.toProc
 let hermiteSplineProc = hermiteSpline.toProc
 let hermiteSpline2Proc = hermiteSpline2.toProc
+let linear1DSplineProc = linear1DSpline.toProc
 
 test "CubicSpline Eval in input points, direct":
     let res = cubicSpline.eval(t)
@@ -141,6 +143,49 @@ test "HermiteSpline derivEval, seq input":
     for i, val in res:
         #check isClose(val, cos(tTest[i]), 1e-3)
         check abs(val - cos(tTest[i])) < 1e-5
+
+
+
+test "linear1DSpline Eval in input points, direct":
+    let res = linear1DSpline.eval(t)
+    for i, val in res:
+        check isClose(val, y[i], 1e-15)
+
+test "linear1DSpline Eval in input points, for loop":
+    var res = newSeq[float](t.len)
+    for i, tTemp in t:
+        res[i] = linear1DSpline.eval(tTemp)
+    for i, val in res:
+        check isClose(val, y[i], 1e-15)
+    
+test "linear1DSpline Eval between input points":
+    let res = linear1DSpline.eval(tTest)
+    for i, val in res:
+        check isClose(val, yTest[i], 5e-3)
+
+test "linear1DSpline.toProc, single value":
+    var res = newSeq[float](t.len)
+    for i, tTemp in t:
+        res[i] = linear1DSplineProc(tTemp)
+    for i, val in res:
+        check isClose(val, y[i], 1e-15)
+
+test "linear1DSpline Integrate using adaptiveSimpson, implicit":
+    let computedValue = adaptiveSimpson(linear1DSpline, 0.0, 7.5)
+    let correct = -cos(7.5) + cos(0.0)
+    check isClose(computedValue, correct, tol=1e-3)
+
+test "linear1DSpline derivEval, single value":
+    let res = linear1DSpline.derivEval(t[20])
+    let correct = cos(t[20])
+    check isClose(res, correct, 5e-2)
+
+test "linear1DSpline derivEval, seq input":
+    let res = linear1DSpline.derivEval(tTest)
+    for i, val in res:
+        check isClose(val, cos(tTest[i]), 5e-2)
+
+
 
 # 2D Interpolation
 
