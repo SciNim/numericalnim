@@ -221,7 +221,7 @@ proc derivEval_linear1d*[T](spline: InterpolatorType[T], x: float): T =
 proc newLinear1D*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
   if X.len != Y.len:
-    raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len} and dY is {dY.len}")
+    raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len}")
   let sortedDataset = sortAndTrimDataset(@X, @Y)
   let xSorted = sortedDataset.x
   let ySorted: seq[T] = sortedDataset.y
