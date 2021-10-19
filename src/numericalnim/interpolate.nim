@@ -226,7 +226,7 @@ proc newLinear1D*[T](X: openArray[float], Y: openArray[
   let xSorted = sortedDataset.x
   let ySorted: seq[T] = sortedDataset.y
   var coeffs = newTensor[T](ySorted.len, 1)
-  for i in 0 .. coeffs.high:
+  for i in 0 .. ySorted.high:
     coeffs[i, 0] = ySorted[i]
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_linear1d,
