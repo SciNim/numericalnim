@@ -1,4 +1,4 @@
-import strformat, math, tables
+import strformat, math, tables, algorithm
 import arraymancer, cdt/[dt, vectors, edges, types]
 import
   ./utils,
@@ -36,6 +36,11 @@ type
 
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
+  let highIndex = list.high
+  if x < list[0] or list[highIndex] < x:
+    raise newException(ValueError, &"x = {x} isn't in the interval [{list[0]}, {list[highIndex]}]")
+  result = max(0, lowerbound(list, x) - 1)
+  #[
   ## Finds the index of the element to the left of x in list using binary search. list must be ordered.
   let highIndex = list.high
   if x < list[0] or list[highIndex] < x:
@@ -56,7 +61,7 @@ proc findInterval*(list: openArray[float], x: float): int {.inline.} =
       n = floorDiv(upper + lower, 2)
       continue
     # x is in the interval
-    return n
+    return n]#
 
 ### CubicSpline
 
