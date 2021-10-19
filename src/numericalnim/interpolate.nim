@@ -1,4 +1,4 @@
-import strformat, math, tables
+import strformat, math, tables, algorithm
 import arraymancer, cdt/[dt, vectors, edges, types]
 import
   ./utils,
@@ -8,8 +8,8 @@ import
 type
   InterpolatorType*[T] = ref object
     X*: seq[float]
-    coeffs_f*: seq[seq[float]]
-    coeffs_T*: seq[seq[T]]
+    coeffs_f*: Tensor[float]
+    coeffs_T*: Tensor[T]
     high*: int
     len*: int
     eval_handler*: EvalHandler[T]
@@ -36,6 +36,11 @@ type
 
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
+  let highIndex = list.high
+  if x < list[0] or list[highIndex] < x:
+    raise newException(ValueError, &"x = {x} isn't in the interval [{list[0]}, {list[highIndex]}]")
+  result = max(0, lowerbound(list, x) - 1)
+  #[
   ## Finds the index of the element to the left of x in list using binary search. list must be ordered.
   let highIndex = list.high
   if x < list[0] or list[highIndex] < x:
@@ -56,11 +61,11 @@ proc findInterval*(list: openArray[float], x: float): int {.inline.} =
       n = floorDiv(upper + lower, 2)
       continue
     # x is in the interval
-    return n
+    return n]#
 
 ### CubicSpline
 
-proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): seq[seq[float]] =
+proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): Tensor[float] =
   let n = X.len - 1
   var a = newSeq[T](n+1)
   var b = newSeq[float](n)
@@ -91,27 +96,27 @@ proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): seq[seq[floa
     c[j] = z[j] - mu[j]*c[j+1]
     b[j] = (a[j+1]-a[j])/h[j] - h[j] * (c[j+1] + 2.0*c[j]) / 3.0
     d[j] = (c[j+1] - c[j]) / (3.0 * h[j])
-  result = newSeq[seq[float]](n)
+  result = newTensorUninit[T](n, 5)
   for i in 0 ..< n:
-    result[i] = @[a[i], b[i], c[i], d[i], X[i]]
+    result[i, _] = @[a[i], b[i], c[i], d[i], X[i]].toTensor.reshape(1, 5)
 
 
 proc eval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
   let n = findInterval(spline.X, x)
-  let a = spline.coeffs_T[n][0]
-  let b = spline.coeffs_T[n][1]
-  let c = spline.coeffs_T[n][2]
-  let d = spline.coeffs_T[n][3]
-  let xj = spline.coeffs_T[n][4]
+  let a = spline.coeffs_T[n, 0]
+  let b = spline.coeffs_T[n, 1]
+  let c = spline.coeffs_T[n, 2]
+  let d = spline.coeffs_T[n, 3]
+  let xj = spline.coeffs_T[n, 4]
   let xDiff = x - xj
   return a + b * xDiff + c * xDiff * xDiff + d * xDiff * xDiff * xDiff
 
 proc derivEval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
   let n = findInterval(spline.X, x)
-  let b = spline.coeffs_T[n][1]
-  let c = spline.coeffs_T[n][2]
-  let d = spline.coeffs_T[n][3]
-  let xj = spline.coeffs_T[n][4]
+  let b = spline.coeffs_T[n, 1]
+  let c = spline.coeffs_T[n, 2]
+  let d = spline.coeffs_T[n, 3]
+  let xj = spline.coeffs_T[n, 4]
   let xDiff = x - xj
   return b + 2 * c * xDiff + 3 * d * xDiff * xDiff
 
@@ -136,10 +141,10 @@ proc eval_hermitespline*[T](spline: InterpolatorType[T], x: float): T =
   let h10 = t3 - 2*t2 + t
   let h01 = -2*t3 + 3*t2
   let h11 = t3 - t2
-  let p1 = spline.coeffs_T[n][0]
-  let p2 = spline.coeffs_T[n+1][0]
-  let m1 = spline.coeffs_T[n][1]
-  let m2 = spline.coeffs_T[n+1][1]
+  let p1 = spline.coeffs_T[n, 0]
+  let p2 = spline.coeffs_T[n+1, 0]
+  let m1 = spline.coeffs_T[n, 1]
+  let m2 = spline.coeffs_T[n+1, 1]
   result = h00*p1 + h10*xDiff*m1 + h01*p2 + h11*xDiff*m2
 
 proc derivEval_hermitespline*[T](spline: InterpolatorType[T], x: float): T =
@@ -151,10 +156,10 @@ proc derivEval_hermitespline*[T](spline: InterpolatorType[T], x: float): T =
   let h10 = 3*t2 - 4*t + 1
   let h01 = -6*t2 + 6*t
   let h11 = 3*t2 - 2*t
-  let p1 = spline.coeffs_T[n][0]
-  let p2 = spline.coeffs_T[n+1][0]
-  let m1 = spline.coeffs_T[n][1]
-  let m2 = spline.coeffs_T[n+1][1]
+  let p1 = spline.coeffs_T[n, 0]
+  let p2 = spline.coeffs_T[n+1, 0]
+  let m1 = spline.coeffs_T[n, 1]
+  let m2 = spline.coeffs_T[n+1, 1]
   result = (h00*p1 + h10*xDiff*m1 + h01*p2 + h11*xDiff*m2) / xDiff
 
 proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
@@ -175,9 +180,9 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
   let xSorted = sortedDataset.x
   let ySorted = sortedDataset.y[0]
   let dySorted = sortedDataset.y[1]
-  var coeffs = newSeq[seq[T]](Y.len)
+  var coeffs = newTensorUninit[T](ySorted.len, 2)
   for i in 0 .. ySorted.high:
-    coeffs[i] = @[ySorted[i], dySorted[i]]
+    coeffs[i, _] = @[ySorted[i], dySorted[i]].toTensor.reshape(1, 2)
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_hermitespline,
       deriveval_handler: derivEval_hermitespline)
@@ -185,7 +190,7 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
 proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
   # if only (x, y) is given, use three-point difference to calculate dY.
-  let (xSorted, ySorted) = sortDataset(@X, @Y)
+  let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   var dySorted = newSeq[T](ySorted.len)
   let highest = dySorted.high
   dySorted[0] = (ySorted[1] - ySorted[0]) / (xSorted[1] - xSorted[0])
@@ -194,9 +199,9 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
   for i in 1 .. highest-1:
     dySorted[i] = 0.5 * ((ySorted[i+1] - ySorted[i])/(xSorted[i+1] - xSorted[
         i]) + (ySorted[i] - ySorted[i-1])/(xSorted[i] - xSorted[i-1]))
-  var coeffs = newSeq[seq[T]](ySorted.len)
+  var coeffs = newTensorUninit[T](Y.len, 2)
   for i in 0 .. ySorted.high:
-    coeffs[i] = @[ySorted[i], dySorted[i]]
+    coeffs[i, _] = @[ySorted[i], dySorted[i]].toTensor.reshape(1, 2)
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_hermitespline,
       deriveval_handler: derivEval_hermitespline)
@@ -207,14 +212,14 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
 proc eval_linear1d*[T](spline: InterpolatorType[T], x: float): T =
   let n = findInterval(spline.X, x)
   let xDiff = spline.X[n+1] - spline.X[n]
-  let yDiff = spline.coeffs_T[n+1][0] - spline.coeffs_T[n][0]
+  let yDiff = spline.coeffs_T[n+1, 0] - spline.coeffs_T[n, 0]
   let k = yDiff / xDiff
-  result = spline.coeffs_T[n][0] + k * (x - spline.X[n])
+  result = spline.coeffs_T[n, 0] + k * (x - spline.X[n])
 
 proc derivEval_linear1d*[T](spline: InterpolatorType[T], x: float): T =
   let n = findInterval(spline.X, x)
   let xDiff = spline.X[n+1] - spline.X[n]
-  let yDiff = spline.coeffs_T[n+1][0] - spline.coeffs_T[n][0]
+  let yDiff = spline.coeffs_T[n+1, 0] - spline.coeffs_T[n, 0]
   let k = yDiff / xDiff
   result = k
 
@@ -225,9 +230,9 @@ proc newLinear1D*[T](X: openArray[float], Y: openArray[
   let sortedDataset = sortAndTrimDataset(@X, @Y)
   let xSorted = sortedDataset.x
   let ySorted: seq[T] = sortedDataset.y
-  var coeffs = newSeq[seq[T]](ySorted.len)
-  for i in 0 .. coeffs.high:
-    coeffs[i] = @[ySorted[i]]
+  var coeffs = newTensor[T](ySorted.len, 1)
+  for i in 0 .. ySorted.high:
+    coeffs[i, 0] = ySorted[i]
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_linear1d,
       deriveval_handler: derivEval_linear1d)
