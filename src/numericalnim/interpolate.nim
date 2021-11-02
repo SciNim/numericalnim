@@ -22,18 +22,20 @@ type
     dx*, dy*: float
     xLim*, yLim*: tuple[lower: float, upper: float]
     eval_handler*: Eval2DHandler[T]
+  EvalUnstructured2DHandler*[T, U] = proc (self: InterpolatorUnstructured2DType[T, U], x, y: float): U {.nimcall.}
   InterpolatorUnstructured2DType*[T: SomeFloat, U] = ref object
     values*: Tensor[T]
     points*: Tensor[U]
     dt*: DelaunayTriangulation
     z*, gradX*, gradY*: Table[(T, T), U]
     boundPoints*: array[4, Vector2]
-    eval_handler*: proc (self: InterpolatorUnstructured2DType[T, U], x, y: float): U {.nimcall.}
+    eval_handler*: EvalUnstructured2DHandler[T, U]
+  Eval3DHandler*[T] = proc (self: Interpolator3DType[T], x, y, z: float): T {.nimcall.}
   Interpolator3DType*[T] = ref object
     f*: Tensor[T] # 3D tensor
     dx*, dy*, dz*: float
     xLim*, yLim*, zLim*: tuple[lower: float, upper: float]
-    eval_handler*: proc (self: Interpolator3DType[T], x, y, z: float): T {.nimcall.}
+    eval_handler*: Eval3DHandler[T]
 
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
