@@ -15,12 +15,13 @@ type
     eval_handler*: EvalHandler[T]
     deriveval_handler*: EvalHandler[T]
   EvalHandler*[T] = proc(self: InterpolatorType[T], x: float): T {.nimcall.}
+  Eval2DHandler*[T] = proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
   Interpolator2DType*[T] = ref object
     z*, xGrad*, yGrad*, xyGrad*: Tensor[T] # 2D tensor
     alphaCache*: Table[(int, int), Tensor[T]]
     dx*, dy*: float
     xLim*, yLim*: tuple[lower: float, upper: float]
-    eval_handler*: proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
+    eval_handler*: Eval2DHandler[T]
   InterpolatorUnstructured2DType*[T: SomeFloat, U] = ref object
     values*: Tensor[T]
     points*: Tensor[U]
