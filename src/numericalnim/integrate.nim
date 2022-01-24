@@ -7,12 +7,12 @@ import arraymancer
 from ./interpolate import InterpolatorType, newHermiteSpline
 
 type
-    IntervalType[T; U] = object
+    IntervalType[T; U; V] = object
         lower, upper: U # integration bounds
-        error: U # estimated error for current interval
+        error: V # estimated error for current interval. Type depends on return of `abs(T)`
         value: T # estimated value for integral over current interval
-    IntervalList[T; U] = object
-        list: seq[IntervalType[T, U]] # contains all the intervals sorted from smallest to largest error
+    IntervalList[T; U; V] = object
+        list: seq[IntervalType[T, U, V]] # contains all the intervals sorted from smallest to largest error
 
 
 # N: #intervals
@@ -571,7 +571,7 @@ proc gaussQuad*[T](f: NumContextProc[T, float], xStart, xEnd: float,
         tempResult *= c1
         result += tempResult
 
-proc calcGaussKronrod[T](f: NumContextProc[T, float], xStart, xEnd: float, ctx: NumContext[T, float] = nil,
+proc calcGaussKronrod[T; U](f: NumContextProc[T, U], xStart, xEnd: U, ctx: NumContext[T, U] = nil,
                             lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes: openArray[float]): (T, T) {.inline.} =
     var lowOrderResult, highOrderResult: T
     var savedFunctionValues = newSeq[T](lowOrderNodes.len)
@@ -636,7 +636,7 @@ proc adaptiveGaussLocal*[T](f: NumContextProc[T, float],
 
 # Intervals
 
-proc cmpInterval*[T; U](interval1, interval2: IntervalType[T, U]): int =
+proc cmpInterval*[T; U; V](interval1, interval2: IntervalType[T, U, V]): int =
     if interval1.error < interval2.error:
         return -1
     elif interval1.error > interval2.error:
@@ -644,10 +644,10 @@ proc cmpInterval*[T; U](interval1, interval2: IntervalType[T, U]): int =
     else:
         return 0
 
-proc insert*[T; U](intervalList: var IntervalList[T, U], el: IntervalType[T, U]) {.inline.} =
+proc insert*[T; U; V](intervalList: var IntervalList[T, U, V], el: IntervalType[T, U, V]) {.inline.} =
     intervalList.list.insert(el, intervalList.list.lowerBound(el, cmpInterval))
 
-proc pop*[T; U](intervalList: var IntervalList[T, U]): IntervalType[T, U] {.inline.} =
+proc pop*[T; U; V](intervalList: var IntervalList[T, U, V]): IntervalType[T, U, V] {.inline.} =
     result = intervalList.list.pop()
 
 template adaptiveGaussImpl(): untyped {.dirty.} =
@@ -673,7 +673,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         xEnd = 1.0
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
-    elif  xStart == Inf and xEnd == -Inf: # Done
+    elif xStart == Inf and xEnd == -Inf: # Done
         f = proc(x: U, ctx: NumContext[T, U]): T = -(f_in((1-x)/x, ctx) + f_in(-(1-x)/x, ctx)) / (x*x)
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
@@ -758,20 +758,20 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
             raise newException(ValueError, "xStart can't be the same as xEnd")
 
     let initError = calcError(initHigh - initLow, zero)
-    let initInterval = IntervalType[T, U](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
+    let initInterval = IntervalType[T, U, V](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
     intervals.insert(initInterval)
     var totalValue: T = initHigh
-    var totalError: U = initError
+    var totalError: V = initError
     for i in 1 .. points_transformed.high - 1:
         let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[i], points_transformed[i+1], ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         let initError = calcError(initHigh - initLow, zero)
-        let initInterval = IntervalType[T, U](lower: points_transformed[i], upper: points_transformed[i+1], error: initError, value: initHigh)
+        let initInterval = IntervalType[T, U, V](lower: points_transformed[i], upper: points_transformed[i+1], error: initError, value: initHigh)
         intervals.insert(initInterval)
         totalValue += initHigh
         totalError += initError
-    var currentInterval: IntervalType[T, U]
+    var currentInterval: IntervalType[T, U, V]
     var middle: U
-    var error: U
+    var error: V
     var highValue, lowValue: T
 
     while totalError > tol and intervals.list.len < maxintervals:
@@ -782,13 +782,13 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         # first half
         (highValue, lowValue) = calcGaussKronrod(f, currentInterval.lower, middle, ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         error = calcError(highValue - lowValue, zero)
-        intervals.insert(IntervalType[T, U](lower: currentInterval.lower, upper: middle, error: error, value: highValue))
+        intervals.insert(IntervalType[T, U, V](lower: currentInterval.lower, upper: middle, error: error, value: highValue))
         totalError += error
         totalValue += highValue
         # second half
         (highValue, lowValue) = calcGaussKronrod(f, middle, currentInterval.upper, ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         error = calcError(highValue - lowValue, zero)
-        intervals.insert(IntervalType[T, U](lower: middle, upper: currentInterval.upper, error: error, value: highValue))
+        intervals.insert(IntervalType[T, U, V](lower: middle, upper: currentInterval.upper, error: error, value: highValue))
         totalError += error
         totalValue += highValue
 
