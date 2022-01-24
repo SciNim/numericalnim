@@ -1,45 +1,45 @@
 import tables
 
 type
-  NumContext*[T] = ref object
-    fValues*: Table[string, float]
+  NumContext*[T; U] = ref object
+    fValues*: Table[string, U]
     tValues*: Table[string, T]
 
-  ODEProc*[T] = proc(t: float, y: T, ctx: NumContext[T]): T
+  ODEProc*[T; U] = proc(t: U, y: T, ctx: NumContext[T, U]): T
 
-  NumContextProc*[T] = proc(x: float, ctx: NumContext[T]): T
+  NumContextProc*[T; U] = proc(x: U, ctx: NumContext[T, U]): T
 
-  InterpolatorProc*[T] = proc(x: float): T 
+  InterpolatorProc*[T] = proc(x: float): T
 
-proc newNumContext*[T](fValues: Table[string, float] = initTable[string, float](), tValues: Table[string, T] = initTable[string, T]()): NumContext[T] =
-  NumContext[T](fValues: fValues, tValues: tValues)
+proc newNumContext*[T; U](fValues: Table[string, U] = initTable[string, U](), tValues: Table[string, T] = initTable[string, T]()): NumContext[T, U] =
+  NumContext[T, U](fValues: fValues, tValues: tValues)
 
-proc `[]`*[T](ctx: NumContext[T], key: string): T =
+proc `[]`*[T; U](ctx: NumContext[T, U], key: string): T =
   ctx.tValues[key]
 
-proc `[]`*[T](ctx: NumContext[T], key: enum): T =
+proc `[]`*[T; U](ctx: NumContext[T, U], key: enum): T =
   ctx.tValues[$key]
 
-proc `[]=`*[T](ctx: NumContext[T], key: string, val: T) =
+proc `[]=`*[T; U](ctx: NumContext[T, U], key: string, val: T) =
   ctx.tValues[key] = val
 
-proc `[]=`*[T](ctx: NumContext[T], key: enum, val: T) =
+proc `[]=`*[T; U](ctx: NumContext[T, U], key: enum, val: T) =
   ctx.tValues[$key] = val
 
-proc getF*[T](ctx: NumContext[T], key: string): float =
+proc getF*[T; U](ctx: NumContext[T, U], key: string): U =
   ctx.fValues[key]
 
-proc setF*[T](ctx: NumContext[T], key: string, val: float) =
+proc setF*[T; U](ctx: NumContext[T, U], key: string, val: U) =
   ctx.fValues[key] = val
 
-proc getF*[T](ctx: NumContext[T], key: enum): float =
+proc getF*[T; U](ctx: NumContext[T, U], key: enum): U =
   ctx.fValues[$key]
 
-proc setF*[T](ctx: NumContext[T], key: enum, val: float) =
+proc setF*[T; U](ctx: NumContext[T, U], key: enum, val: U) =
   ctx.fValues[$key] = val
 
 when isMainModule:
-  var a = newNumContext[int]()
+  var a = newNumContext[int, float]()
   a["hej"] = 1
   a["då"] = 2
   echo a[]
@@ -50,7 +50,7 @@ when isMainModule:
       val2
       val3
 
-  var b = newNumContext[float]()
+  var b = newNumContext[float, float]()
   b[val1] = 1.0
   b[val2] = 2.0
   b[val3] = 3.0

@@ -216,7 +216,7 @@ proc abs*[T](v1: Vector[T]): Vector[T] {.inline.} =
 
 proc norm*(v1: Vector, p: int = 2): float64 {.inline.} =
   ## Calculate various norms of our Vector class
-  
+
   # we have to make a case for p = 0 to avoid division by zero, may as well flesh them all out
   case p:
     of 0:
@@ -312,7 +312,7 @@ proc delete*[T](s: var seq[T], idx: seq[int]) =
   let indices = idx.sorted(Descending)
   for i in indices:
     s.delete(i)
-  
+
 
 proc getIndexTable*[T](x: openArray[T]): Table[T, seq[int]] =
   for i in 0 .. x.high:
@@ -345,7 +345,7 @@ proc removeDuplicates*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]]): tuple[x: seq[Tx], y
     for i in dups: # loop over all duplicated indices for this set of duplicates
       for iy in 0 .. y.high: # loop over all ys and check if they are pure or impure duplicates
         if y[iy][i] != ys[iy]:
-          raise newException(ValueError, &"impure y-duplicates was found: {ys[iy]} at index {dups[0]} and {y[iy][i]} at index {i}") 
+          raise newException(ValueError, &"impure y-duplicates was found: {ys[iy]} at index {dups[0]} and {y[iy][i]} at index {i}")
   # Now collect all indices to delete
   var idxDelete: seq[int]
   for dups in duplicates:
@@ -381,7 +381,7 @@ proc sortDataset*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]], sortOrder: SortOrder = As
 proc sortDataset*[Tx, Ty](x: seq[Tx], y: seq[Ty], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[Ty]] =
   let sortedDataset = sortDataset(x, @[y], sortOrder)
   result.x = sortedDataset.x
-  result.y = sortedDataset.y[0] 
+  result.y = sortedDataset.y[0]
 
 proc sortAndTrimDataset*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
   let (xSorted, ySorted) = sortDataset(x, y, sortOrder)
@@ -397,7 +397,7 @@ proc sortDataset*[T](X: openArray[float], Y: openArray[T]): seq[(float, T)] {.in
     raise newException(ValueError, "X and Y must have the same length")
   result = zip(X, Y)
   result.sort() # sort with respect to x
-  
+
 
 proc meshgridFlat*[T](x, y: Tensor[T]): (Tensor[T], Tensor[T]) =
   ## Returns two flat (rank 1) tensors with the grid coordinates specified by `x` and `y`.
