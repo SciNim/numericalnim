@@ -750,7 +750,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
     const highOrderNodes = [-0.9956571630258080807355, -0.9301574913557082260012, -0.7808177265864168970637, -0.562757134668604683339, -0.294392862701460198131,
                             0.0, 0.2943928627014601981311, 0.562757134668604683339, 0.7808177265864168970637, 0.9301574913557082260012, 0.9956571630258080807355] # nodes for high order
 
-    var intervals = IntervalList[T, U](list: newSeqOfCap[IntervalType[T, U]](maxintervals))
+    type V = typeof(calcError(default(T), default(T)))
+    var intervals = IntervalList[T, U, V](list: newSeqOfCap[IntervalType[T, U, V]](maxintervals))
 
     let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[0], points_transformed[1], ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
     let zero = initHigh - initHigh
