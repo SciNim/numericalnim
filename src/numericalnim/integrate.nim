@@ -7,17 +7,17 @@ import arraymancer
 from ./interpolate import InterpolatorType, newHermiteSpline
 
 type
-    IntervalType[T] = object
-        lower, upper: float # integration bounds
-        error: T # estimated error for current interval
+    IntervalType[T; U] = object
+        lower, upper: U # integration bounds
+        error: U # estimated error for current interval
         value: T # estimated value for integral over current interval
-    IntervalList[T] = object
-        list: seq[IntervalType[T]] # contains all the intervals sorted from smallest to largest error
+    IntervalList[T; U] = object
+        list: seq[IntervalType[T, U]] # contains all the intervals sorted from smallest to largest error
 
 
 # N: #intervals
-proc trapz*[T](f: NumContextProc[T], xStart, xEnd: float,
-               N = 500, ctx: NumContext[T] = nil): T =
+proc trapz*[T](f: NumContextProc[T, float], xStart, xEnd: float,
+               N = 500, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using the trapezoidal rule.
     ##
     ## Input:
@@ -33,7 +33,7 @@ proc trapz*[T](f: NumContextProc[T], xStart, xEnd: float,
         raise newException(ValueError, "N must be an integer >= 1")
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     let dx = (xEnd - xStart)/N.toFloat
     result = (f(xStart, ctx) + f(xEnd, ctx)) / 2.0
     for i in 1 .. N - 1:
@@ -74,8 +74,8 @@ proc cumtrapz*[T](Y: openArray[T], X: openArray[float]): seq[T] =
         result.add(integral)
 
 # function values calculated according to the dx and then interpolated
-proc cumtrapz*[T](f: NumContextProc[T], X: openArray[float],
-                  ctx: NumContext[T] = nil, dx = 1e-5): seq[T] =
+proc cumtrapz*[T](f: NumContextProc[T, float], X: openArray[float],
+                  ctx: NumContext[T, float] = nil, dx = 1e-5): seq[T] =
     ## Calculate the cumulative integral of f using the trapezoidal rule at the points in X.
     ##
     ## Input:
@@ -93,7 +93,7 @@ proc cumtrapz*[T](f: NumContextProc[T], X: openArray[float],
         dyTemp, dyPrev: T
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     var t = min(X)
     let tEnd = max(X) + 1.0 # make sure to get the endpoint as well.
     dyTemp = f(t, ctx)
@@ -113,12 +113,12 @@ proc cumtrapz*[T](f: NumContextProc[T], X: openArray[float],
     result = hermiteInterpolate(X, times, y, dy)
 
 
-proc simpson*[T](f: NumContextProc[T], xStart, xEnd: float,
-                 N = 500, ctx: NumContext[T] = nil): T =
+proc simpson*[T](f: NumContextProc[T, float], xStart, xEnd: float,
+                 N = 500, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. 
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - N: The number of subintervals to divide the integration interval into.
@@ -131,7 +131,7 @@ proc simpson*[T](f: NumContextProc[T], xStart, xEnd: float,
         raise newException(ValueError, "N must be an integer >= 2")
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     let dx = (xEnd - xStart)/N.toFloat
     var N = N
     var xStart = xStart
@@ -191,8 +191,8 @@ proc simpson*[T](Y: openArray[T], X: openArray[float]): T =
         eta = (2.0 * h1 ^ 3 - h2 ^ 3 + 3.0 * h2 * h1 ^ 2) / (6.0 * h1 * (h2 + h1))
         result += alpha * ySorted[2*i + 2] + beta * ySorted[2*i + 1] + eta * ySorted[2*i]
 
-proc adaptiveSimpson*[T](f: NumContextProc[T], xStart, xEnd: float,
-                         tol = 1e-8, ctx: NumContext[T] = nil): T =
+proc adaptiveSimpson*[T](f: NumContextProc[T, float], xStart, xEnd: float,
+                         tol = 1e-8, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using an adaptive Simpson's rule.
     ##
     ## Input:
@@ -207,7 +207,7 @@ proc adaptiveSimpson*[T](f: NumContextProc[T], xStart, xEnd: float,
     ##     an adaptive Simpson's rule.
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     let zero = f(xStart, ctx) - f(xStart, ctx)
     let value1 = simpson(f, xStart, xEnd, N = 2, ctx = ctx)
     let value2 = simpson(f, xStart, xEnd, N = 4, ctx = ctx)
@@ -223,11 +223,11 @@ proc adaptiveSimpson*[T](f: NumContextProc[T], xStart, xEnd: float,
     let right = adaptiveSimpson(f, m, xEnd, tol = newtol, ctx = ctx)
     return left + right
 
-proc internal_adaptiveSimpson[T](f: NumContextProc[T], xStart, xEnd: float,
-                         tol: float, ctx: NumContext[T], reused_points: array[3, T]): T =
+proc internal_adaptiveSimpson[T](f: NumContextProc[T, float], xStart, xEnd: float,
+                                 tol: float, ctx: NumContext[T, float], reused_points: array[3, T]): T =
     let zero = reused_points[0] - reused_points[0]
     let dx1 = (xEnd - xStart) / 2
-    let dx2 = (xEnd - xStart) / 4 
+    let dx2 = (xEnd - xStart) / 4
     let value1 = dx1 / 3 * (reused_points[0] + 4*reused_points[1] + reused_points[2])
     let point2 = f(xStart + dx2, ctx)
     let point4 = f(xStart + 3*dx2, ctx)
@@ -241,12 +241,12 @@ proc internal_adaptiveSimpson[T](f: NumContextProc[T], xStart, xEnd: float,
     let right = internal_adaptiveSimpson(f, m, xEnd, tol = newtol, ctx = ctx, [reused_points[1], point4, reused_points[2]])
     return left + right
 
-proc adaptiveSimpson2*[T](f: NumContextProc[T], xStart, xEnd: float,
-                         tol = 1e-8, ctx: NumContext[T] = nil): T =
+proc adaptiveSimpson2*[T](f: NumContextProc[T, float], xStart, xEnd: float,
+                         tol = 1e-8, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using an adaptive Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. 
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
@@ -257,7 +257,7 @@ proc adaptiveSimpson2*[T](f: NumContextProc[T], xStart, xEnd: float,
     ##     an adaptive Simpson's rule.
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     var tol = tol
     if tol < 1e-15:
         tol = 1e-15
@@ -312,15 +312,15 @@ proc cumsimpson*[T](Y: openArray[T], X: openArray[float]): seq[T] =
         y.add(integral)
         dy.add(ySorted[xSorted.high])
         xs.add(xSorted[xSorted.high])
-    # because simpson uses multiple input-points per integral-point we must to get the integral at all input-points 
+    # because simpson uses multiple input-points per integral-point we must to get the integral at all input-points
     result = hermiteInterpolate(X, xs, y, dy)
 
-proc cumsimpson*[T](f: NumContextProc[T], X: openArray[float],
-                    ctx: NumContext[T] = nil, dx = 1e-5): seq[T] =
+proc cumsimpson*[T](f: NumContextProc[T, float], X: openArray[float],
+                    ctx: NumContext[T, float] = nil, dx = 1e-5): seq[T] =
     ## Calculate the cumulative integral of f using Simpson's rule.
     ##
     ## Input:
-    ##   - f: the function that is integrated. 
+    ##   - f: the function that is integrated.
     ##   - X: The x-values of the returned values.
     ##   - ctx: A context variable that can be accessed and modified in `f`. It is a ref type so IT IS MUTABLE. It can be used to save extra information during the solving for example, or to pass in big Tensors.
     ##   - dx: The step length to use when integrating.
@@ -330,7 +330,7 @@ proc cumsimpson*[T](f: NumContextProc[T], X: openArray[float],
     ##     of X calculated using Simpson's rule.
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     var dy: seq[T]
     let t = linspace(min(X), max(X), ((max(X) - min(X)) / dx).toInt + 2)
     for x in t:
@@ -338,8 +338,8 @@ proc cumsimpson*[T](f: NumContextProc[T], X: openArray[float],
     let ys = cumsimpson(dy, t)
     result = hermiteInterpolate(X, t, ys, dy)
 
-proc romberg*[T](f: NumContextProc[T], xStart, xEnd: float,
-                 depth = 8, tol = 1e-8, ctx: NumContext[T] = nil): T =
+proc romberg*[T](f: NumContextProc[T, float], xStart, xEnd: float,
+                 depth = 8, tol = 1e-8, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using Romberg Integration.
     ##
     ## Input:
@@ -356,7 +356,7 @@ proc romberg*[T](f: NumContextProc[T], xStart, xEnd: float,
         raise newException(ValueError, "depth must be 2 or greater")
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     var values: seq[seq[T]]
     var firstIteration: seq[T]
     for i in 0 ..< depth:
@@ -533,13 +533,13 @@ proc getGaussLegendreWeights(nPoints: int): tuple[nodes: seq[float], weights: se
         ]
     return gaussWeights[nPoints]
 
-proc gaussQuad*[T](f: NumContextProc[T], xStart, xEnd: float,
-                   N = 100, nPoints = 7, ctx: NumContext[T] = nil): T =
+proc gaussQuad*[T](f: NumContextProc[T, float], xStart, xEnd: float,
+                   N = 100, nPoints = 7, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using Gaussian Quadrature.
     ## Has 20 different sets of weights, ranging from 1 to 20 function evaluations per subinterval.
     ##
     ## Input:
-    ##   - f: the function that is integrated. 
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - N: The number of subintervals to divide the integration interval into.
@@ -553,7 +553,7 @@ proc gaussQuad*[T](f: NumContextProc[T], xStart, xEnd: float,
         raise newException(ValueError, "N must be an integer >= 1")
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
     let dx = (xEnd - xStart)/N.toFloat
     let (nodes, weights) = getGaussLegendreWeights(nPoints)
     let zero = f(nodes[0], ctx) - f(nodes[0], ctx)
@@ -571,7 +571,7 @@ proc gaussQuad*[T](f: NumContextProc[T], xStart, xEnd: float,
         tempResult *= c1
         result += tempResult
 
-proc calcGaussKronrod[T](f: NumContextProc[T], xStart, xEnd: float, ctx: NumContext[T] = nil, 
+proc calcGaussKronrod[T](f: NumContextProc[T, float], xStart, xEnd: float, ctx: NumContext[T, float] = nil,
                             lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes: openArray[float]): (T, T) {.inline.} =
     var lowOrderResult, highOrderResult: T
     var savedFunctionValues = newSeq[T](lowOrderNodes.len)
@@ -593,12 +593,12 @@ proc calcGaussKronrod[T](f: NumContextProc[T], xStart, xEnd: float, ctx: NumCont
     result = (highOrderResult, lowOrderResult)
 
 
-proc adaptiveGaussLocal*[T](f: NumContextProc[T],
-                       xStart, xEnd: float, tol = 1e-8, ctx: NumContext[T] = nil): T =
+proc adaptiveGaussLocal*[T](f: NumContextProc[T, float],
+                       xStart, xEnd: float, tol = 1e-8, ctx: NumContext[T, float] = nil): T =
     ## Calculate the integral of f using an locally adaptive Gauss-Kronrod Quadrature.
     ##
     ## Input:
-    ##   - f: the function that is integrated. 
+    ##   - f: the function that is integrated.
     ##   - xStart: The start of the integration interval.
     ##   - xEnd: The end of the integration interval.
     ##   - tol: The error tolerance that must be satisfied on every subinterval.
@@ -609,7 +609,7 @@ proc adaptiveGaussLocal*[T](f: NumContextProc[T],
     ##     an adaptive Gauss-Kronrod Quadrature.
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
+        ctx = newNumContext[T, float]()
 
     const lowOrderWeights = [0.0666713443086881375936, 0.1494513491505805931458, 0.219086362515982043996, 0.269266719309996355091, 0.2955242247147528701739,
                              0.2955242247147528701739, 0.2692667193099963550912, 0.2190863625159820439955, 0.1494513491505805931458, 0.0666713443086881375936] # weights for low order
@@ -636,7 +636,7 @@ proc adaptiveGaussLocal*[T](f: NumContextProc[T],
 
 # Intervals
 
-proc cmpInterval*[T](interval1, interval2: IntervalType[T]): int =
+proc cmpInterval*[T; U](interval1, interval2: IntervalType[T, U]): int =
     if interval1.error < interval2.error:
         return -1
     elif interval1.error > interval2.error:
@@ -644,23 +644,23 @@ proc cmpInterval*[T](interval1, interval2: IntervalType[T]): int =
     else:
         return 0
 
-proc insert*[T](intervalList: var IntervalList[T], el: IntervalType[T]) {.inline.} =
+proc insert*[T; U](intervalList: var IntervalList[T, U], el: IntervalType[T, U]) {.inline.} =
     intervalList.list.insert(el, intervalList.list.lowerBound(el, cmpInterval))
 
-proc pop*[T](intervalList: var IntervalList[T]): IntervalType[T] {.inline.} =
+proc pop*[T; U](intervalList: var IntervalList[T, U]): IntervalType[T, U] {.inline.} =
     result = intervalList.list.pop()
 
 template adaptiveGaussImpl(): untyped {.dirty.} =
     var ctx = ctx
     if ctx.isNil:
-        ctx = newNumContext[T]()
-    var f: (proc(x: float, ctx: NumContext[T]): T) = f_in
-    var xStart: float = xStart_in
-    var xEnd: float = xEnd_in
+        ctx = newNumContext[T, U]()
+    var f: (proc(x: U, ctx: NumContext[T, U]): T) = f_in
+    var xStart: U = xStart_in
+    var xEnd: U = xEnd_in
     var points_transformed = @initialPoints
     if xStart == -Inf and xEnd == Inf: # Done
         # Remember to scale supplied points to new interval
-        f = proc(x: float, ctx: NumContext[T]): T = (f_in((1-x)/x, ctx) + f_in(-(1-x)/x, ctx)) / (x*x)
+        f = proc(x: U, ctx: NumContext[T, U]): T = (f_in((1-x)/x, ctx) + f_in(-(1-x)/x, ctx)) / (x*x)
         # if x => 0: t = 1/(1+x)
         # elif x < 0: t = 1/(1-x)
         for i in 0 .. points_transformed.high:
@@ -674,7 +674,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif  xStart == Inf and xEnd == -Inf: # Done
-        f = proc(x: float, ctx: NumContext[T]): T = -(f_in((1-x)/x, ctx) + f_in(-(1-x)/x, ctx)) / (x*x)
+        f = proc(x: U, ctx: NumContext[T, U]): T = -(f_in((1-x)/x, ctx) + f_in(-(1-x)/x, ctx)) / (x*x)
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             if 0 <= x:
@@ -686,7 +686,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xStart == -Inf: # Done
-        f = proc(x: float, ctx: NumContext[T]): T = f_in(xEnd_in - (1-x)/x, ctx) / (x*x)
+        f = proc(x: U, ctx: NumContext[T, U]): T = f_in(xEnd_in - (1-x)/x, ctx) / (x*x)
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1 + xEnd_in - x)
@@ -695,7 +695,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xStart == Inf: # Done
-        f = proc(x: float, ctx: NumContext[T]): T = -f_in(xEnd_in + (1-x)/x, ctx) / (x*x)
+        f = proc(x: U, ctx: NumContext[T, U]): T = -f_in(xEnd_in + (1-x)/x, ctx) / (x*x)
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1 + x - xEnd_in)
@@ -704,7 +704,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xEnd == Inf: # Done
-        f = proc(x: float, ctx: NumContext[T]): T = f_in(xStart_in + (1-x)/x, ctx) / (x*x)
+        f = proc(x: U, ctx: NumContext[T, U]): T = f_in(xStart_in + (1-x)/x, ctx) / (x*x)
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1.0 + x - xStart_in)#xStart_in + (1-x) / x # we must inverse, this is x(t) not t(x)
@@ -713,7 +713,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xEnd == -Inf: # Done
-        f = proc(x: float, ctx: NumContext[T]): T = -f_in(xStart_in - (1-x)/x, ctx) / (x*x)
+        f = proc(x: U, ctx: NumContext[T, U]): T = -f_in(xStart_in - (1-x)/x, ctx) / (x*x)
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1 + xStart_in - x)
@@ -749,8 +749,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
                               0.149445554002916905665, 0.1427759385770600807971, 0.123491976262065851078, 0.093125454583697605535, 0.05475589657435199603138, 0.0116946388673718742781] # weights for high order to use with highOrderNodes
     const highOrderNodes = [-0.9956571630258080807355, -0.9301574913557082260012, -0.7808177265864168970637, -0.562757134668604683339, -0.294392862701460198131,
                             0.0, 0.2943928627014601981311, 0.562757134668604683339, 0.7808177265864168970637, 0.9301574913557082260012, 0.9956571630258080807355] # nodes for high order
-    
-    var intervals = IntervalList[T](list: newSeqOfCap[IntervalType[T]](maxintervals))
+
+    var intervals = IntervalList[T, U](list: newSeqOfCap[IntervalType[T, U]](maxintervals))
 
     let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[0], points_transformed[1], ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
     let zero = initHigh - initHigh
@@ -758,20 +758,20 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
             raise newException(ValueError, "xStart can't be the same as xEnd")
 
     let initError = calcError(initHigh - initLow, zero)
-    let initInterval = IntervalType[T](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
+    let initInterval = IntervalType[T, U](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
     intervals.insert(initInterval)
     var totalValue: T = initHigh
-    var totalError: T = initError
+    var totalError: U = initError
     for i in 1 .. points_transformed.high - 1:
         let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[i], points_transformed[i+1], ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         let initError = calcError(initHigh - initLow, zero)
-        let initInterval = IntervalType[T](lower: points_transformed[i], upper: points_transformed[i+1], error: initError, value: initHigh)
+        let initInterval = IntervalType[T, U](lower: points_transformed[i], upper: points_transformed[i+1], error: initError, value: initHigh)
         intervals.insert(initInterval)
         totalValue += initHigh
         totalError += initError
-    var currentInterval: IntervalType[T]
-    var middle: float
-    var error: T
+    var currentInterval: IntervalType[T, U]
+    var middle: U
+    var error: U
     var highValue, lowValue: T
 
     while totalError > tol and intervals.list.len < maxintervals:
@@ -782,18 +782,18 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         # first half
         (highValue, lowValue) = calcGaussKronrod(f, currentInterval.lower, middle, ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         error = calcError(highValue - lowValue, zero)
-        intervals.insert(IntervalType[T](lower: currentInterval.lower, upper: middle, error: error, value: highValue))
+        intervals.insert(IntervalType[T, U](lower: currentInterval.lower, upper: middle, error: error, value: highValue))
         totalError += error
         totalValue += highValue
         # second half
         (highValue, lowValue) = calcGaussKronrod(f, middle, currentInterval.upper, ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         error = calcError(highValue - lowValue, zero)
-        intervals.insert(IntervalType[T](lower: middle, upper: currentInterval.upper, error: error, value: highValue))
+        intervals.insert(IntervalType[T, U](lower: middle, upper: currentInterval.upper, error: error, value: highValue))
         totalError += error
         totalValue += highValue
 
-proc adaptiveGauss*[T](f_in: NumContextProc[T],
-                       xStart_in, xEnd_in: float, tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000,  ctx: NumContext[T] = nil): T =
+proc adaptiveGauss*[T; U](f_in: NumContextProc[T, U],
+                          xStart_in, xEnd_in: U, tol = 1e-8, initialPoints: openArray[U] = @[], maxintervals: int = 10000,  ctx: NumContext[T, U] = nil): T =
     ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
     ##
     ## Input:
@@ -811,8 +811,8 @@ proc adaptiveGauss*[T](f_in: NumContextProc[T],
     adaptiveGaussImpl()
     return totalValue
 
-proc cumGaussSpline*[T](f_in: NumContextProc[T],
-                       xStart_in, xEnd_in: float, tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T] = nil): InterpolatorType[T] =
+proc cumGaussSpline*[T; U](f_in: NumContextProc[T, U],
+                           xStart_in, xEnd_in: U, tol = 1e-8, initialPoints: openArray[U] = @[], maxintervals: int = 10000, ctx: NumContext[T, U] = nil): InterpolatorType[T] =
     ## Calculate the cumulative integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
     ## Returns a Hermite spline that can be evaluated at any point between xStart and xEnd.
     ## Important: because of the much higher order of the Gauss-Kronrod quadrature (order 21) compared to the interpolating Hermite spline (order 3) you have to give it a large amount of initialPoints.
@@ -847,8 +847,8 @@ proc cumGaussSpline*[T](f_in: NumContextProc[T],
         xs[i+1] = interval_list[i].upper
     result = newHermiteSpline[T](xs, ys)
 
-proc cumGauss*[T](f_in: NumContextProc[T],
-                       X: openArray[float], tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T] = nil): seq[T] =
+proc cumGauss*[T](f_in: NumContextProc[T, float],
+                       X: openArray[float], tol = 1e-8, initialPoints: openArray[float] = @[], maxintervals: int = 10000, ctx: NumContext[T, float] = nil): seq[T] =
     ## Calculate the cumulative integral of f using an globally adaptive Gauss-Kronrod Quadrature.
     ## Returns a sequence of values which is the cumulative integral of f at the points defined in X.
     ## Important: because of the much higher order of the Gauss-Kronrod quadrature (order 21) compared to the interpolating Hermite spline (order 3) you have to give it a large amount of initialPoints.

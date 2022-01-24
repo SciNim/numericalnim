@@ -256,8 +256,8 @@ proc eval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
 proc toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   result = proc(x: float): T = eval(spline, x)
 
-converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
-  result = proc(x: float, ctx: NumContext[T]): T = eval(spline, x)
+converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, float] =
+  result = proc(x: float, ctx: NumContext[T, float]): T = eval(spline, x)
 
 proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
   result = newSeq[T](x.len)
@@ -267,8 +267,8 @@ proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
 proc toDerivProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   result = proc(x: float): T = derivEval(spline, x)
 
-proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T] =
-  result = proc(x: float, ctx: NumContext[T]): T = derivEval(spline, x)
+proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, float] =
+  result = proc(x: float, ctx: NumContext[T, float]): T = derivEval(spline, x)
 
 
 ##############################################
@@ -518,7 +518,7 @@ proc newBarycentric2D*[T: SomeFloat, U](points: Tensor[T], values: Tensor[U]): I
     Vector2(x: min(x)-0.1, y: max(y)+0.1),
     Vector2(x: min(x)-0.1, y: min(y)-0.1),
     Vector2(x: max(x)+0.1, y: min(y)-0.1),
-    Vector2(x: max(x)+0.1, y: max(y)+0.1)             
+    Vector2(x: max(x)+0.1, y: max(y)+0.1)
   ]
   for i in 0 .. x.shape[0]-1:
     let coord = (x[i], y[i])
@@ -577,7 +577,7 @@ proc eval_trilinear*[T](self: Interpolator3DType[T], x, y, z: float): T {.nimcal
   let oneMinusY = 1 - y
   let c0 = c00 * oneMinusY + c10 * y
   let c1 = c01 * oneMinusY + c11 * y
-  result = c0 * (1 - z) + c1 * z 
+  result = c0 * (1 - z) + c1 * z
 
 proc newTrilinearSpline*[T](f: Tensor[T], xlim, ylim, zlim: (float, float)): Interpolator3DType[T] =
   ## Returns a trilinear spline for regularly gridded data.

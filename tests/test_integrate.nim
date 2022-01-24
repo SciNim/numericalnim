@@ -2,16 +2,16 @@ import unittest, math, sequtils
 import arraymancer
 import numericalnim
 
-proc f(x: float, ctx: NumContext[float]): float = ctx["a"] * cos(x)
-proc fVector(x: float, ctx: NumContext[Vector[float]]): Vector[float] = cos(x) * ctx["a"]
-proc fTensor(x: float, ctx: NumContext[Tensor[float]]): Tensor[float] = @[ctx.getF("a") * cos(x), ctx.getF("a") * cos(x), ctx.getF("a") * cos(x)].toTensor()
+proc f(x: float, ctx: NumContext[float, float]): float = ctx["a"] * cos(x)
+proc fVector(x: float, ctx: NumContext[Vector[float], float]): Vector[float] = cos(x) * ctx["a"]
+proc fTensor(x: float, ctx: NumContext[Tensor[float], float]): Tensor[float] = @[ctx.getF("a") * cos(x), ctx.getF("a") * cos(x), ctx.getF("a") * cos(x)].toTensor()
 let xStart = 0.0
 let xEnd = 3.0/2.0*PI
-let optional = newNumContext[float]()
+let optional = newNumContext[float, float]()
 optional["a"] = 2.0
-let optionalVector = newNumContext[Vector[float]]()
+let optionalVector = newNumContext[Vector[float], float]()
 optionalVector["a"] = newVector([2.0, 2.0, 2.0])
-let optionalTensor = newNumContext[Tensor[float]]()
+let optionalTensor = newNumContext[Tensor[float], float]()
 optionalTensor.setF("a", 2.0)
 let correct = optional["a"] * sin(xEnd)
 let correctVector = newVector([optional["a"] * sin(xEnd), optional["a"] * sin(xEnd), optional["a"] * sin(xEnd)])
@@ -158,7 +158,7 @@ test "gaussQuad func n=13":
 test "gaussQuad func n=14":
     let value = gaussQuad(f, xStart, xEnd, nPoints=14, N=1, ctx =optional)
     check isClose(value, correct, tol=1e-9)
-        
+
 test "gaussQuad func n=15":
     let value = gaussQuad(f, xStart, xEnd, nPoints=15, N=1, ctx =optional)
     check isClose(value, correct, tol=1e-10)
@@ -278,7 +278,7 @@ test "gaussQuad Vector n=13":
 test "gaussQuad Vector n=14":
     let value = gaussQuad(fVector, xStart, xEnd, nPoints=14, N=1, ctx =optionalVector)
     check isClose(value, correctVector, tol=1e-9)
-        
+
 test "gaussQuad Vector n=15":
     let value = gaussQuad(fVector, xStart, xEnd, nPoints=15, N=1, ctx =optionalVector)
     check isClose(value, correctVector, tol=1e-10)
@@ -394,7 +394,7 @@ test "gaussQuad Tensor n=13":
 test "gaussQuad Tensor n=14":
     let value = gaussQuad(fTensor, xStart, xEnd, nPoints=14, N=1, ctx =optionalTensor)
     check isClose(value, correctTensor, tol=1e-9)
-        
+
 test "gaussQuad Tensor n=15":
     let value = gaussQuad(fTensor, xStart, xEnd, nPoints=15, N=1, ctx =optionalTensor)
     check isClose(value, correctTensor, tol=1e-10)
@@ -404,7 +404,7 @@ test "gaussQuad Tensor n=16":
     check isClose(value, correctTensor, tol=1e-10)
 
 test "gaussQuad Tensor n=17":
-    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=17, N=1, ctx =optionalTensor)    
+    let value = gaussQuad(fTensor, xStart, xEnd, nPoints=17, N=1, ctx =optionalTensor)
     check isClose(value, correctTensor, tol=1e-11)
 
 test "gaussQuad Tensor n=18":
