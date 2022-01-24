@@ -2,9 +2,9 @@ import unittest, math, sequtils
 import arraymancer
 import numericalnim
 
-proc f(x: float, y: float, ctx: NumContext[float]): float = -0.1 * y
-proc fVector(x: float, y: Vector[float], ctx: NumContext[Vector[float]]): Vector[float] = -0.1 * y
-proc fTensor(x: float, y: Tensor[float], ctx: NumContext[Tensor[float]]): Tensor[float] = -0.1 * y
+proc f(x: float, y: float, ctx: NumContext[float, float]): float = -0.1 * y
+proc fVector(x: float, y: Vector[float], ctx: NumContext[Vector[float], float]): Vector[float] = -0.1 * y
+proc fTensor(x: float, y: Tensor[float], ctx: NumContext[Tensor[float], float]): Tensor[float] = -0.1 * y
 proc correct_answer(x: float): float = exp(-0.1*x)
 let oo = newODEoptions(relTol=1e-8, dt=1e-6)
 let ooVector = newODEoptions(relTol=1e-8, dt=1e-2)
@@ -183,7 +183,7 @@ test "Tsit54 Vector, dt = 1e-2":
     check t == tspan
     for i, val in y:
         check isClose(val, correctYVector[i], tol=1e-8)
-        
+
 test "Vern65 Vector, default":
     let (t, y) = solveODE(fVector, y0Vector, tspan, integrator="vern65")
     check t == tspan
