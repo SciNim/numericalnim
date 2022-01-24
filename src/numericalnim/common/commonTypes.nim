@@ -14,10 +14,6 @@ type
 proc newNumContext*[T; U](fValues: Table[string, U] = initTable[string, U](), tValues: Table[string, T] = initTable[string, T]()): NumContext[T, U] =
   NumContext[T, U](fValues: fValues, tValues: tValues)
 
-proc newNumContext*[T](fValues: Table[string, float] = initTable[string, float](),
-                       tValues: Table[string, T] = initTable[string, T]()): NumContext[T, float] =
-  NumContext[T, float](fValues: fValues, tValues: tValues)
-
 proc `[]`*[T; U](ctx: NumContext[T, U], key: string): T =
   ctx.tValues[key]
 
