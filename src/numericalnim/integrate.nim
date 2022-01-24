@@ -669,8 +669,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
                 points_transformed[i] = 1 / (1 + x)
             else:
                 points_transformed[i] = 1 / (1 - x)
-        xStart = 0.0
-        xEnd = 1.0
+        xStart = 0.0 + default(U)
+        xEnd = 1.0 + default(U)
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xStart == Inf and xEnd == -Inf: # Done
@@ -681,8 +681,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
                 points_transformed[i] = 1 / (1 + x)
             else:
                 points_transformed[i] = 1 / (1 - x)
-        xStart = 0.0
-        xEnd = 1.0
+        xStart = 0.0 + default(U)
+        xEnd = 1.0 + default(U)
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xStart == -Inf: # Done
@@ -690,8 +690,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1 + xEnd_in - x)
-        xStart = 0.0
-        xEnd = 1.0
+        xStart = 0.0 + default(U)
+        xEnd = 1.0 + default(U)
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xStart == Inf: # Done
@@ -699,8 +699,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1 + x - xEnd_in)
-        xStart = 0.0
-        xEnd = 1.0
+        xStart = 0.0 + default(U)
+        xEnd = 1.0 + default(U)
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xEnd == Inf: # Done
@@ -708,8 +708,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1.0 + x - xStart_in)#xStart_in + (1-x) / x # we must inverse, this is x(t) not t(x)
-        xStart = 0.0
-        xEnd = 1.0
+        xStart = 0.0 + default(U)
+        xEnd = 1.0 + default(U)
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     elif xEnd == -Inf: # Done
@@ -717,8 +717,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         for i in 0 .. points_transformed.high:
             let x = points_transformed[i]
             points_transformed[i] = 1 / (1 + xStart_in - x)
-        xStart = 0.0
-        xEnd = 1.0
+        xStart = 0.0 + default(U)
+        xEnd = 1.0 + default(U)
         points_transformed.add(xStart)
         points_transformed.add(xEnd)
     else:
