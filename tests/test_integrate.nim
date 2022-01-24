@@ -20,6 +20,13 @@ let X = linspace(xStart, xEnd, 17)
 let Y = map(X, proc(x: float): float = f(x, optional))
 let cumY = map(X, proc(x: float): float = optional["a"] * sin(x))
 
+test "`newNumContext` with single generic arg":
+  ## just tests whether one can still construct a num context without both
+  ## generic arguments. Meaning to fall back to `float`
+  let ctx = newNumContext[float]()
+  let res = newNumContext[float, float]()
+  check typeof(ctx) is typeof(res)
+
 test "trapz func, N = 10":
     let value = trapz(f, xStart, xEnd, N = 10, ctx = optional)
     check isClose(value, correct, tol = 1e-1)
