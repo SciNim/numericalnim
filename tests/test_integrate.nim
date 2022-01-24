@@ -441,3 +441,64 @@ test "cumGauss":
         correct.add optional["a"] * sin(x[i])
     for i in 0..correct.high:
         check abs(spline[i] - correct[i]) < 1e-6
+
+import measuremancer
+suite "External integration tests: Measurement (Measuremancer) - integrating a complex type":
+  ## tests integration of a complex type, in this case `Measurement[T]`.
+
+  # define two procedure we can integrate over with different algorithms
+  proc foo[T; U](x: U, ctx: NumContext[T, U]): T =
+    result = exp(x / ctx["a"])
+
+  proc sinFo[T; U](x: U, ctx: NumContext[T, U]): T = sin(x)
+
+  # define a `Measurement`
+  let a = measurement(4.71, 0.01) # we construct it with the proc instead of `±` to avoid having to
+                                  # compile with `--experimental:unicodeOperators`, which is only available
+                                  # from nim version 1.6
+  type T = typeof(a) # its type for convenience
+  var ctx = newNumContext[T, float]()
+  ctx["a"] = a
+
+  var exp = measurement(14.995, 0.031231)
+  template genTest(fn: untyped): untyped =
+    test "Measurement: " & $astToStr(fn):
+      let res = fn[T](foo, 1, 7, ctx = ctx)
+      # very rough comparison is fine for this test. It's supposed to test functionality, not
+      # exactness of the integration methods
+      check abs(res.value - exp.value) < 1e-3
+      check abs(res.error - exp.error) < 1e-3
+
+  genTest(simpson)
+  genTest(trapz)
+  genTest(romberg)
+  genTest(gaussQuad)
+  genTest(adaptiveSimpson)
+  genTest(adaptiveGaussLocal)
+
+  test "Measurement: adaptiveGauss":
+    # adaptive requires 2 generics
+    let res = adaptiveGauss[T, float](foo, 1, 7, ctx = ctx)
+    check abs(res.value - exp.value) < 1e-3
+    check abs(res.error - exp.error) < 1e-3
+
+
+  test "Measurement: adaptiveGauss in `Measurement` range":
+    let b = measurement(6.42, 0.03)
+    block SameVar:
+      # we integrate from `b` to `b`, that means (due to the nature of
+      # sin) our uncertainty should vanish. The value of the integration
+      # is =~= 0 too of course
+      let res = adaptiveGauss[T, T](sinFo, -b, b)
+      let exp = measurement(7.23e-17, 1.0065e-18)
+      check abs(res.value - exp.value) < 1e-16
+      check abs(res.error - exp.error) < 1e-16
+
+    block DifferentVar:
+      # for two *different* variables, the errors are correlated though. That
+      # means while the integration result is still =~= 0, the uncertainty isn't
+      let b2 = measurement(6.42, 0.03)
+      let res = adaptiveGauss[T, T](sinFo, -b, b2)
+      let exp = measurement(7.2390e-17, 0.0057865)
+      check abs(res.value - exp.value) < 1e-16
+      check abs(res.error - exp.error) < 1e-4
