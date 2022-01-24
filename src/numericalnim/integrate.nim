@@ -9,7 +9,7 @@ from ./interpolate import InterpolatorType, newHermiteSpline
 type
     IntervalType[T] = object
         lower, upper: float # integration bounds
-        error: float # estimated error for current interval
+        error: T # estimated error for current interval
         value: T # estimated value for integral over current interval
     IntervalList[T] = object
         list: seq[IntervalType[T]] # contains all the intervals sorted from smallest to largest error
@@ -761,7 +761,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
     let initInterval = IntervalType[T](lower: points_transformed[0], upper: points_transformed[1], error: initError, value: initHigh)
     intervals.insert(initInterval)
     var totalValue: T = initHigh
-    var totalError: float = initError
+    var totalError: T = initError
     for i in 1 .. points_transformed.high - 1:
         let (initHigh, initLow) = calcGaussKronrod(f, points_transformed[i], points_transformed[i+1], ctx, lowOrderWeights, lowOrderNodes, highOrderCommonWeights, highOrderWeights, highOrderNodes)
         let initError = calcError(initHigh - initLow, zero)
@@ -770,7 +770,8 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         totalValue += initHigh
         totalError += initError
     var currentInterval: IntervalType[T]
-    var middle, error: float
+    var middle: float
+    var error: T
     var highValue, lowValue: T
 
     while totalError > tol and intervals.list.len < maxintervals:
