@@ -259,9 +259,8 @@ proc `^`*[float](v: Vector[float], power: float): Vector[float] {.inline.} =
 
 
 proc clone*[T](x: T): T {.inline.} = x
-proc mean_squared_error*[T](y_true, y: T): T {.inline.} = abs(y_true - y)
-proc calcError*[T](y_true, y: T): T {.inline.} = mean_squared_error(y_true, y)
-
+proc mean_squared_error*[T](y_true, y: T): auto {.inline.} = abs(y_true - y)
+proc calcError*[T](y_true, y: T): auto {.inline.} = mean_squared_error(y_true, y)
 
 proc hermiteSpline*[T](x, x1, x2: float, y1, y2, dy1, dy2: T): T {.inline.}=
   let t = (x - x1)/(x2 - x1)
