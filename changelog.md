@@ -1,3 +1,7 @@
+# v0.7.1 -25.01.2022
+
+Add a `nimCI` task for the Nim CI to run now that the tests have external dependencies.
+
 # v0.7.0 - 25.01.2022
 
 This is a *breaking* release, due to the changes in PR #25.

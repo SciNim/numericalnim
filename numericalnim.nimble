@@ -1,5 +1,5 @@
 # Package Information
-version = "0.7.0"
+version = "0.7.1"
 author = "Hugo Granström"
 description = "A collection of numerical methods written in Nim. Current features: integration, ode, optimization."
 license = "MIT"
@@ -10,10 +10,18 @@ requires "nim >= 1.0"
 requires "arraymancer >= 0.5.0"
 requires "https://github.com/HugoGranstrom/cdt#head"
 
+template installTestDeps() =
+  exec "nimble install -y https://github.com/SciNim/Measuremancer.git"
+
 task testDeps, "Install external dependencies required for tests":
   ## installs all required external dependencies that are only used
   ## for tests
-  exec "nimble install https://github.com/SciNim/Measuremancer.git"
+  installTestDeps()
+
+task nimCI, "Tests that should be run by the Nim CI":
+  installTestDeps()
+  exec "nim c -r --gc:refc tests/test_integrate.nim"
+  exec "nim c -r --gc:orc tests/test_integrate.nim"
 
 task test, "Run all tests":
   exec "nim c -r tests/test_integrate.nim"
