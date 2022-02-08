@@ -85,6 +85,8 @@ proc tensorJacobian*[U, T](
     h: U,
     fastMode: bool = false
     ): Tensor[T] =
+  ## Calculates the jacobian of f(x) w.r.t vector x at x0 using step size h.
+  ## Every row is the gradient of one component of f.
   transpose(tensorGradient(f, x0, h, fastMode))
 
 
