@@ -2,6 +2,7 @@ import strformat
 import arraymancer
 import sequtils
 import math
+import ./differentiate
 
 proc steepest_descent*(deriv: proc(x: float64): float64, start: float64, gamma: float64 = 0.01, precision: float64 = 1e-5, max_iters: Natural = 1000):float64 {.inline.} =
     ## Gradient descent optimization algorithm for finding local minimums of a function with derivative 'deriv'
@@ -120,9 +121,53 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
             raise newException(ArithmeticError, "Maximum iterations for Secant method exceeded")
     return xCurrent
 
+##############################
+## Multidimensional methods ##
+##############################
+
+proc vectorNorm*[T](v: Tensor[T]): T =
+    ## Calculates the norm of the vector, ie the sqrt(Σ vᵢ²)
+    assert v.rank == 1, "v must be a 1d vector!"
+    result = sqrt(v.dot(v))
+
+proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+    ## Minimize scalar-valued function f. 
+    var x = x0.clone()
+    var fNorm = abs(f(x0))
+    var gradient = tensorGradient(f, x0, fastMode=fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var iters: int
+    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        let p = -gradient
+        x += alpha * p
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradient = tensorGradient(f, x, fastMode=fastMode)
+        gradNorm = vectorNorm(gradient)
+        iters += 1
+    if iters >= 10000:
+        echo "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+        
+when isMainModule:
+    import benchy
+    proc f1(x: Tensor[float]): float =
+        result = x[0]*x[0] + x[1]*x[1] - 10
     
+    let x0 = [10.0, 10.0].toTensor
 
+    let sol1 = steepestDescent(f1, x0, tol=1e-10, fastMode=false)
+    let sol2 = steepestDescent(f1, x0, tol=1e-10, fastMode=true)
+    echo sol1
+    echo sol2
+    echo f1(sol1)
+    echo f1(sol2)
 
+    timeIt "slow mode":
+        keep steepestDescent(f1, x0, tol=1e-10, fastMode=false)
+    timeIt "fast mode":
+        keep steepestDescent(f1, x0, tol=1e-10, fastMode=true)
 
 
 
