@@ -130,6 +130,11 @@ proc vectorNorm*[T](v: Tensor[T]): T =
     assert v.rank == 1, "v must be a 1d vector!"
     result = sqrt(v.dot(v))
 
+proc eye[T](n: int): Tensor[T] =
+    result = zeros[T](n, n)
+    for i in 0 ..< n:
+        result[i, i] = 1
+
 proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
     ## Minimize scalar-valued function f. 
     var x = x0.clone()
@@ -149,14 +154,58 @@ proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = 
         echo "Limit of 10000 iterations reached!"
     #echo iters, " iterations done!"
     result = x
+
+proc levmarq*[U, T](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol = U(1e-6), lambda0 = U(1), fastMode = false): Tensor[U] =
+    assert xData.rank == 1
+    assert yData.rank == 1
+    assert params0.rank == 1
+    let xLen = xData.shape[0]
+    let yLen = yData.shape[0]
+    let paramsLen = params0.shape[0]
+    assert xLen == yLen
+
+    let residualFunc = # proc that returns the residual vector
+        proc (params: Tensor[U]): Tensor[T] =
+            result = map2_inline(xData, yData):
+                f(params, x) - y
+
+    var lambdaCoeff = lambda0
+
+    var params = params0.clone()
+    var gradient = tensorGradient(residualFunc, params, fastMode=fastMode)
+    var residuals = residualFunc(params)
+    var resNorm = vectorNorm(residuals)
+    var gradNorm = vectorNorm(squeeze(gradient * residuals.reshape(xLen, 1)))
+    var iters: int
+    let eyeNN = eye[T](paramsLen)
+    while gradNorm > tol*(1 + resNorm) and iters < 10000:
+        let rhs = -gradient * residuals.reshape(xLen, 1)
+        let lhs = gradient * gradient.transpose + lambdaCoeff * eyeNN
+        let p = solve(lhs, rhs)
+        params += p * alpha
+        gradient = tensorGradient(residualFunc, params, fastMode=fastMode)
+        residuals = residualFunc(params)
+        let newGradNorm = vectorNorm(squeeze(gradient * residuals.reshape(xLen, 1)))
+        if newGradNorm / gradNorm < 0.9: # we have improved, decrease lambda → more Gauss-Newton
+            lambdaCoeff = max(lambdaCoeff / 3, 1e-4)
+        elif newGradNorm / gradNorm > 1.2: # we have done worse than last ste, increase lambda → more Steepest descent
+            lambdaCoeff = min(lambdaCoeff * 2, 20)
+        # else: don't change anything
+        gradNorm = newGradNorm
+        resNorm = vectorNorm(residuals)
+        iters += 1
+    result = params
+
+
         
 when isMainModule:
     import benchy
-    proc f1(x: Tensor[float]): float =
+    # Steepest descent:
+#[     proc f1(x: Tensor[float]): float =
         result = x[0]*x[0] + x[1]*x[1] - 10
     
     let x0 = [10.0, 10.0].toTensor
-
+    echo eye[float](10)
     let sol1 = steepestDescent(f1, x0, tol=1e-10, fastMode=false)
     let sol2 = steepestDescent(f1, x0, tol=1e-10, fastMode=true)
     echo sol1
@@ -167,7 +216,16 @@ when isMainModule:
     timeIt "slow mode":
         keep steepestDescent(f1, x0, tol=1e-10, fastMode=false)
     timeIt "fast mode":
-        keep steepestDescent(f1, x0, tol=1e-10, fastMode=true)
+        keep steepestDescent(f1, x0, tol=1e-10, fastMode=true) ]#
+
+    # Lev-Marq:
+    proc fFit(params: Tensor[float], x: float): float =
+        params[0] + params[1] * x + params[2] * x*x
+    
+    let xData = arraymancer.linspace(0, 10, 100)
+    let yData = 1.5 +. xData * 6.28 + xData *. xData * -5.79
+    let params0 = [0.0, 0.0, 0.0].toTensor
+    echo levmarq(fFit, params0, xData, yData)
 
 
 
