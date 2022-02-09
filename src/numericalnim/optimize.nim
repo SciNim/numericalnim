@@ -155,7 +155,7 @@ proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = 
     #echo iters, " iterations done!"
     result = x
 
-proc levmarq*[U, T](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol = U(1e-6), lambda0 = U(1), fastMode = false): Tensor[U] =
+proc levmarq*[U, T](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol: U = U(1e-6), lambda0: U = U(1), fastMode = false): Tensor[U] =
     assert xData.rank == 1
     assert yData.rank == 1
     assert params0.rank == 1
@@ -223,9 +223,13 @@ when isMainModule:
         params[0] + params[1] * x + params[2] * x*x
     
     let xData = arraymancer.linspace(0, 10, 100)
-    let yData = 1.5 +. xData * 6.28 + xData *. xData * -5.79
+    let yData = 1.5 +. xData * 6.28 + xData *. xData * -5.79 + randomNormalTensor[float](xData.shape[0], 0.0, 0.1)
     let params0 = [0.0, 0.0, 0.0].toTensor
     echo levmarq(fFit, params0, xData, yData)
+    timeIt "slow mode":
+        keep levmarq(fFit, params0, xData, yData, fastMode=false)
+    timeIt "fast mode":
+        keep levmarq(fFit, params0, xData, yData, fastMode=true)
 
 
 
