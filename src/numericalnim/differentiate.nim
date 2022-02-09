@@ -35,6 +35,8 @@ proc tensorGradient*[U; T: not Tensor](
     fastMode: bool = false
     ): Tensor[T] =
   ## Calculates the gradient of f(x) w.r.t vector x at x0 using step size h.
+  ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
+  ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
   assert x0.rank == 1 # must be a 1d vector
   let f0 = f(x0) # make use of this with a `fastMode` switch so we use forward difference instead of central difference?
   let xLen = x0.shape[0]
@@ -60,6 +62,8 @@ proc tensorGradient*[U, T](
     ): Tensor[T] =
   ## Calculates the gradient of f(x) w.r.t vector x at x0 using step size h.
   ## Every column is the gradient of one component of f.
+  ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
+  ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
   assert x0.rank == 1 # must be a 1d vector
   let f0 = f(x0) # make use of this with a `fastMode` switch so we use forward difference instead of central difference?
   assert f0.rank == 1
@@ -87,6 +91,8 @@ proc tensorJacobian*[U, T](
     ): Tensor[T] =
   ## Calculates the jacobian of f(x) w.r.t vector x at x0 using step size h.
   ## Every row is the gradient of one component of f.
+  ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
+  ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
   transpose(tensorGradient(f, x0, h, fastMode))
 
 
