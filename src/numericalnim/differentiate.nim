@@ -33,7 +33,7 @@ proc tensorGradient*[U; T: not Tensor](
     x0: Tensor[U],
     h: U = U(1e-6),
     fastMode: bool = false
-    ): Tensor[T] =
+  ): Tensor[T] =
   ## Calculates the gradient of f(x) w.r.t vector x at x0 using step size h.
   ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
   ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
@@ -59,7 +59,7 @@ proc tensorGradient*[U, T](
     x0: Tensor[U],
     h: U = U(1e-6),
     fastMode: bool = false
-    ): Tensor[T] =
+  ): Tensor[T] =
   ## Calculates the gradient of f(x) w.r.t vector x at x0 using step size h.
   ## Every column is the gradient of one component of f.
   ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
@@ -88,12 +88,61 @@ proc tensorJacobian*[U, T](
     x0: Tensor[U],
     h: U = U(1e-6),
     fastMode: bool = false
-    ): Tensor[T] =
-  ## Calculates the jacobian of f(x) w.r.t vector x at x0 using step size h.
-  ## Every row is the gradient of one component of f.
-  ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
-  ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
-  transpose(tensorGradient(f, x0, h, fastMode))
+  ): Tensor[T] =
+    ## Calculates the jacobian of f(x) w.r.t vector x at x0 using step size h.
+    ## Every row is the gradient of one component of f.
+    ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
+    ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+    transpose(tensorGradient(f, x0, h, fastMode))
+
+proc mixedDerivative*[U, T](f: proc(x: Tensor[U]): T, x0: var Tensor[U], indices: (int, int), h: U = U(1e-6)): T =
+  result = 0
+  let i = indices[0]
+  let j = indices[1]
+  # f(x+h, y+h)
+  x0[i] += h
+  x0[j] += h
+  result += f(x0)
+
+  # f(x+h, y-h)
+  x0[j] -= 2*h
+  result -= f(x0)
+
+  # f(x-h, y-h)
+  x0[i] -= 2*h
+  result += f(x0)
+
+  # f(x-h, y+h)
+  x0[j] += 2*h
+  result -= f(x0)
+
+  # restore x0
+  x0[i] += h
+  x0[j] -= h
+
+  result *= 1 / (4 * h*h)
+  
+
+proc tensorHessian*[U; T: not Tensor](
+    f: proc(x: Tensor[U]): T,
+    x0: Tensor[U],
+    h: U = U(1e-6)
+  ): Tensor[T] =
+    assert x0.rank == 1 # must be a 1d vector
+    let f0 = f(x0)
+    let xLen = x0.shape[0]
+    var x = x0.clone()
+    result = zeros[T](xLen, xLen)
+    for i in 0 ..< xLen:
+      for j in i ..< xLen:
+        let mixed = mixedDerivative(f, x, (i, j), h)
+        result[i, j] = mixed
+        result[j, i] = mixed
+
+
+        
+        
+
 
 
 when isMainModule:

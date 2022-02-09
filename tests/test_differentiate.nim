@@ -55,6 +55,18 @@ proc scalarGradient(x: Tensor[float]): Tensor[float] =
   result[1] = 2*x[0]
   result[2] = cos(x[2])
 
+proc scalarHessian(x: Tensor[float]): Tensor[float] =
+  result = zeros[float](3, 3)
+  result[0,0] = 2
+  result[0,1] = 2
+  result[1,0] = 2
+  result[0,2] = 0
+  result[2,0] = 0
+  result[1,1] = 0
+  result[1,2] = 0
+  result[2,1] = 0
+  result[2,2] = -sin(x[2])
+
 proc fMultidim(x: Tensor[float]): Tensor[float] =
   # Function will have 3 inputs and 2 outputs (important that they aren't the same for testing!)
   # f(x0, x1, x2) = (x0*x1*x2^2, x1*sin(2*x2))
@@ -127,3 +139,13 @@ suite "Multi dimensional numeric gradients":
           let exact = multidimGradient(x0).transpose
           for err in abs(numJacobian - exact):
             check err < 1e-10
+
+  test "Hessian scalar valued function":
+    for x in numericalnim.linspace(0, 1, 10):
+      for y in numericalnim.linspace(0, 1, 10):
+        for z in numericalnim.linspace(0, 1, 10):
+          let x0 = [x, y, z].toTensor
+          let numHessian = tensorHessian(fScalar, x0)
+          let exact = scalarHessian(x0)
+          for err in abs(numHessian - exact):
+            check err < 3e-4
