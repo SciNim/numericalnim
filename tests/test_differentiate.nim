@@ -116,3 +116,14 @@ suite "Multi dimensional numeric gradients":
           let exact = multidimGradient(x0)
           for err in abs(numGrad - exact):
             check err < 2e-6
+
+  
+  test "Jacobian":
+    for x in numericalnim.linspace(0, 1, 10):
+      for y in numericalnim.linspace(0, 1, 10):
+        for z in numericalnim.linspace(0, 1, 10):
+          let x0 = [x, y, z].toTensor
+          let numJacobian = tensorJacobian(fMultidim, x0)
+          let exact = multidimGradient(x0).transpose
+          for err in abs(numJacobian - exact):
+            check err < 1e-10
