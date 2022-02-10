@@ -151,7 +151,28 @@ proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = 
         gradNorm = vectorNorm(gradient)
         iters += 1
     if iters >= 10000:
-        echo "Limit of 10000 iterations reached!"
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc newton*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+    var x = x0.clone()
+    var fNorm = abs(f(x))
+    var gradient = tensorGradient(f, x, fastMode=fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var hessian = tensorHessian(f, x)
+    var iters: int
+    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        let p = -solve(hessian, gradient)
+        x += alpha * p
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradient = tensorGradient(f, x, fastMode=fastMode)
+        gradNorm = vectorNorm(gradient)
+        hessian = tensorHessian(f, x)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
     #echo iters, " iterations done!"
     result = x
 
@@ -201,25 +222,28 @@ proc levmarq*[U, T](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xDa
 when isMainModule:
     import benchy
     # Steepest descent:
-#[     proc f1(x: Tensor[float]): float =
-        result = x[0]*x[0] + x[1]*x[1] - 10
+    proc f1(x: Tensor[float]): float =
+        # result = -20*exp(-0.2*sqrt(0.5 * (x[0]*x[0] + x[1]*x[1]))) - exp(0.5*(cos(2*PI*x[0]) + cos(2*PI*x[1]))) + E + 20 # Ackley
+        result = (1 - x[0])^2 + 100*(x[1] - x[0]^2)^2
     
-    let x0 = [10.0, 10.0].toTensor
-    echo eye[float](10)
-    let sol1 = steepestDescent(f1, x0, tol=1e-10, fastMode=false)
-    let sol2 = steepestDescent(f1, x0, tol=1e-10, fastMode=true)
+    let x0 = [-1.0, -1.0].toTensor
+    let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
     echo sol1
-    echo sol2
     echo f1(sol1)
-    echo f1(sol2)
+    echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=false)
+    echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=true)
 
-    timeIt "slow mode":
-        keep steepestDescent(f1, x0, tol=1e-10, fastMode=false)
-    timeIt "fast mode":
-        keep steepestDescent(f1, x0, tol=1e-10, fastMode=true) ]#
+    timeIt "steepest slow mode":
+        keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=false)
+    timeIt "steepest fast mode":
+        keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
+    timeIt "newton slow mode":
+        keep newton(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "newton fast mode":
+        keep newton(f1, x0, tol=1e-8, fastMode=true)
 
     # Lev-Marq:
-    proc fFit(params: Tensor[float], x: float): float =
+#[     proc fFit(params: Tensor[float], x: float): float =
         params[0] + params[1] * x + params[2] * x*x
     
     let xData = arraymancer.linspace(0, 10, 100)
@@ -229,7 +253,7 @@ when isMainModule:
     timeIt "slow mode":
         keep levmarq(fFit, params0, xData, yData, fastMode=false)
     timeIt "fast mode":
-        keep levmarq(fFit, params0, xData, yData, fastMode=true)
+        keep levmarq(fFit, params0, xData, yData, fastMode=true) ]#
 
 
 
