@@ -135,7 +135,7 @@ proc eye[T](n: int): Tensor[T] =
     for i in 0 ..< n:
         result[i, i] = 1
 
-proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
     ## Minimize scalar-valued function f. 
     var x = x0.clone()
     var fNorm = abs(f(x0))
@@ -155,7 +155,7 @@ proc steepestDescent*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = 
     #echo iters, " iterations done!"
     result = x
 
-proc newton*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
     var x = x0.clone()
     var fNorm = abs(f(x))
     var gradient = tensorGradient(f, x, fastMode=fastMode)
@@ -176,7 +176,36 @@ proc newton*[U, T](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), t
     #echo iters, " iterations done!"
     result = x
 
-proc levmarq*[U, T](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol: U = U(1e-6), lambda0: U = U(1), fastMode = false): Tensor[U] =
+proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+    var x = x0.clone()
+    let xLen = x.shape[0]
+    var fNorm = abs(f(x))
+    var gradient = tensorGradient(f, x, fastMode=fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var hessianB = eye[T](xLen) # inverse of the approximated hessian
+    var iters: int
+    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        let p = -hessianB * gradient.reshape(xLen, 1)
+        x += alpha * p
+        let newGradient = tensorGradient(f, x, fastMode=fastMode)
+        let sk = alpha * p.reshape(xLen, 1)
+        let yk = (newGradient - gradient).reshape(xLen, 1)
+        let sk_yk_dot = dot(sk.squeeze, yk.squeeze)
+        hessianB += (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose) - ((hessianB * yk) * sk.transpose + sk * (yk.transpose * hessianB)) / sk_yk_dot
+
+        gradient = newGradient
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradNorm = vectorNorm(gradient)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+
+
+proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol: U = U(1e-6), lambda0: U = U(1), fastMode = false): Tensor[U] =
     assert xData.rank == 1
     assert yData.rank == 1
     assert params0.rank == 1
@@ -225,13 +254,18 @@ when isMainModule:
     proc f1(x: Tensor[float]): float =
         # result = -20*exp(-0.2*sqrt(0.5 * (x[0]*x[0] + x[1]*x[1]))) - exp(0.5*(cos(2*PI*x[0]) + cos(2*PI*x[1]))) + E + 20 # Ackley
         result = (1 - x[0])^2 + 100*(x[1] - x[0]^2)^2
+        for ix in x:
+            result += (ix - 1)^2
     
-    let x0 = [-1.0, -1.0].toTensor
+    #let x0 = [-1.0, -1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].toTensor
+    let x0 = ones[float](500) * -1
     let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
     echo sol1
     echo f1(sol1)
     echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=false)
     echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=true)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
 
     timeIt "steepest slow mode":
         keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=false)
@@ -241,6 +275,10 @@ when isMainModule:
         keep newton(f1, x0, tol=1e-8, fastMode=false)
     timeIt "newton fast mode":
         keep newton(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "bfgs slow mode":
+        keep bfgs(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "bfgs fast mode":
+        keep bfgs(f1, x0, tol=1e-8, fastMode=true)
 
     # Lev-Marq:
 #[     proc fFit(params: Tensor[float], x: float): float =
