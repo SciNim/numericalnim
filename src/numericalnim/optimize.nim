@@ -1,7 +1,5 @@
-import strformat
+import std/[strformat, sequtils, math, deques]
 import arraymancer
-import sequtils
-import math
 import ./differentiate
 
 proc steepest_descent*(deriv: proc(x: float64): float64, start: float64, gamma: float64 = 0.01, precision: float64 = 1e-5, max_iters: Natural = 1000):float64 {.inline.} =
@@ -180,7 +178,7 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U =
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
-    var gradient = tensorGradient(f, x, fastMode=fastMode)
+    var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
     var gradNorm = vectorNorm(gradient)
     var hessianB = eye[T](xLen) # inverse of the approximated hessian
     var iters: int
@@ -203,7 +201,57 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U =
     #echo iters, " iterations done!"
     result = x
 
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+    var x = x0.clone()
+    let xLen = x.shape[0]
+    var fNorm = abs(f(x))
+    var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var iters: int
+    let m = 10 # number of past iterations to save
+    var sk_queue = initDeque[Tensor[U]](m)
+    var yk_queue = initDeque[Tensor[T]](m)
+    # the problem is the first iteration as the gradient is huge and no adjustments are made
+    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        #echo "grad: ", gradient
+        #echo "x: ", x
+        var q = gradient.clone()
+        # we want to loop from latest inserted to oldest
+        # → we insert at the beginning and pop at the end
+        var alphas: seq[U]
+        for i in 0 ..< sk_queue.len:
+            let rho_i = 1 / dot(sk_queue[i], yk_queue[i])
+            let alpha_i = rho_i * dot(sk_queue[i], q)
+            q -= alpha_i * yk_queue[i]
+            alphas.add alpha_i
+        let gamma = if sk_queue.len == 0: 1.0 else: dot(sk_queue[0], yk_queue[0]) / dot(yk_queue[0], yk_queue[0])
+        #echo gamma
+        var z = gamma * q
+        for i in countdown(sk_queue.len - 1, 0):
+            let rho_i = 1 / dot(sk_queue[i], yk_queue[i])
+            let beta_i = rho_i * dot(yk_queue[i], z)
+            let alpha_i = alphas[i]
+            z += sk_queue[i] * (alpha_i - beta_i)
+        z = -z
+        let p = z
+        #echo "q: ", q
+        x += alpha * p
+        sk_queue.addFirst alpha*p
+        let newGradient = tensorGradient(f, x, fastMode=fastMode)
+        let yk = newGradient - gradient
+        yk_queue.addFirst yk
+        gradient = newGradient
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradNorm = vectorNorm(gradient)
+        if sk_queue.len > m: discard sk_queue.popLast
+        if yk_queue.len > m: discard yk_queue.popLast
+        iters += 1
 
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
 
 proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol: U = U(1e-6), lambda0: U = U(1), fastMode = false): Tensor[U] =
     assert xData.rank == 1
@@ -257,8 +305,8 @@ when isMainModule:
         for ix in x:
             result += (ix - 1)^2
     
-    #let x0 = [-1.0, -1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].toTensor
-    let x0 = ones[float](500) * -1
+    #let x0 = [-0.5, 2.0].toTensor
+    let x0 = ones[float](500) * 0
     let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
     echo sol1
     echo f1(sol1)
@@ -266,6 +314,7 @@ when isMainModule:
     echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=true)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
+    echo "LBFGS:", lbfgs(f1, x0, tol=1e-8, fastMode=false)
 
     timeIt "steepest slow mode":
         keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=false)
@@ -279,6 +328,10 @@ when isMainModule:
         keep bfgs(f1, x0, tol=1e-8, fastMode=false)
     timeIt "bfgs fast mode":
         keep bfgs(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "lbfgs slow mode":
+        keep lbfgs(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "lbfgs fast mode":
+        keep lbfgs(f1, x0, tol=1e-8, fastMode=true)
 
     # Lev-Marq:
 #[     proc fFit(params: Tensor[float], x: float): float =
