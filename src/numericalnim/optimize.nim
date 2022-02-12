@@ -183,14 +183,109 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U =
     var hessianB = eye[T](xLen) # inverse of the approximated hessian
     var iters: int
     while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        #echo "Hessian iter ", iters, ": ", hessianB
         let p = -hessianB * gradient.reshape(xLen, 1)
+        #echo "p iter ", iters, ": ", p
         x += alpha * p
         let newGradient = tensorGradient(f, x, fastMode=fastMode)
         let sk = alpha * p.reshape(xLen, 1)
+        #gemm(1.0, hessianB, hessianB, 0.0, newGradient)
         let yk = (newGradient - gradient).reshape(xLen, 1)
         let sk_yk_dot = dot(sk.squeeze, yk.squeeze)
-        hessianB += (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose) - ((hessianB * yk) * sk.transpose + sk * (yk.transpose * hessianB)) / sk_yk_dot
+        let prefactor1 = (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot)
+        let prefactor2 = 1 / sk_yk_dot
+        let m1 = (sk * sk.transpose)
+        let m2_1 = (hessianB * yk) * sk.transpose
+        let m2_2 = sk * (yk.transpose * hessianB)
+        #echo "prefactor2: ", prefactor2
+        hessianB += prefactor1 * m1
+        #echo "hessian2: ", hessianB
+        #echo "hessian: ", hessianB
+        #echo "yk: ", yk
+        hessianB -= prefactor2 * m2_1
+        #echo "checkpoint1: ", (hessianB * yk)
+        #echo "hessian2.5: ", hessianB
+        hessianB -= prefactor2 * m2_2
+        #echo "hessian3: ", hessianB
 
+        gradient = newGradient
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradNorm = vectorNorm(gradient)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+    # Use gemm and gemv with preallocated Tensors and setting beta = 0
+    var x = x0.clone()
+    let xLen = x.shape[0]
+    var fNorm = abs(f(x))
+    var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var hessianB = eye[T](xLen) # inverse of the approximated hessian
+    var p = newTensor[U](xLen)
+    var tempVector1 = newTensor[U](xLen, 1)
+    var tempVector2 = newTensor[U](1, xLen)
+    var iters: int
+    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        # We are using hessianB in calculating it so we are modifying it prior to its use!
+
+
+        #echo "Hessian iter ", iters, ": ", hessianB
+        #let p = -hessianB * gradient.reshape(xLen, 1)
+        gemv(-1.0, hessianB, gradient.reshape(xLen, 1), 0.0, p)
+        #echo "p iter ", iters, ": ", p
+        #echo "x iter ", iters, ": ", x
+        #echo "gradient iter ", iters, ": ", gradient
+        x += alpha * p
+        let newGradient = tensorGradient(f, x, fastMode=fastMode)
+        let sk = alpha * p.reshape(xLen, 1)
+        
+        let yk = (newGradient - gradient).reshape(xLen, 1)
+        let sk_yk_dot = dot(sk.squeeze, yk.squeeze)
+        # gemm(1.0, hessianB, hessianB, 0.0, newGradient)
+        # Do the calculation in steps, minimizing allocations
+        # sk * sk.transpose is matrix × matrix
+        # how to deal with the vector.T × vector = Matrix? Use gemm? gemm() can be used as += if beta is set to 1.0
+        #echo "aim: ", hessianB + (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose) - ((hessianB * yk) * sk.transpose + sk * (yk.transpose * hessianB)) / sk_yk_dot
+        #echo "real Hessian: ", hessianB + (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose)
+        let prefactor1 = (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot)
+        let prefactor2 = 1 / sk_yk_dot
+        gemv(1.0, hessianB, yk, 0.0, tempVector1) # temp1 = hessianB * yk
+        gemm(1.0, yk.transpose, hessianB, 0.0, tempVector2) # temp2 = yk.transpose * hessianB
+
+        gemm(prefactor1, sk, sk.transpose, 1.0, hessianB) # hessianB += prefactor1 * sk * sk.transpose
+
+        gemm(-prefactor2, tempVector1, sk.transpose, 1.0, hessianB) # hessianB -= prefactor2 * temp1 * sk.transpose
+
+        gemm(-prefactor2, sk, tempVector2, 1.0, hessianB) # hessianB -= prefactor2 * sk * temp2
+        #echo "hessian2: ", hessianB # This is correct
+        
+        # somewhere down here the error occurs!↓
+
+        # reuse vector p:
+        #gemv(1.0, hessianB, yk, 0.0, tempVector1) # temp1 = hessianB * yk
+        #echo "checkpoint1: ", tempVector1 # this is incorrect!!!
+
+        #
+        #
+        # Rewrite with transposes as gemv instead!
+        # (A * B)^T = B^T * A^T → yk.transpose * hessianB = transpose(hessianB.transpose * yk)
+        #
+
+        #gemm(1.0, yk.transpose, hessianB, 0.0, p) 
+        #gemv(1.0, hessianB.transpose, yk, 0.0, tempVector) # p = yk.transpose * hessianB
+        #tempVector = tempVector.transpose
+
+        
+        #echo "hessian3: ", hessianB
+
+        #hessianB += (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose) - ((hessianB * yk) * sk.transpose + sk * (yk.transpose * hessianB)) / sk_yk_dot
+        #tempVector = tempVector.transpose # reverse it back to column vector
+        
         gradient = newGradient
         let fx = f(x)
         fNorm = abs(fx)
@@ -302,19 +397,24 @@ when isMainModule:
     proc f1(x: Tensor[float]): float =
         # result = -20*exp(-0.2*sqrt(0.5 * (x[0]*x[0] + x[1]*x[1]))) - exp(0.5*(cos(2*PI*x[0]) + cos(2*PI*x[1]))) + E + 20 # Ackley
         result = (1 - x[0])^2 + 100*(x[1] - x[0]^2)^2
-        for ix in x:
-            result += (ix - 1)^2
+        if x.shape[0] > 2:
+            for ix in x[2 .. _]:
+                result += (ix - 1)^2
     
     #let x0 = [-0.5, 2.0].toTensor
-    let x0 = ones[float](500) * 0
-    let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
+    let x0 = ones[float](500) * -1
+    #[ let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
     echo sol1
     echo f1(sol1)
     echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=false)
     echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=true)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
-    echo "LBFGS:", lbfgs(f1, x0, tol=1e-8, fastMode=false)
+    echo "LBFGS:", lbfgs(f1, x0, tol=1e-8, fastMode=false) ]#
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
+    echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=true)
 
     timeIt "steepest slow mode":
         keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=false)
@@ -328,6 +428,10 @@ when isMainModule:
         keep bfgs(f1, x0, tol=1e-8, fastMode=false)
     timeIt "bfgs fast mode":
         keep bfgs(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "optimized bfgs slow mode":
+        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "optimized bfgs fast mode":
+        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=true)
     timeIt "lbfgs slow mode":
         keep lbfgs(f1, x0, tol=1e-8, fastMode=false)
     timeIt "lbfgs fast mode":
