@@ -133,8 +133,59 @@ proc eye[T](n: int): Tensor[T] =
     for i in 0 ..< n:
         result[i, i] = 1
 
-proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+type LineSearchCriterion = enum
+    Armijo, Wolfe, WolfeStrong, None
+
+proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Tensor[U]): T, criterion: LineSearchCriterion, fastMode: bool = false) =
+    # note: set initial alpha for the methods as 1 / sqrt(dot(grad, grad)) so first step has length 1.
+    if criterion == None:
+        return
+    var gradient = tensorGradient(f, x0, fastMode=fastMode)
+    let dirDerivInit = dot(gradient, p)
+
+    if 0 < dirDerivInit:
+        # p is pointing uphill, use whatever alpha we currently have.
+        return
+
+    let fInit = f(x0)
+    var counter = 0
+    alpha = 1
+    while counter < 20:
+        let x = x0 + alpha * p
+        let fx = f(x)
+        gradient = tensorGradient(f, x, fastMode=fastMode)
+        counter += 1
+
+        if fx > fInit + 1e-4*alpha * dirDerivInit: # c1 = 1e-4 multiply as well? Doesn't seem to work
+            alpha *= 0.5
+        else:
+            if criterion == Armijo:
+                return
+            let dirDeriv = dot(gradient, p)
+            if dirDeriv < 0.9 * dirDerivInit:
+                alpha *= 2.1
+            else:
+                if criterion == Wolfe:
+                    return
+                if dirDeriv > -0.9*dirDerivInit:
+                    alpha *= 0.5
+                else:
+                    return
+        if alpha < 1e-3:
+            alpha = 1e-3
+            return
+        elif alpha > 1e2:
+            alpha = 1e2
+            return
+
+
+
+
+    
+
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false, criterion: LineSearchCriterion = None): Tensor[U] =
     ## Minimize scalar-valued function f. 
+    var alpha = alpha
     var x = x0.clone()
     var fNorm = abs(f(x0))
     var gradient = tensorGradient(f, x0, fastMode=fastMode)
@@ -142,6 +193,7 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
     var iters: int
     while gradNorm > tol*(1 + fNorm) and iters < 10000:
         let p = -gradient
+        line_search(alpha, p, x, f, criterion, fastMode)
         x += alpha * p
         let fx = f(x)
         fNorm = abs(fx)
@@ -218,8 +270,9 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U =
     #echo iters, " iterations done!"
     result = x
 
-proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false, criterion: LineSearchCriterion = None): Tensor[U] =
     # Use gemm and gemv with preallocated Tensors and setting beta = 0
+    var alpha = alpha
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
@@ -240,6 +293,7 @@ proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], 
         #echo "p iter ", iters, ": ", p
         #echo "x iter ", iters, ": ", x
         #echo "gradient iter ", iters, ": ", gradient
+        line_search(alpha, p, x, f, criterion, fastMode)
         x += alpha * p
         let newGradient = tensorGradient(f, x, fastMode=fastMode)
         let sk = alpha * p.reshape(xLen, 1)
@@ -296,14 +350,15 @@ proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], 
     #echo iters, " iterations done!"
     result = x
 
-proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false, m: int = 10, criterion: LineSearchCriterion = None): Tensor[U] =
+    var alpha = alpha
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
     var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
     var gradNorm = vectorNorm(gradient)
     var iters: int
-    let m = 10 # number of past iterations to save
+    #let m = 10 # number of past iterations to save
     var sk_queue = initDeque[Tensor[U]](m)
     var yk_queue = initDeque[Tensor[T]](m)
     # the problem is the first iteration as the gradient is huge and no adjustments are made
@@ -330,6 +385,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U 
         z = -z
         let p = z
         #echo "q: ", q
+        line_search(alpha, p, x, f, criterion, fastMode)
         x += alpha * p
         sk_queue.addFirst alpha*p
         let newGradient = tensorGradient(f, x, fastMode=fastMode)
@@ -402,7 +458,7 @@ when isMainModule:
                 result += (ix - 1)^2
     
     #let x0 = [-0.5, 2.0].toTensor
-    let x0 = ones[float](500) * -1
+    let x0 = ones[float](100) * -1
     #[ let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
     echo sol1
     echo f1(sol1)
@@ -410,17 +466,45 @@ when isMainModule:
     echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=true)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
-    echo "LBFGS:", lbfgs(f1, x0, tol=1e-8, fastMode=false) ]#
+    echo "LBFGS:", lbfgs(f1, x0, tol=1e-8, fastMode=false)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
     echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
     echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
-    echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=true)
+    echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=true) ]#
 
-    timeIt "steepest slow mode":
-        keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=false)
-    timeIt "steepest fast mode":
-        keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
-    timeIt "newton slow mode":
+    #[ echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=None)
+    echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Armijo)
+    echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Wolfe)
+    echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=WolfeStrong)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=None)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Armijo)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Wolfe)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=WolfeStrong) ]#
+
+    timeIt "steepest slow mode None":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=None)
+
+    timeIt "steepest slow mode Armijo":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Armijo)
+
+    timeIt "steepest slow mode Wolfe":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Wolfe)
+
+    timeIt "steepest slow mode WolfeStrong":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=WolfeStrong)
+
+    timeIt "steepest slow mode None":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=None)
+
+    timeIt "steepest slow mode Armijo":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Armijo)
+
+    timeIt "steepest slow mode Wolfe":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Wolfe)
+
+    timeIt "steepest slow mode WolfeStrong":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=WolfeStrong)
+#[     timeIt "newton slow mode":
         keep newton(f1, x0, tol=1e-8, fastMode=false)
     timeIt "newton fast mode":
         keep newton(f1, x0, tol=1e-8, fastMode=true)
@@ -428,14 +512,17 @@ when isMainModule:
         keep bfgs(f1, x0, tol=1e-8, fastMode=false)
     timeIt "bfgs fast mode":
         keep bfgs(f1, x0, tol=1e-8, fastMode=true)
-    timeIt "optimized bfgs slow mode":
-        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
-    timeIt "optimized bfgs fast mode":
-        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=true)
     timeIt "lbfgs slow mode":
         keep lbfgs(f1, x0, tol=1e-8, fastMode=false)
     timeIt "lbfgs fast mode":
         keep lbfgs(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "optimized bfgs slow mode":
+        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "optimized bfgs fast mode":
+        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=true) 
+    timeIt "steepest fast mode":
+        keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true) ]#
+
 
     # Lev-Marq:
 #[     proc fFit(params: Tensor[float], x: float): float =
