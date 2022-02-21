@@ -183,7 +183,7 @@ proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Te
 
     
 
-proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.1), tol: U = U(1e-6), fastMode: bool = false, criterion: LineSearchCriterion = None): Tensor[U] =
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.001), tol: U = U(1e-6), fastMode: bool = false, criterion: LineSearchCriterion = None): Tensor[U] =
     ## Minimize scalar-valued function f. 
     var alpha = alpha
     var x = x0.clone()
@@ -443,6 +443,8 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
         gradNorm = newGradNorm
         resNorm = vectorNorm(residuals)
         iters += 1
+    if iters == 10000:
+        echo "levmarq reached maximum number of iterations!"
     result = params
 
 
