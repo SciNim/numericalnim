@@ -123,6 +123,23 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
 ## Multidimensional methods ##
 ##############################
 
+type LineSearchCriterion = enum
+    Armijo, Wolfe, WolfeStrong, NoLineSearch
+
+type OptimOptions*[U] = object
+    tol*, alpha*, lambda0*: U
+    fastMode*: bool
+    maxIterations*: int
+    lineSearchCriterion*: LineSearchCriterion
+
+proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), lambda0: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U] =
+    result.tol = tol
+    result.alpha = alpha
+    result.lambda0 = lambda0
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
 proc vectorNorm*[T](v: Tensor[T]): T =
     ## Calculates the norm of the vector, ie the sqrt(Σ vᵢ²)
     assert v.rank == 1, "v must be a 1d vector!"
@@ -133,12 +150,9 @@ proc eye[T](n: int): Tensor[T] =
     for i in 0 ..< n:
         result[i, i] = 1
 
-type LineSearchCriterion = enum
-    Armijo, Wolfe, WolfeStrong, None
-
 proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Tensor[U]): T, criterion: LineSearchCriterion, fastMode: bool = false) =
     # note: set initial alpha for the methods as 1 / sqrt(dot(grad, grad)) so first step has length 1.
-    if criterion == None:
+    if criterion == NoLineSearch:
         return
     var gradient = tensorGradient(f, x0, fastMode=fastMode)
     let dirDerivInit = dot(gradient, p)
@@ -183,21 +197,21 @@ proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Te
 
     
 
-proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(0.001), tol: U = U(1e-6), fastMode: bool = false, criterion: LineSearchCriterion = None): Tensor[U] =
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U] = optimOptions[U](alpha = U(0.001))): Tensor[U] =
     ## Minimize scalar-valued function f. 
-    var alpha = alpha
+    var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x0))
-    var gradient = tensorGradient(f, x0, fastMode=fastMode)
+    var gradient = tensorGradient(f, x0, fastMode=options.fastMode)
     var gradNorm = vectorNorm(gradient)
     var iters: int
-    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
         let p = -gradient
-        line_search(alpha, p, x, f, criterion, fastMode)
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
         x += alpha * p
         let fx = f(x)
         fNorm = abs(fx)
-        gradient = tensorGradient(f, x, fastMode=fastMode)
+        gradient = tensorGradient(f, x, fastMode=options.fastMode)
         gradNorm = vectorNorm(gradient)
         iters += 1
     if iters >= 10000:
@@ -205,19 +219,21 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
     #echo iters, " iterations done!"
     result = x
 
-proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U] = optimOptions[U]()): Tensor[U] =
+    var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x))
-    var gradient = tensorGradient(f, x, fastMode=fastMode)
+    var gradient = tensorGradient(f, x, fastMode=options.fastMode)
     var gradNorm = vectorNorm(gradient)
     var hessian = tensorHessian(f, x)
     var iters: int
-    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
         let p = -solve(hessian, gradient)
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
         x += alpha * p
         let fx = f(x)
         fNorm = abs(fx)
-        gradient = tensorGradient(f, x, fastMode=fastMode)
+        gradient = tensorGradient(f, x, fastMode=options.fastMode)
         gradNorm = vectorNorm(gradient)
         hessian = tensorHessian(f, x)
         iters += 1
@@ -226,7 +242,7 @@ proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U
     #echo iters, " iterations done!"
     result = x
 
-proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
@@ -270,20 +286,20 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U =
     #echo iters, " iterations done!"
     result = x
 
-proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false, criterion: LineSearchCriterion = None): Tensor[U] =
+proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U] = optimOptions[U]()): Tensor[U] =
     # Use gemm and gemv with preallocated Tensors and setting beta = 0
-    var alpha = alpha
+    var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
-    var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
+    var gradient = 0.01*tensorGradient(f, x, fastMode=options.fastMode)
     var gradNorm = vectorNorm(gradient)
     var hessianB = eye[T](xLen) # inverse of the approximated hessian
     var p = newTensor[U](xLen)
     var tempVector1 = newTensor[U](xLen, 1)
     var tempVector2 = newTensor[U](1, xLen)
     var iters: int
-    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
         # We are using hessianB in calculating it so we are modifying it prior to its use!
 
 
@@ -293,9 +309,9 @@ proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], 
         #echo "p iter ", iters, ": ", p
         #echo "x iter ", iters, ": ", x
         #echo "gradient iter ", iters, ": ", gradient
-        line_search(alpha, p, x, f, criterion, fastMode)
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
         x += alpha * p
-        let newGradient = tensorGradient(f, x, fastMode=fastMode)
+        let newGradient = tensorGradient(f, x, fastMode=options.fastMode)
         let sk = alpha * p.reshape(xLen, 1)
         
         let yk = (newGradient - gradient).reshape(xLen, 1)
@@ -350,19 +366,19 @@ proc bfgs_optimized*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], 
     #echo iters, " iterations done!"
     result = x
 
-proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false, m: int = 10, criterion: LineSearchCriterion = None): Tensor[U] =
-    var alpha = alpha
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U] = optimOptions[U]()): Tensor[U] =
+    var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
-    var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
+    var gradient = 0.01*tensorGradient(f, x, fastMode=options.fastMode)
     var gradNorm = vectorNorm(gradient)
     var iters: int
     #let m = 10 # number of past iterations to save
     var sk_queue = initDeque[Tensor[U]](m)
     var yk_queue = initDeque[Tensor[T]](m)
     # the problem is the first iteration as the gradient is huge and no adjustments are made
-    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
         #echo "grad: ", gradient
         #echo "x: ", x
         var q = gradient.clone()
@@ -385,10 +401,10 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U 
         z = -z
         let p = z
         #echo "q: ", q
-        line_search(alpha, p, x, f, criterion, fastMode)
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
         x += alpha * p
         sk_queue.addFirst alpha*p
-        let newGradient = tensorGradient(f, x, fastMode=fastMode)
+        let newGradient = tensorGradient(f, x, fastMode=options.fastMode)
         let yk = newGradient - gradient
         yk_queue.addFirst yk
         gradient = newGradient
@@ -483,7 +499,7 @@ when isMainModule:
     echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Wolfe)
     echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=WolfeStrong) ]#
 
-    timeIt "steepest slow mode None":
+    #[ timeIt "steepest slow mode None":
         keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=None)
 
     timeIt "steepest slow mode Armijo":
@@ -505,7 +521,7 @@ when isMainModule:
         keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Wolfe)
 
     timeIt "steepest slow mode WolfeStrong":
-        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=WolfeStrong)
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=WolfeStrong) ]#
 #[     timeIt "newton slow mode":
         keep newton(f1, x0, tol=1e-8, fastMode=false)
     timeIt "newton fast mode":
