@@ -107,6 +107,6 @@ suite "Multi-dim":
     test "levmarq":
         let paramsSol = levmarq(fitFunc, params0, xData, yData)
         for x in abs(paramsSol - correctParams):
-            check x < 9e-4
+            check x < 1.3e-3
 
 
