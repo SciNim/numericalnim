@@ -126,19 +126,66 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
 type LineSearchCriterion = enum
     Armijo, Wolfe, WolfeStrong, NoLineSearch
 
-type OptimOptions*[U] = object
-    tol*, alpha*, lambda0*: U
-    fastMode*: bool
-    maxIterations*: int
-    lineSearchCriterion*: LineSearchCriterion
+type
+    OptimOptions*[U, AO] = object
+        tol*, alpha*: U
+        fastMode*: bool
+        maxIterations*: int
+        lineSearchCriterion*: LineSearchCriterion
+        algoOptions*: AO
+    StandardOptions* = object
+    LevMarqOptions*[U] = object
+        lambda0*: U
+    LBFGSOptions*[U] = object
+        savedIterations*: int
 
-proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), lambda0: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U] =
+proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), lambda0: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
     result.tol = tol
     result.alpha = alpha
     result.lambda0 = lambda0
     result.fastMode = fastMode
     result.maxIterations = maxIterations
     result.lineSearchCriterion = lineSearchCriterion
+
+proc steepestDescentOptions*[U](tol: U = U(1e-6), alpha: U = U(0.001), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc newtonOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc bfgsOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc lbfgsOptions*[U](savedIterations: int = 10, tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LBFGSOptions[U]] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+    result.algoOptions.savedIterations = savedIterations
+
+proc levmarqOptions*[U](lambda0: U = U(1), tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LevMarqOptions[U]] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+    result.algoOptions.lambda0 = lambda0
+
+
+
 
 proc vectorNorm*[T](v: Tensor[T]): T =
     ## Calculates the norm of the vector, ie the sqrt(Σ vᵢ²)
@@ -193,11 +240,7 @@ proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Te
             return
 
 
-
-
-    
-
-proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U] = optimOptions[U](alpha = U(0.001))): Tensor[U] =
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = steepestDescentOptions[U]()): Tensor[U] =
     ## Minimize scalar-valued function f. 
     var alpha = options.alpha
     var x = x0.clone()
@@ -219,7 +262,7 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
     #echo iters, " iterations done!"
     result = x
 
-proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U] = optimOptions[U]()): Tensor[U] =
+proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = newtonOptions[U]()): Tensor[U] =
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x))
@@ -286,7 +329,7 @@ proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha:
     #echo iters, " iterations done!"
     result = x
 
-proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U] = optimOptions[U]()): Tensor[U] =
+proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U]()): Tensor[U] =
     # Use gemm and gemv with preallocated Tensors and setting beta = 0
     var alpha = options.alpha
     var x = x0.clone()
@@ -366,7 +409,7 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: O
     #echo iters, " iterations done!"
     result = x
 
-proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U] = optimOptions[U]()): Tensor[U] =
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U]()): Tensor[U] =
     var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
@@ -420,7 +463,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
     #echo iters, " iterations done!"
     result = x
 
-proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], alpha = U(1), tol: U = U(1e-6), lambda0: U = U(1), fastMode = false): Tensor[U] =
+proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U]()): Tensor[U] =
     assert xData.rank == 1
     assert yData.rank == 1
     assert params0.rank == 1
@@ -434,21 +477,26 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
             result = map2_inline(xData, yData):
                 f(params, x) - y
 
-    var lambdaCoeff = lambda0
+    let errorFunc = # proc that returns the scalar error
+        proc (params: Tensor[U]): T =
+            let res = residualFunc(params)
+            result = dot(res, res)
+
+    var lambdaCoeff = options.algoOptions.lambda0
 
     var params = params0.clone()
-    var gradient = tensorGradient(residualFunc, params, fastMode=fastMode)
+    var gradient = tensorGradient(residualFunc, params, fastMode=options.fastMode)
     var residuals = residualFunc(params)
     var resNorm = vectorNorm(residuals)
     var gradNorm = vectorNorm(squeeze(gradient * residuals.reshape(xLen, 1)))
     var iters: int
     let eyeNN = eye[T](paramsLen)
-    while gradNorm > tol*(1 + resNorm) and iters < 10000:
+    while gradNorm > options.tol*(1 + resNorm) and iters < 10000:
         let rhs = -gradient * residuals.reshape(xLen, 1)
         let lhs = gradient * gradient.transpose + lambdaCoeff * eyeNN
         let p = solve(lhs, rhs)
-        params += p * alpha
-        gradient = tensorGradient(residualFunc, params, fastMode=fastMode)
+        params += p * options.alpha
+        gradient = tensorGradient(residualFunc, params, fastMode=options.fastMode)
         residuals = residualFunc(params)
         let newGradNorm = vectorNorm(squeeze(gradient * residuals.reshape(xLen, 1)))
         if newGradNorm / gradNorm < 0.9: # we have improved, decrease lambda → more Gauss-Newton
