@@ -140,6 +140,10 @@ suite "Multi dimensional numeric gradients":
           for err in abs(numJacobian - exact):
             check err < 1e-10
 
+  test "checkGradient":
+    check checkGradient(fScalar, scalarGradient, [0.5, 0.5, 0.5].toTensor, 6e-11)
+    check checkGradient(fMultidim, multidimGradient, [0.5, 0.5, 0.5].toTensor, 4e-12)
+
   test "Hessian scalar valued function":
     for x in numericalnim.linspace(0, 1, 10):
       for y in numericalnim.linspace(0, 1, 10):

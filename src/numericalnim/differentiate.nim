@@ -1,3 +1,4 @@
+import std/strformat
 import arraymancer
 
 proc diff1dForward*[U, T](f: proc(x: U): T, x0: U, h: U = U(1e-6)): T =
@@ -139,9 +140,25 @@ proc tensorHessian*[U; T: not Tensor](
         result[i, j] = mixed
         result[j, i] = mixed
 
+proc checkGradient*[U; T: not Tensor](f: proc(x: Tensor[U]): T, fGrad: proc(x: Tensor[U]): Tensor[T], x0: Tensor[U], tol: T): bool =
+  ## Checks if the provided gradient function `fGrad` gives the same values as numeric gradient.
+  let numGrad = tensorGradient(f, x0)
+  let grad = fGrad(x0)
+  result = true
+  for i, x in abs(numGrad - grad):
+    if x > tol:
+      echo fmt"Gradient at index {i[0]} has error: {x} (tol = {tol})"
+      result = false
 
-        
-        
+proc checkGradient*[U; T](f: proc(x: Tensor[U]): Tensor[T], fGrad: proc(x: Tensor[U]): Tensor[T], x0: Tensor[U], tol: T): bool =
+  ## Checks if the provided gradient function `fGrad` gives the same values as numeric gradient.
+  let numGrad = tensorGradient(f, x0)
+  let grad = fGrad(x0)
+  result = true
+  for i, x in abs(numGrad - grad):
+    if x > tol:
+      echo fmt"Gradient at index {i[0]} has error: {x} (tol = {tol})"
+      result = false
 
 
 
