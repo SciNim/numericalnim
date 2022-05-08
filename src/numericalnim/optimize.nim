@@ -239,13 +239,18 @@ proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Te
             alpha = 1e2
             return
 
+template analyticOrNumericGradient(analytic, f, x, options: untyped): untyped =
+    if analytic.isNil:
+        tensorGradient(f, x, fastMode=options.fastMode)
+    else:
+        analytic(x)
 
-proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = steepestDescentOptions[U]()): Tensor[U] =
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = steepestDescentOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
     ## Minimize scalar-valued function f. 
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x0))
-    var gradient = tensorGradient(f, x0, fastMode=options.fastMode)
+    var gradient = analyticOrNumericGradient(analyticGradient, f, x0, options) #tensorGradient(f, x0, fastMode=options.fastMode)
     var gradNorm = vectorNorm(gradient)
     var iters: int
     while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
@@ -254,7 +259,7 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
         x += alpha * p
         let fx = f(x)
         fNorm = abs(fx)
-        gradient = tensorGradient(f, x, fastMode=options.fastMode)
+        gradient = analyticOrNumericGradient(analyticGradient, f, x, options) #tensorGradient(f, x, fastMode=options.fastMode)
         gradNorm = vectorNorm(gradient)
         iters += 1
     if iters >= 10000:
@@ -262,11 +267,11 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
     #echo iters, " iterations done!"
     result = x
 
-proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = newtonOptions[U]()): Tensor[U] =
+proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = newtonOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x))
-    var gradient = tensorGradient(f, x, fastMode=options.fastMode)
+    var gradient = analyticOrNumericGradient(analyticGradient, f, x0, options)
     var gradNorm = vectorNorm(gradient)
     var hessian = tensorHessian(f, x)
     var iters: int
@@ -276,7 +281,7 @@ proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options:
         x += alpha * p
         let fx = f(x)
         fNorm = abs(fx)
-        gradient = tensorGradient(f, x, fastMode=options.fastMode)
+        gradient = analyticOrNumericGradient(analyticGradient, f, x, options)
         gradNorm = vectorNorm(gradient)
         hessian = tensorHessian(f, x)
         iters += 1
@@ -285,7 +290,7 @@ proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options:
     #echo iters, " iterations done!"
     result = x
 
-proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false): Tensor[U] =
+proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false, analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
@@ -329,13 +334,13 @@ proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha:
     #echo iters, " iterations done!"
     result = x
 
-proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U]()): Tensor[U] =
+proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
     # Use gemm and gemv with preallocated Tensors and setting beta = 0
     var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
-    var gradient = 0.01*tensorGradient(f, x, fastMode=options.fastMode)
+    var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
     var gradNorm = vectorNorm(gradient)
     var hessianB = eye[T](xLen) # inverse of the approximated hessian
     var p = newTensor[U](xLen)
@@ -354,7 +359,7 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: O
         #echo "gradient iter ", iters, ": ", gradient
         line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
         x += alpha * p
-        let newGradient = tensorGradient(f, x, fastMode=options.fastMode)
+        let newGradient = analyticOrNumericGradient(analyticGradient, f, x, options) #tensorGradient(f, x, fastMode=options.fastMode)
         let sk = alpha * p.reshape(xLen, 1)
         
         let yk = (newGradient - gradient).reshape(xLen, 1)
@@ -409,12 +414,12 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: O
     #echo iters, " iterations done!"
     result = x
 
-proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U]()): Tensor[U] =
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
     var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
     var fNorm = abs(f(x))
-    var gradient = 0.01*tensorGradient(f, x, fastMode=options.fastMode)
+    var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
     var gradNorm = vectorNorm(gradient)
     var iters: int
     #let m = 10 # number of past iterations to save
@@ -447,7 +452,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
         line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
         x += alpha * p
         sk_queue.addFirst alpha*p
-        let newGradient = tensorGradient(f, x, fastMode=options.fastMode)
+        let newGradient = analyticOrNumericGradient(analyticGradient, f, x, options)
         let yk = newGradient - gradient
         yk_queue.addFirst yk
         gradient = newGradient

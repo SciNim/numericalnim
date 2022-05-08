@@ -70,12 +70,25 @@ suite "Multi-dim":
         ## Function of 2 variables with minimum at (1, 1)
         ## And it looks like a banana 🍌
         result = (1 - x[0])^2 + 100*(x[1] - x[0]^2)^2
+
+    proc bananaBend(x: Tensor[float]): Tensor[float] =
+        ## Calculates the gradient of the banana function
+        result = newTensor[float](2)
+        result[0] = -2 * (1 - x[0]) + 100 * 2 * (x[1] - x[0]*x[0]) * -2 * x[0] # this one is wrong
+        result[1] = 100 * 2 * (x[1] - x[0]*x[0])
     
     let x0 = [-1.0, -1.0].toTensor()
     let correct = [1.0, 1.0].toTensor()
 
+    doAssert checkGradient(bananaFunc, bananaBend, x0, 1e-6), "Analytic gradient is wrong in test!"
+
     test "Steepest Gradient":
         let xSol = steepestDescent(bananaFunc, x0.clone)
+        for x in abs(correct - xSol):
+            check x < 2e-2
+
+    test "Steepest Gradient analytic":
+        let xSol = steepestDescent(bananaFunc, x0.clone, analyticGradient=bananaBend)
         for x in abs(correct - xSol):
             check x < 2e-2
     
@@ -84,13 +97,28 @@ suite "Multi-dim":
         for x in abs(correct - xSol):
             check x < 3e-10
 
+    test "Newton analytic":
+        let xSol = newton(bananaFunc, x0.clone, analyticGradient=bananaBend)
+        for x in abs(correct - xSol):
+            check x < 3e-10
+
     test "BFGS":
         let xSol = bfgs(bananaFunc, x0.clone)
         for x in abs(correct - xSol):
             check x < 3e-7
 
+    test "BFGS analytic":
+        let xSol = bfgs(bananaFunc, x0.clone, analyticGradient=bananaBend)
+        for x in abs(correct - xSol):
+            check x < 3e-7
+
     test "L-BFGS":
         let xSol = lbfgs(bananaFunc, x0.clone)
+        for x in abs(correct - xSol):
+            check x < 7e-10
+
+    test "L-BFGS analytic":
+        let xSol = lbfgs(bananaFunc, x0.clone, analyticGradient=bananaBend)
         for x in abs(correct - xSol):
             check x < 7e-10
 
