@@ -8,5 +8,7 @@ import numericalnim/optimize
 export optimize
 import numericalnim/interpolate
 export interpolate
+import numericalnim/differentiate
+export differentiate
 import ./numericalnim/common/commonTypes
 export commonTypes

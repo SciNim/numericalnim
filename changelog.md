@@ -1,3 +1,33 @@
+# v0.8.0 - 09.05.2022
+## Optimization has joined the chat
+Multi-variate optimization and differentiation has been introduced.
+
+- `numericalnim/differentiate` offers `tensorGradient(f, x)` which calculates the gradient of `f` w.r.t `x` using finite differences, `tensorJacobian` (returns the transpose of the gradient), `tensorHessian`, `mixedDerivative`. It also provides `checkGradient(f, analyticGrad, x, tol)` to verify that the analytic gradient is correct by comparing it to the finite difference approximation.
+- `numericalnim/optimize` now has several multi-variate optimization methods:
+  - `steepestDescent`
+  - `newton`
+  - `bfgs`
+  - `lbfgs`
+  - They all have the function signatures like:
+    ```nim
+    proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U]
+    ```
+    where `f` is the function to be minimized, `x0` is the starting guess, `options` contain options like tolerance (each method has it own options type which can be created by for example `lbfgsOptions` or `newtonOptions`), `analyticGradient` can be supplied to avoid having to do finite difference approximations of the derivatives.
+  - There are 4 different line search methods supported and those are set in the `options`: `Armijo, Wolfe, WolfeStrong, NoLineSearch`.
+  - `levmarq`: non-linear least-square optimizer
+    ```nim
+    proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U]()): Tensor[U]
+    ```
+    - `f` is the function you want to fit to the parameters in `param` and `x` is the value to evaluate the function at. 
+    - `params0` is the initial guess for the parameters
+    - `xData` is a 1D Tensor with the x points and `yData` is a 1D Tensor with the y points.
+    - `options` can be created using `levmarqOptions`.
+    - Returns the final parameters
+  
+
+Note: There are basic tests to ensure these methods converge for simple problems, but they are not tested on more complex problems and should be considered experimental until more tests have been done. Please try them out, but don't rely on them for anything important for now. Also, the API isn't set in stone yet so expect that it may change in future versions.
+
+
 # v0.7.1 -25.01.2022
 
 Add a `nimCI` task for the Nim CI to run now that the tests have external dependencies.

@@ -1,7 +1,6 @@
-import strformat
+import std/[strformat, sequtils, math, deques]
 import arraymancer
-import sequtils
-import math
+import ./differentiate
 
 proc steepest_descent*(deriv: proc(x: float64): float64, start: float64, gamma: float64 = 0.01, precision: float64 = 1e-5, max_iters: Natural = 1000):float64 {.inline.} =
     ## Gradient descent optimization algorithm for finding local minimums of a function with derivative 'deriv'
@@ -120,9 +119,494 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
             raise newException(ArithmeticError, "Maximum iterations for Secant method exceeded")
     return xCurrent
 
+##############################
+## Multidimensional methods ##
+##############################
+
+type LineSearchCriterion = enum
+    Armijo, Wolfe, WolfeStrong, NoLineSearch
+
+type
+    OptimOptions*[U, AO] = object
+        tol*, alpha*: U
+        fastMode*: bool
+        maxIterations*: int
+        lineSearchCriterion*: LineSearchCriterion
+        algoOptions*: AO
+    StandardOptions* = object
+    LevMarqOptions*[U] = object
+        lambda0*: U
+    LBFGSOptions*[U] = object
+        savedIterations*: int
+
+proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), lambda0: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.lambda0 = lambda0
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc steepestDescentOptions*[U](tol: U = U(1e-6), alpha: U = U(0.001), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc newtonOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc bfgsOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+
+proc lbfgsOptions*[U](savedIterations: int = 10, tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LBFGSOptions[U]] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+    result.algoOptions.savedIterations = savedIterations
+
+proc levmarqOptions*[U](lambda0: U = U(1), tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LevMarqOptions[U]] =
+    result.tol = tol
+    result.alpha = alpha
+    result.fastMode = fastMode
+    result.maxIterations = maxIterations
+    result.lineSearchCriterion = lineSearchCriterion
+    result.algoOptions.lambda0 = lambda0
+
+
+
+
+proc vectorNorm*[T](v: Tensor[T]): T =
+    ## Calculates the norm of the vector, ie the sqrt(Σ vᵢ²)
+    assert v.rank == 1, "v must be a 1d vector!"
+    result = sqrt(v.dot(v))
+
+proc eye[T](n: int): Tensor[T] =
+    result = zeros[T](n, n)
+    for i in 0 ..< n:
+        result[i, i] = 1
+
+proc line_search*[U, T](alpha: var U, p: Tensor[T], x0: Tensor[U], f: proc(x: Tensor[U]): T, criterion: LineSearchCriterion, fastMode: bool = false) =
+    # note: set initial alpha for the methods as 1 / sqrt(dot(grad, grad)) so first step has length 1.
+    if criterion == NoLineSearch:
+        return
+    var gradient = tensorGradient(f, x0, fastMode=fastMode)
+    let dirDerivInit = dot(gradient, p)
+
+    if 0 < dirDerivInit:
+        # p is pointing uphill, use whatever alpha we currently have.
+        return
+
+    let fInit = f(x0)
+    var counter = 0
+    alpha = 1
+    while counter < 20:
+        let x = x0 + alpha * p
+        let fx = f(x)
+        gradient = tensorGradient(f, x, fastMode=fastMode)
+        counter += 1
+
+        if fx > fInit + 1e-4*alpha * dirDerivInit: # c1 = 1e-4 multiply as well? Doesn't seem to work
+            alpha *= 0.5
+        else:
+            if criterion == Armijo:
+                return
+            let dirDeriv = dot(gradient, p)
+            if dirDeriv < 0.9 * dirDerivInit:
+                alpha *= 2.1
+            else:
+                if criterion == Wolfe:
+                    return
+                if dirDeriv > -0.9*dirDerivInit:
+                    alpha *= 0.5
+                else:
+                    return
+        if alpha < 1e-3:
+            alpha = 1e-3
+            return
+        elif alpha > 1e2:
+            alpha = 1e2
+            return
+
+template analyticOrNumericGradient(analytic, f, x, options: untyped): untyped =
+    if analytic.isNil:
+        tensorGradient(f, x, fastMode=options.fastMode)
+    else:
+        analytic(x)
+
+proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = steepestDescentOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## Minimize scalar-valued function f. 
+    var alpha = options.alpha
+    var x = x0.clone()
+    var fNorm = abs(f(x0))
+    var gradient = analyticOrNumericGradient(analyticGradient, f, x0, options) #tensorGradient(f, x0, fastMode=options.fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var iters: int
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
+        let p = -gradient
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
+        x += alpha * p
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradient = analyticOrNumericGradient(analyticGradient, f, x, options) #tensorGradient(f, x, fastMode=options.fastMode)
+        gradNorm = vectorNorm(gradient)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = newtonOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    var alpha = options.alpha
+    var x = x0.clone()
+    var fNorm = abs(f(x))
+    var gradient = analyticOrNumericGradient(analyticGradient, f, x0, options)
+    var gradNorm = vectorNorm(gradient)
+    var hessian = tensorHessian(f, x)
+    var iters: int
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
+        let p = -solve(hessian, gradient)
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
+        x += alpha * p
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradient = analyticOrNumericGradient(analyticGradient, f, x, options)
+        gradNorm = vectorNorm(gradient)
+        hessian = tensorHessian(f, x)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha: U = U(1), tol: U = U(1e-6), fastMode: bool = false, analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    var x = x0.clone()
+    let xLen = x.shape[0]
+    var fNorm = abs(f(x))
+    var gradient = 0.01*tensorGradient(f, x, fastMode=fastMode)
+    var gradNorm = vectorNorm(gradient)
+    var hessianB = eye[T](xLen) # inverse of the approximated hessian
+    var iters: int
+    while gradNorm > tol*(1 + fNorm) and iters < 10000:
+        #echo "Hessian iter ", iters, ": ", hessianB
+        let p = -hessianB * gradient.reshape(xLen, 1)
+        #echo "p iter ", iters, ": ", p
+        x += alpha * p
+        let newGradient = tensorGradient(f, x, fastMode=fastMode)
+        let sk = alpha * p.reshape(xLen, 1)
+        #gemm(1.0, hessianB, hessianB, 0.0, newGradient)
+        let yk = (newGradient - gradient).reshape(xLen, 1)
+        let sk_yk_dot = dot(sk.squeeze, yk.squeeze)
+        let prefactor1 = (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot)
+        let prefactor2 = 1 / sk_yk_dot
+        let m1 = (sk * sk.transpose)
+        let m2_1 = (hessianB * yk) * sk.transpose
+        let m2_2 = sk * (yk.transpose * hessianB)
+        #echo "prefactor2: ", prefactor2
+        hessianB += prefactor1 * m1
+        #echo "hessian2: ", hessianB
+        #echo "hessian: ", hessianB
+        #echo "yk: ", yk
+        hessianB -= prefactor2 * m2_1
+        #echo "checkpoint1: ", (hessianB * yk)
+        #echo "hessian2.5: ", hessianB
+        hessianB -= prefactor2 * m2_2
+        #echo "hessian3: ", hessianB
+
+        gradient = newGradient
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradNorm = vectorNorm(gradient)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    # Use gemm and gemv with preallocated Tensors and setting beta = 0
+    var alpha = options.alpha
+    var x = x0.clone()
+    let xLen = x.shape[0]
+    var fNorm = abs(f(x))
+    var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
+    var gradNorm = vectorNorm(gradient)
+    var hessianB = eye[T](xLen) # inverse of the approximated hessian
+    var p = newTensor[U](xLen)
+    var tempVector1 = newTensor[U](xLen, 1)
+    var tempVector2 = newTensor[U](1, xLen)
+    var iters: int
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
+        # We are using hessianB in calculating it so we are modifying it prior to its use!
+
+
+        #echo "Hessian iter ", iters, ": ", hessianB
+        #let p = -hessianB * gradient.reshape(xLen, 1)
+        gemv(-1.0, hessianB, gradient.reshape(xLen, 1), 0.0, p)
+        #echo "p iter ", iters, ": ", p
+        #echo "x iter ", iters, ": ", x
+        #echo "gradient iter ", iters, ": ", gradient
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
+        x += alpha * p
+        let newGradient = analyticOrNumericGradient(analyticGradient, f, x, options) #tensorGradient(f, x, fastMode=options.fastMode)
+        let sk = alpha * p.reshape(xLen, 1)
+        
+        let yk = (newGradient - gradient).reshape(xLen, 1)
+        let sk_yk_dot = dot(sk.squeeze, yk.squeeze)
+        # gemm(1.0, hessianB, hessianB, 0.0, newGradient)
+        # Do the calculation in steps, minimizing allocations
+        # sk * sk.transpose is matrix × matrix
+        # how to deal with the vector.T × vector = Matrix? Use gemm? gemm() can be used as += if beta is set to 1.0
+        #echo "aim: ", hessianB + (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose) - ((hessianB * yk) * sk.transpose + sk * (yk.transpose * hessianB)) / sk_yk_dot
+        #echo "real Hessian: ", hessianB + (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose)
+        let prefactor1 = (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot)
+        let prefactor2 = 1 / sk_yk_dot
+        gemv(1.0, hessianB, yk, 0.0, tempVector1) # temp1 = hessianB * yk
+        gemm(1.0, yk.transpose, hessianB, 0.0, tempVector2) # temp2 = yk.transpose * hessianB
+
+        gemm(prefactor1, sk, sk.transpose, 1.0, hessianB) # hessianB += prefactor1 * sk * sk.transpose
+
+        gemm(-prefactor2, tempVector1, sk.transpose, 1.0, hessianB) # hessianB -= prefactor2 * temp1 * sk.transpose
+
+        gemm(-prefactor2, sk, tempVector2, 1.0, hessianB) # hessianB -= prefactor2 * sk * temp2
+        #echo "hessian2: ", hessianB # This is correct
+        
+        # somewhere down here the error occurs!↓
+
+        # reuse vector p:
+        #gemv(1.0, hessianB, yk, 0.0, tempVector1) # temp1 = hessianB * yk
+        #echo "checkpoint1: ", tempVector1 # this is incorrect!!!
+
+        #
+        #
+        # Rewrite with transposes as gemv instead!
+        # (A * B)^T = B^T * A^T → yk.transpose * hessianB = transpose(hessianB.transpose * yk)
+        #
+
+        #gemm(1.0, yk.transpose, hessianB, 0.0, p) 
+        #gemv(1.0, hessianB.transpose, yk, 0.0, tempVector) # p = yk.transpose * hessianB
+        #tempVector = tempVector.transpose
+
+        
+        #echo "hessian3: ", hessianB
+
+        #hessianB += (sk_yk_dot + dot(yk.squeeze, squeeze(hessianB * yk))) / (sk_yk_dot * sk_yk_dot) * (sk * sk.transpose) - ((hessianB * yk) * sk.transpose + sk * (yk.transpose * hessianB)) / sk_yk_dot
+        #tempVector = tempVector.transpose # reverse it back to column vector
+        
+        gradient = newGradient
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradNorm = vectorNorm(gradient)
+        iters += 1
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    var alpha = options.alpha
+    var x = x0.clone()
+    let xLen = x.shape[0]
+    var fNorm = abs(f(x))
+    var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
+    var gradNorm = vectorNorm(gradient)
+    var iters: int
+    #let m = 10 # number of past iterations to save
+    var sk_queue = initDeque[Tensor[U]](m)
+    var yk_queue = initDeque[Tensor[T]](m)
+    # the problem is the first iteration as the gradient is huge and no adjustments are made
+    while gradNorm > options.tol*(1 + fNorm) and iters < 10000:
+        #echo "grad: ", gradient
+        #echo "x: ", x
+        var q = gradient.clone()
+        # we want to loop from latest inserted to oldest
+        # → we insert at the beginning and pop at the end
+        var alphas: seq[U]
+        for i in 0 ..< sk_queue.len:
+            let rho_i = 1 / dot(sk_queue[i], yk_queue[i])
+            let alpha_i = rho_i * dot(sk_queue[i], q)
+            q -= alpha_i * yk_queue[i]
+            alphas.add alpha_i
+        let gamma = if sk_queue.len == 0: 1.0 else: dot(sk_queue[0], yk_queue[0]) / dot(yk_queue[0], yk_queue[0])
+        #echo gamma
+        var z = gamma * q
+        for i in countdown(sk_queue.len - 1, 0):
+            let rho_i = 1 / dot(sk_queue[i], yk_queue[i])
+            let beta_i = rho_i * dot(yk_queue[i], z)
+            let alpha_i = alphas[i]
+            z += sk_queue[i] * (alpha_i - beta_i)
+        z = -z
+        let p = z
+        #echo "q: ", q
+        line_search(alpha, p, x, f, options.lineSearchCriterion, options.fastMode)
+        x += alpha * p
+        sk_queue.addFirst alpha*p
+        let newGradient = analyticOrNumericGradient(analyticGradient, f, x, options)
+        let yk = newGradient - gradient
+        yk_queue.addFirst yk
+        gradient = newGradient
+        let fx = f(x)
+        fNorm = abs(fx)
+        gradNorm = vectorNorm(gradient)
+        if sk_queue.len > m: discard sk_queue.popLast
+        if yk_queue.len > m: discard yk_queue.popLast
+        iters += 1
+
+    if iters >= 10000:
+        discard "Limit of 10000 iterations reached!"
+    #echo iters, " iterations done!"
+    result = x
+
+proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U]()): Tensor[U] =
+    assert xData.rank == 1
+    assert yData.rank == 1
+    assert params0.rank == 1
+    let xLen = xData.shape[0]
+    let yLen = yData.shape[0]
+    let paramsLen = params0.shape[0]
+    assert xLen == yLen
+
+    let residualFunc = # proc that returns the residual vector
+        proc (params: Tensor[U]): Tensor[T] =
+            result = map2_inline(xData, yData):
+                f(params, x) - y
+
+    let errorFunc = # proc that returns the scalar error
+        proc (params: Tensor[U]): T =
+            let res = residualFunc(params)
+            result = dot(res, res)
+
+    var lambdaCoeff = options.algoOptions.lambda0
+
+    var params = params0.clone()
+    var gradient = tensorGradient(residualFunc, params, fastMode=options.fastMode)
+    var residuals = residualFunc(params)
+    var resNorm = vectorNorm(residuals)
+    var gradNorm = vectorNorm(squeeze(gradient * residuals.reshape(xLen, 1)))
+    var iters: int
+    let eyeNN = eye[T](paramsLen)
+    while gradNorm > options.tol*(1 + resNorm) and iters < 10000:
+        let rhs = -gradient * residuals.reshape(xLen, 1)
+        let lhs = gradient * gradient.transpose + lambdaCoeff * eyeNN
+        let p = solve(lhs, rhs)
+        params += p * options.alpha
+        gradient = tensorGradient(residualFunc, params, fastMode=options.fastMode)
+        residuals = residualFunc(params)
+        let newGradNorm = vectorNorm(squeeze(gradient * residuals.reshape(xLen, 1)))
+        if newGradNorm / gradNorm < 0.9: # we have improved, decrease lambda → more Gauss-Newton
+            lambdaCoeff = max(lambdaCoeff / 3, 1e-4)
+        elif newGradNorm / gradNorm > 1.2: # we have done worse than last ste, increase lambda → more Steepest descent
+            lambdaCoeff = min(lambdaCoeff * 2, 20)
+        # else: don't change anything
+        gradNorm = newGradNorm
+        resNorm = vectorNorm(residuals)
+        iters += 1
+    if iters == 10000:
+        echo "levmarq reached maximum number of iterations!"
+    result = params
+
+
+        
+when isMainModule:
+    import benchy
+    # Steepest descent:
+    proc f1(x: Tensor[float]): float =
+        # result = -20*exp(-0.2*sqrt(0.5 * (x[0]*x[0] + x[1]*x[1]))) - exp(0.5*(cos(2*PI*x[0]) + cos(2*PI*x[1]))) + E + 20 # Ackley
+        result = (1 - x[0])^2 + 100*(x[1] - x[0]^2)^2
+        if x.shape[0] > 2:
+            for ix in x[2 .. _]:
+                result += (ix - 1)^2
     
+    #let x0 = [-0.5, 2.0].toTensor
+    let x0 = ones[float](100) * -1
+    #[ let sol1 = steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true)
+    echo sol1
+    echo f1(sol1)
+    echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=false)
+    echo "Newton: ", newton(f1, x0, tol=1e-8, fastMode=true)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
+    echo "LBFGS:", lbfgs(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
+    echo "BFGS: ", bfgs(f1, x0, tol=1e-8, fastMode=true)
+    echo "BFGS opt: ", bfgs_optimized(f1, x0, tol=1e-8, fastMode=true) ]#
+
+    #[ echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=None)
+    echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Armijo)
+    echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Wolfe)
+    echo bfgs_optimized(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=WolfeStrong)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=None)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Armijo)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=Wolfe)
+    echo lbfgs(f1, x0, tol=1e-8, alpha=0.001, fastMode=false, criterion=WolfeStrong) ]#
+
+    #[ timeIt "steepest slow mode None":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=None)
+
+    timeIt "steepest slow mode Armijo":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Armijo)
+
+    timeIt "steepest slow mode Wolfe":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Wolfe)
+
+    timeIt "steepest slow mode WolfeStrong":
+        keep bfgs_optimized(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=WolfeStrong)
+
+    timeIt "steepest slow mode None":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=None)
+
+    timeIt "steepest slow mode Armijo":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Armijo)
+
+    timeIt "steepest slow mode Wolfe":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=Wolfe)
+
+    timeIt "steepest slow mode WolfeStrong":
+        keep lbfgs(f1, x0, tol=1e-8, alpha=1, fastMode=false, criterion=WolfeStrong) ]#
+#[     timeIt "newton slow mode":
+        keep newton(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "newton fast mode":
+        keep newton(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "bfgs slow mode":
+        keep bfgs(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "bfgs fast mode":
+        keep bfgs(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "lbfgs slow mode":
+        keep lbfgs(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "lbfgs fast mode":
+        keep lbfgs(f1, x0, tol=1e-8, fastMode=true)
+    timeIt "optimized bfgs slow mode":
+        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=false)
+    timeIt "optimized bfgs fast mode":
+        keep bfgs_optimized(f1, x0, tol=1e-8, fastMode=true) 
+    timeIt "steepest fast mode":
+        keep steepestDescent(f1, x0, tol=1e-8, alpha=0.001, fastMode=true) ]#
 
 
+    # Lev-Marq:
+#[     proc fFit(params: Tensor[float], x: float): float =
+        params[0] + params[1] * x + params[2] * x*x
+    
+    let xData = arraymancer.linspace(0, 10, 100)
+    let yData = 1.5 +. xData * 6.28 + xData *. xData * -5.79 + randomNormalTensor[float](xData.shape[0], 0.0, 0.1)
+    let params0 = [0.0, 0.0, 0.0].toTensor
+    echo levmarq(fFit, params0, xData, yData)
+    timeIt "slow mode":
+        keep levmarq(fFit, params0, xData, yData, fastMode=false)
+    timeIt "fast mode":
+        keep levmarq(fFit, params0, xData, yData, fastMode=true) ]#
 
 
 
