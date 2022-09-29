@@ -417,7 +417,7 @@ proc romberg*[T](Y: openArray[T], X: openArray[float]): T =
 
 proc getGaussLegendreWeights(nPoints: int): tuple[nodes: seq[float], weights: seq[float]] {.inline.} =
     assert(0 < nPoints and nPoints <= 20, "nPoints must be an integer between 1 and 20.")
-    const gaussWeights: array[1..20, (seq, seq)] = [
+    const gaussWeights: array[1..20, (seq[float], seq[float])] = [
         (@[0.0],
          @[2.0]),
         (@[-0.5773502691896257645092, 0.5773502691896257645092],
