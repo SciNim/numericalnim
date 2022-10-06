@@ -2,6 +2,9 @@ import std/[strformat, sequtils, math, deques]
 import arraymancer
 import ./differentiate
 
+when not defined(nimHasEffectsOf):
+  {.pragma: effectsOf.}
+
 proc steepest_descent*(deriv: proc(x: float64): float64, start: float64, gamma: float64 = 0.01, precision: float64 = 1e-5, max_iters: Natural = 1000):float64 {.inline.} =
     ## Gradient descent optimization algorithm for finding local minimums of a function with derivative 'deriv'
     ## 
@@ -75,7 +78,11 @@ proc conjugate_gradient*[T](A, b, x_0: Tensor[T], tolerance: float64): Tensor[T]
         rsold = rsnew
     
 
-proc newtons*(f: proc(x: float64): float64, deriv: proc(x: float64): float64, start: float64, precision: float64 = 1e-5, max_iters: Natural = 1000): float64 {.raises: [ArithmeticError].} =
+proc newtons*(f: proc(x: float64): float64,
+              deriv: proc(x: float64): float64,
+              start: float64, precision: float64 = 1e-5,
+              max_iters: Natural = 1000
+              ): float64{.raises: [ArithmeticError], effectsOf: [f, deriv].} =
     ## Newton-Raphson implementation for 1-dimensional functions
 
     ## Given a single variable function f and it's derivative, calcuate an approximation to f(x) = 0
