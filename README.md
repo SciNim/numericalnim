@@ -112,8 +112,7 @@ These are the implemented ODE integrators:
 - `Kutta4` - Kutta's 4th order fixed timestep method.
 - `RK4` - The standard 4th order, fixed timestep method we all know and love.
 - `Tsit54` - Tsitouras adaptive 5th order method.
-- `Vern65` - Verner's "most efficient" 6th order adaptive timestep method.
-- `Vern76` - Verner's "most efficient" 7th order adaptive timestep method.
+- `Vern65` - Verner's "most efficient" 6th order adaptive timestep method. (https://www.sfu.ca/~jverner/)
 
 
 
