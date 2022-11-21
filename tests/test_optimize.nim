@@ -122,6 +122,13 @@ suite "Multi-dim":
         for x in abs(correct - xSol):
             check x < 7e-10
 
+    test "Line Search options":
+        for ls in LineSearchCriterion:
+            let op = lbfgsOptions[float](lineSearchCriterion=ls)
+            let xSol = lbfgs(bananaFunc, x0.clone, options=op, analyticGradient=bananaBend)
+            for x in abs(correct - xSol):
+                check x < 7e-8
+
     let correctParams = [10.4, -0.45].toTensor()
     proc fitFunc(params: Tensor[float], x: float): float =
         params[0] * exp(params[1] * x)
