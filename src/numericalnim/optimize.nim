@@ -130,7 +130,7 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
 ## Multidimensional methods ##
 ##############################
 
-type LineSearchCriterion = enum
+type LineSearchCriterion* = enum
     Armijo, Wolfe, WolfeStrong, NoLineSearch
 
 type
