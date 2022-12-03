@@ -3,7 +3,10 @@ import arraymancer, cdt/[dt, vectors, edges, types]
 import
   ./utils,
   ./common/commonTypes,
-  ./private/arraymancerOverloads
+  ./private/arraymancerOverloads,
+  ./rbf
+
+export rbf
 
 type
   InterpolatorType*[T] = ref object

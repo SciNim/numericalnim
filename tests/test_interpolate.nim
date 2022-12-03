@@ -1,7 +1,6 @@
-import unittest, math, sequtils
+import unittest, math, sequtils, random
 import numericalnim
 import arraymancer
-
 
 proc f(x: float): float = sin(x)
 proc df(x: float): float = cos(x)
@@ -411,3 +410,17 @@ test "Trilinear f = x*y*z T: Tensor[float]":
                check abs(spline.eval(i, j, k)[0] - i*j*k) < 1e-12
                check abs(spline.eval(i, j, k)[1] - i*j*k) < 1e-12
                check abs(spline.eval(i, j, k)[2] - 1) < 1e-16
+
+test "rbf f=x*y*z":
+    randomize(1337)
+    let pos = randomTensor[float](100, 3, 1.0)
+    let vals = pos[_, 0] *. pos[_, 1] *. pos[_, 2]
+    let rbfObj = newRbf(pos, vals)
+
+    # We want test points in the interior to avoid the edges
+    let xTest = meshgrid(arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10))
+    let yTest = rbfObj.eval(xTest)
+    let yCorrect = xTest[_, 0] *. xTest[_, 1] *. xTest[_, 2]
+    for x in abs(yCorrect - yTest):
+        check x < 0.16
+    check mean_squared_error(yTest, yCorrect) < 2e-4
