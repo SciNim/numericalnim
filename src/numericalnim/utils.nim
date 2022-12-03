@@ -410,6 +410,31 @@ proc meshgridFlat*[T](x, y: Tensor[T]): (Tensor[T], Tensor[T]) =
       result[0][i+j*nx] = x[i]
       result[1][i+j*nx] = y[j]
 
+proc meshgridInternal[T](x1, x2: Tensor[T]): Tensor[T] =
+  assert x2.squeeze().shape.len == 1
+  assert x1.shape.len in [1, 2]
+  let x1 =
+    if x1.shape.len == 2:
+      x1
+    else:
+      x1.unsqueeze(1)
+  let len1 = x1.shape[0]
+  let cols1 = x1.shape[1]
+  let len2 = x2.shape[0]
+  result = newTensor[T](len1 * len2, cols1 + 1)
+  for i in 0 ..< len2:
+    result[i*len1 ..< (i+1)*len1, 0 ..< cols1] = x1
+    result[i*len1 ..< (i+1)*len1, ^1] = x2[i]
+
+proc meshgrid*[T](ts: varargs[Tensor[T]]): Tensor[T] =
+  if ts.len == 1:
+    result = ts[0]
+  elif ts.len == 0:
+    assert false, "No input was given to meshgrid!"
+  else:
+    result = ts[0]
+    for x in ts[1..^1]:
+      result = meshgridInternal(result, x)
 
 proc isClose*[T](y1, y2: T, tol: float = 1e-3): bool {.inline.} =
   let diff = calcError(y1, y2)
