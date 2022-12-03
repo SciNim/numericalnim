@@ -1,4 +1,4 @@
-import unittest, math, sequtils, random
+import unittest, math, sequtils
 import numericalnim
 import arraymancer
 
@@ -412,8 +412,7 @@ test "Trilinear f = x*y*z T: Tensor[float]":
                check abs(spline.eval(i, j, k)[2] - 1) < 1e-16
 
 test "rbf f=x*y*z":
-    randomize(1337)
-    let pos = randomTensor[float](100, 3, 1.0)
+    let pos = meshgrid(arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5))
     let vals = pos[_, 0] *. pos[_, 1] *. pos[_, 2]
     let rbfObj = newRbf(pos, vals)
 
