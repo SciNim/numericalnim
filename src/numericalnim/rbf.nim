@@ -12,7 +12,9 @@ type
     f*: RbfFunc
 
   RbfGrid*[T] = object
-    grid*: seq[seq[T]]
+    indices*: seq[seq[int]]
+    values*: Tensor[T]
+    points*: Tensor[float]
     gridSize*, gridDim*: int
     gridDelta*: float
 
@@ -25,24 +27,29 @@ type
 template km(point: Tensor[float], index: int, delta: float): int =
   int(ceil(point[0, index] / delta))
 
+iterator neighbours*[T](grid: RbfGrid[T], k: int): int =
+  discard
+
 proc findIndex*[T](grid: RbfGrid[T], point: Tensor[float]): int =
   result = km(point, grid.gridDim - 1, grid.gridDelta) - 1
   for i in 0 ..< grid.gridDim - 1:
     result += (km(point, i, grid.gridDelta) - 1) * grid.gridSize ^ (grid.gridDim - i - 1)
 
-proc newRbfGrid*[T](points: Tensor[float], values: seq[T], gridSize: int = 0): RbfGrid[T] =
+proc newRbfGrid*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0): RbfGrid[T] =
   let nPoints = points.shape[0]
   let nDims = points.shape[1]
   let gridSize =
     if gridSize > 0:
       gridSize
     else:
-      int(round(pow(nPoints.float, 1 / nDims) / 2))
+      max(int(round(pow(nPoints.float, 1 / nDims) / 2)), 1)
   let delta = 1 / gridSize
-  result = RbfGrid[T](gridSize: gridSize, gridDim: nDims, gridDelta: delta, grid: newSeq[seq[T]](gridSize ^ nDims))
+  result = RbfGrid[T](gridSize: gridSize, gridDim: nDims, gridDelta: delta, indices: newSeq[seq[int]](gridSize ^ nDims))
   for row in 0 ..< nPoints:
     let index = result.findIndex(points[row, _])
-    result.grid[index].add values[row] 
+    result.indices[index].add row
+  result.values = values
+  result.points = points
 
 
 # Idea: blocked distance matrix for better cache friendliness
@@ -106,6 +113,6 @@ when isMainModule:
   let rbfPu = newRbfPu(x1, values, 3)
 
   echo "----------------"
-  let xGrid = [[0.1, 0.1], [0.9, 0.9], [0.4, 0.4]].toTensor
-  let valuesGrid = @[0, 9, 5]
+  let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
+  let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
   echo newRbfGrid(xGrid, valuesGrid, 3)
