@@ -1,5 +1,6 @@
-import std / [math, algorithm, tables]
+import std / [math, algorithm, tables, sequtils]
 import arraymancer
+import ./utils
 
 
 type
@@ -20,9 +21,8 @@ type
 
   RbfPUType*[T] = object
     limits*: tuple[upper: Tensor[float], lower: Tensor[float]]
-    # Don't hard-code in the patches, this is just for lookup to construct the patches
-    # 
-    grid*: seq[RbfType[T]]
+    grid*: RbfGrid[RbfType[T]]
+    nValues*: int
 
 template km(point: Tensor[float], index: int, delta: float): int =
   int(ceil(point[0, index] / delta))
@@ -30,10 +30,33 @@ template km(point: Tensor[float], index: int, delta: float): int =
 iterator neighbours*[T](grid: RbfGrid[T], k: int): int =
   discard
 
+iterator neighboursIncludingCenter*[T](grid: RbfGrid[T], k: int): int =
+  yield k
+  for x in grid.neighbours(k):
+    yield x
+
 proc findIndex*[T](grid: RbfGrid[T], point: Tensor[float]): int =
   result = km(point, grid.gridDim - 1, grid.gridDelta) - 1
   for i in 0 ..< grid.gridDim - 1:
     result += (km(point, i, grid.gridDelta) - 1) * grid.gridSize ^ (grid.gridDim - i - 1)
+
+proc constructMeshedPatches*[T](grid: RbfGrid[T]): Tensor[float] =
+  meshgrid(@[arraymancer.linspace(0 + grid.gridDelta / 2, 1 - grid.gridDelta / 2, grid.gridSize)].cycle(grid.gridDim))
+
+template dist2(p1, p2: Tensor[float]): float =
+  var result = 0.0
+  for i in 0 ..< p1.shape[1]:
+    let diff = p1[0, i] - p2[0, i]
+    result += diff * diff
+  result
+
+proc findAllWithin*[T](grid: RbfGrid[T], x: Tensor[float], rho: float): seq[int] =
+  assert x.shape.len == 2 and x.shape[0] == 1
+  let index = grid.findIndex(x)
+  for k in grid.neighboursIncludingCenter(index):
+    for i in grid.indices[k]:
+      if dist2(x, grid.points[i, _]) <= rho*rho:
+        result.add i
 
 proc newRbfGrid*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0): RbfGrid[T] =
   let nPoints = points.shape[0]
@@ -51,7 +74,6 @@ proc newRbfGrid*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0)
   result.values = values
   result.points = points
 
-
 # Idea: blocked distance matrix for better cache friendliness
 proc distanceMatrix(p1, p2: Tensor[float]): Tensor[float] =
   ## Returns distance matrix of shape (n_points, n_points)
@@ -67,6 +89,9 @@ proc distanceMatrix(p1, p2: Tensor[float]): Tensor[float] =
         r2 += diff * diff
       result[i, j] = sqrt(r2)
 
+template compactRbfFuncScalar*(r: float, epsilon: float): float =
+  (1 - r/epsilon) ^ 4 * (4*r/epsilon + 1) * float(r < epsilon)
+
 proc compactRbfFunc*(r: Tensor[float], epsilon: float): Tensor[float] =
   result = map_inline(r):
     (1 - x/epsilon) ^ 4 * (4*x/epsilon + 1) * float(x < epsilon)
@@ -80,39 +105,79 @@ proc newRbf*[T](points: Tensor[float], values: Tensor[T], rbfFunc: RbfFunc = com
 
 proc eval*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
   let dist = distanceMatrix(rbf.points, x)
+  echo dist
   let A = rbf.f(dist, rbf.epsilon)
+  echo A
+  echo "---------------"
   result = A * rbf.coeffs
 
 proc scalePoint*(x: Tensor[float], limits: tuple[upper: Tensor[float], lower: Tensor[float]]): Tensor[float] =
-  (x -. limits.lower) /. (limits.upper - limits.lower)
+  let lower = limits.lower -. 0.01
+  let upper = limits.upper +. 0.01
+  (x -. lower) /. (upper - lower)
 
-proc gridIndex*(limits: tuple[upper: Tensor[float], lower: Tensor[float]], gridSide: int): int =
-  discard
-
-proc newRbfPu*[T](points: Tensor[float], values: Tensor[T], gridSide: int, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfType[T] =
+proc newRbfPu*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfPUType[T] =
+  assert points.shape[0] == values.shape[0]
+  assert points.shape.len == 2 and values.shape.len == 2
   let upperLimit = max(points, 0)
   let lowerLimit = min(points, 0)
-  let limits = (upper: upperLimit, lower: lowerLimit)
+  let limits = (upper: upperLimit, lower: lowerLimit) # move this buff to scalePoint
   let scaledPoints = points.scalePoint(limits)
-  echo scaledPoints
-  echo limits
+  let dataGrid = newRbfGrid(scaledPoints, values, gridSize)
+  let patchPoints = dataGrid.constructMeshedPatches()
+  let nPatches = patchPoints.shape[0]
+  var patchRbfs: seq[RbfType[T]] #= newTensor[RbfType[T]](nPatches, 1)
+  var patchIndices: seq[int]
+  for i in 0 ..< nPatches:
+    let indices = dataGrid.findAllWithin(patchPoints[i, _], dataGrid.gridDelta)
+    if indices.len > 0:
+      patchRbfs.add newRbf(dataGrid.points[indices,_], values[indices, _], epsilon=dataGrid.gridDelta)
+      patchIndices.add i
+
+  let patchGrid = newRbfGrid(patchPoints[patchIndices, _], patchRbfs.toTensor.unsqueeze(1), gridSize)
+  result = RbfPUType[T](limits: limits, grid: patchGrid, nValues: values.shape[1])
+
+proc eval*[T](rbf: RbfPUType[T], x: Tensor[float]): Tensor[T] =
+  assert x.shape.len == 2
+  assert (not ((x <=. rbf.limits.upper) and (x >=. rbf.limits.lower))).astype(int).sum() == 0, "Some of your points are outside the allowed limits" 
+  let nPoints = x.shape[0] 
+  let x = x.scalePoint(rbf.limits)
+  result = newTensor[T](nPoints, rbf.nValues)
+  for row in 0 ..< nPoints:
+    let p = x[row, _]
+    let indices = rbf.grid.findAllWithin(p, rbf.grid.gridDelta)
+    if indices.len > 0:
+      var c = 0.0
+      for i in indices:
+        let center = rbf.grid.points[i, _]
+        let r = sqrt(dist2(p, center))
+        let ci = compactRbfFuncScalar(r, rbf.grid.gridDelta)
+        c += ci
+        let val = rbf.grid.values[i, 0].eval(p)
+        result[row, _] = result[row, _] + ci * val
+      result[row, _] = result[row, _] / c
+    else:
+      result[row, _] = T(Nan) # allow to pass default value to newRbfPU?
 
 when isMainModule:
-  let x1 = @[@[0.0, 0.0, 0.0], @[1.0, 1.0, 0.0], @[1.0, 2.0, 4.0]].toTensor
+  let x1 = @[@[0.01, 0.01, 0.01], @[1.0, 1.0, 0.0], @[1.0, 2.0, 4.0]].toTensor
   let x2 = @[@[0.0, 0.0, 1.0], @[1.0, 1.0, 2.0], @[1.0, 2.0, 3.0]].toTensor
-  echo distanceMatrix(x1, x1)
-  let values = @[0.0, 1.0, 2.0].toTensor
-  echo newRbf(x1, values, epsilon=10)
+  #echo distanceMatrix(x1, x1)
+  let values = @[0.1, 1.0, 2.0].toTensor.unsqueeze(1)
+  #echo newRbf(x1, values, epsilon=10)
 
   import benchy
 
-  let pos = randomTensor(5000, 3, 1.0)
-  let vals = randomTensor(5000, 1, 1.0)
+  #let pos = randomTensor(5000, 3, 1.0)
+  #let vals = randomTensor(5000, 1, 1.0)
   # timeIt "Rbf":
   #  keep newRbf(pos, vals)
   let rbfPu = newRbfPu(x1, values, 3)
+  echo rbfPu.grid.values[1, 0]
+  #echo rbfPu.eval(x1[[2, 1, 0], _])
 
+  echo rbfPu.eval(sqrt x1)
   echo "----------------"
-  let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
-  let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
-  echo newRbfGrid(xGrid, valuesGrid, 3)
+  #let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
+  #let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
+  #echo newRbfGrid(xGrid, valuesGrid, 3)
