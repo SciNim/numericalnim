@@ -11,6 +11,40 @@ type
     epsilon*: float
     f*: RbfFunc
 
+  RbfGrid*[T] = object
+    grid*: seq[seq[T]]
+    gridSize*, gridDim*: int
+    gridDelta*: float
+
+  RbfPUType*[T] = object
+    limits*: tuple[upper: Tensor[float], lower: Tensor[float]]
+    # Don't hard-code in the patches, this is just for lookup to construct the patches
+    # 
+    grid*: seq[RbfType[T]]
+
+template km(point: Tensor[float], index: int, delta: float): int =
+  int(ceil(point[0, index] / delta))
+
+proc findIndex*[T](grid: RbfGrid[T], point: Tensor[float]): int =
+  result = km(point, grid.gridDim - 1, grid.gridDelta) - 1
+  for i in 0 ..< grid.gridDim - 1:
+    result += (km(point, i, grid.gridDelta) - 1) * grid.gridSize ^ (grid.gridDim - i - 1)
+
+proc newRbfGrid*[T](points: Tensor[float], values: seq[T], gridSize: int = 0): RbfGrid[T] =
+  let nPoints = points.shape[0]
+  let nDims = points.shape[1]
+  let gridSize =
+    if gridSize > 0:
+      gridSize
+    else:
+      int(round(pow(nPoints.float, 1 / nDims) / 2))
+  let delta = 1 / gridSize
+  result = RbfGrid[T](gridSize: gridSize, gridDim: nDims, gridDelta: delta, grid: newSeq[seq[T]](gridSize ^ nDims))
+  for row in 0 ..< nPoints:
+    let index = result.findIndex(points[row, _])
+    result.grid[index].add values[row] 
+
+
 # Idea: blocked distance matrix for better cache friendliness
 proc distanceMatrix(p1, p2: Tensor[float]): Tensor[float] =
   ## Returns distance matrix of shape (n_points, n_points)
@@ -42,8 +76,22 @@ proc eval*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
   let A = rbf.f(dist, rbf.epsilon)
   result = A * rbf.coeffs
 
+proc scalePoint*(x: Tensor[float], limits: tuple[upper: Tensor[float], lower: Tensor[float]]): Tensor[float] =
+  (x -. limits.lower) /. (limits.upper - limits.lower)
+
+proc gridIndex*(limits: tuple[upper: Tensor[float], lower: Tensor[float]], gridSide: int): int =
+  discard
+
+proc newRbfPu*[T](points: Tensor[float], values: Tensor[T], gridSide: int, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfType[T] =
+  let upperLimit = max(points, 0)
+  let lowerLimit = min(points, 0)
+  let limits = (upper: upperLimit, lower: lowerLimit)
+  let scaledPoints = points.scalePoint(limits)
+  echo scaledPoints
+  echo limits
+
 when isMainModule:
-  let x1 = @[@[0.0, 0.0, 0.0], @[1.0, 1.0, 0.0], @[1.0, 2.0, 0.0]].toTensor
+  let x1 = @[@[0.0, 0.0, 0.0], @[1.0, 1.0, 0.0], @[1.0, 2.0, 4.0]].toTensor
   let x2 = @[@[0.0, 0.0, 1.0], @[1.0, 1.0, 2.0], @[1.0, 2.0, 3.0]].toTensor
   echo distanceMatrix(x1, x1)
   let values = @[0.0, 1.0, 2.0].toTensor
@@ -53,6 +101,11 @@ when isMainModule:
 
   let pos = randomTensor(5000, 3, 1.0)
   let vals = randomTensor(5000, 1, 1.0)
-  timeIt "Rbf":
-    keep newRbf(pos, vals)
+  # timeIt "Rbf":
+  #  keep newRbf(pos, vals)
+  let rbfPu = newRbfPu(x1, values, 3)
 
+  echo "----------------"
+  let xGrid = [[0.1, 0.1], [0.9, 0.9], [0.4, 0.4]].toTensor
+  let valuesGrid = @[0, 9, 5]
+  echo newRbfGrid(xGrid, valuesGrid, 3)
