@@ -28,12 +28,31 @@ template km(point: Tensor[float], index: int, delta: float): int =
   int(ceil(point[0, index] / delta))
 
 iterator neighbours*[T](grid: RbfGrid[T], k: int): int =
-  discard
+  # TODO: Create product iterator that doesn't need to allocate 3^gridDim seqs
+  for dir in product(@[@[-1, 0, 1]].cycle(grid.gridDim)):
+    block loopBody:
+      var kNeigh = k
+      for i, x in dir:
+        let step = grid.gridSize ^ (grid.gridDim - i - 1)
+        if i == dir.high and k mod grid.gridSize == 0 and x == -1:
+          break loopBody
+        elif i == dir.high and k mod grid.gridSize == grid.gridSize - 1 and x == 1:
+          break loopBody
+        elif k div step == 0 and x == -1:
+          break loopBody
+        elif k div step == grid.gridSize - 1 and x == 1:
+          break loopBody
+        else:
+          kNeigh += x * step
+      if kNeigh >= 0 and kNeigh < grid.gridSize ^ grid.gridDim:
+        echo kNeigh, ": ", dir
+        yield kNeigh
 
-iterator neighboursIncludingCenter*[T](grid: RbfGrid[T], k: int): int =
-  yield k
+
+iterator neighboursExcludingCenter*[T](grid: RbfGrid[T], k: int): int =
   for x in grid.neighbours(k):
-    yield x
+    if x != k:
+      yield x
 
 proc findIndex*[T](grid: RbfGrid[T], point: Tensor[float]): int =
   result = km(point, grid.gridDim - 1, grid.gridDelta) - 1
@@ -53,7 +72,7 @@ template dist2(p1, p2: Tensor[float]): float =
 proc findAllWithin*[T](grid: RbfGrid[T], x: Tensor[float], rho: float): seq[int] =
   assert x.shape.len == 2 and x.shape[0] == 1
   let index = grid.findIndex(x)
-  for k in grid.neighboursIncludingCenter(index):
+  for k in grid.neighbours(index):
     for i in grid.indices[k]:
       if dist2(x, grid.points[i, _]) <= rho*rho:
         result.add i
@@ -105,10 +124,7 @@ proc newRbf*[T](points: Tensor[float], values: Tensor[T], rbfFunc: RbfFunc = com
 
 proc eval*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
   let dist = distanceMatrix(rbf.points, x)
-  echo dist
   let A = rbf.f(dist, rbf.epsilon)
-  echo A
-  echo "---------------"
   result = A * rbf.coeffs
 
 proc scalePoint*(x: Tensor[float], limits: tuple[upper: Tensor[float], lower: Tensor[float]]): Tensor[float] =
@@ -172,12 +188,14 @@ when isMainModule:
   #let vals = randomTensor(5000, 1, 1.0)
   # timeIt "Rbf":
   #  keep newRbf(pos, vals)
-  let rbfPu = newRbfPu(x1, values, 3)
-  echo rbfPu.grid.values[1, 0]
+  #let rbfPu = newRbfPu(x1, values, 3)
+  #echo rbfPu.grid.values[1, 0]
   #echo rbfPu.eval(x1[[2, 1, 0], _])
 
-  echo rbfPu.eval(sqrt x1)
+  #echo rbfPu.eval(sqrt x1)
   echo "----------------"
-  #let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
-  #let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
-  #echo newRbfGrid(xGrid, valuesGrid, 3)
+  let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
+  let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
+  let grid = newRbfGrid(xGrid, valuesGrid, 3)
+  echo grid 
+  echo grid.neighbours(8).toSeq
