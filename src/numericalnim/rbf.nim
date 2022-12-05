@@ -1,4 +1,4 @@
-import std / [math, algorithm, tables, sequtils]
+import std / [math, algorithm, tables, sequtils, strutils]
 import arraymancer
 import ./utils
 
@@ -34,18 +34,13 @@ iterator neighbours*[T](grid: RbfGrid[T], k: int): int =
       var kNeigh = k
       for i, x in dir:
         let step = grid.gridSize ^ (grid.gridDim - i - 1)
-        if i == dir.high and k mod grid.gridSize == 0 and x == -1:
+        if (k div step) mod grid.gridSize == 0 and x == -1:
           break loopBody
-        elif i == dir.high and k mod grid.gridSize == grid.gridSize - 1 and x == 1:
-          break loopBody
-        elif k div step == 0 and x == -1:
-          break loopBody
-        elif k div step == grid.gridSize - 1 and x == 1:
+        elif (k div step) mod grid.gridSize == grid.gridSize - 1 and x == 1:
           break loopBody
         else:
           kNeigh += x * step
       if kNeigh >= 0 and kNeigh < grid.gridSize ^ grid.gridDim:
-        echo kNeigh, ": ", dir
         yield kNeigh
 
 
@@ -147,7 +142,7 @@ proc newRbfPu*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, r
   for i in 0 ..< nPatches:
     let indices = dataGrid.findAllWithin(patchPoints[i, _], dataGrid.gridDelta)
     if indices.len > 0:
-      patchRbfs.add newRbf(dataGrid.points[indices,_], values[indices, _], epsilon=dataGrid.gridDelta)
+      patchRbfs.add newRbf(dataGrid.points[indices,_], values[indices, _], epsilon=epsilon)
       patchIndices.add i
 
   let patchGrid = newRbfGrid(patchPoints[patchIndices, _], patchRbfs.toTensor.unsqueeze(1), gridSize)
@@ -194,8 +189,8 @@ when isMainModule:
 
   #echo rbfPu.eval(sqrt x1)
   echo "----------------"
-  let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
+  #[ let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
   let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
-  let grid = newRbfGrid(xGrid, valuesGrid, 3)
+  let grid = newRbfGrid(xGrid, valuesGrid, 2)
   echo grid 
-  echo grid.neighbours(8).toSeq
+  echo grid.neighbours(3).toSeq ]#

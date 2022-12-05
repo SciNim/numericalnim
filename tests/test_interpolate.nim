@@ -423,3 +423,17 @@ test "rbf f=x*y*z":
     for x in abs(yCorrect - yTest):
         check x < 0.16
     check mean_squared_error(yTest, yCorrect) < 2e-4
+    
+test "rbfPu f=x*y*z":
+    let pos = meshgrid(arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5))
+    let vals = pos[_, 0] *. pos[_, 1] *. pos[_, 2]
+    let rbfObj = newRbfPu(pos, vals)
+
+    # We want test points in the interior to avoid the edges
+    let xTest = meshgrid(arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10))
+    let yTest = rbfObj.eval(xTest)
+    let yCorrect = xTest[_, 0] *. xTest[_, 1] *. xTest[_, 2]
+    for x in abs(yCorrect - yTest):
+        check x < 0.03
+    check mean_squared_error(yTest, yCorrect) < 1e-4
+
