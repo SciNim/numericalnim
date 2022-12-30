@@ -84,3 +84,10 @@ test "meshgridFlat":
   check gridX == [0, 1, 2, 0, 1, 2, 0, 1, 2].toTensor
   check gridY == [3, 3, 3, 4, 4, 4, 5, 5, 5].toTensor
 
+test "meshgrid":
+  let x = [0, 1].toTensor
+  let y = [2, 3].toTensor
+  let z = [4, 5].toTensor
+  let grid = meshgrid(x, y, z)
+  check grid == [[0, 2, 4], [1, 2, 4], [0, 3, 4], [1, 3, 4], [0, 2, 5], [1, 2, 5], [0, 3, 5], [1, 3, 5]].toTensor
+
