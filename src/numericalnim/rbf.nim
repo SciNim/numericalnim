@@ -5,7 +5,7 @@ import ./utils
 
 type
   RbfFunc* = proc (r: Tensor[float], epsilon: float): Tensor[float]
-  RbfType*[T] = object
+  RbfBaseType*[T] = object
     points*: Tensor[float] # (n_points, n_dim)
     values*: Tensor[T] # (n_points, n_values)
     coeffs*: Tensor[float] # (n_points, n_values)
@@ -19,9 +19,9 @@ type
     gridSize*, gridDim*: int
     gridDelta*: float
 
-  RbfPUType*[T] = object
+  RbfType*[T] = object
     limits*: tuple[upper: Tensor[float], lower: Tensor[float]]
-    grid*: RbfGrid[RbfType[T]]
+    grid*: RbfGrid[RbfBaseType[T]]
     nValues*: int
 
 template km(point: Tensor[float], index: int, delta: float): int =
@@ -131,14 +131,14 @@ proc compactRbfFunc*(r: Tensor[float], epsilon: float): Tensor[float] =
     let temp2 = temp * temp
     temp2*temp2 * (4*xeps + 1) * float(xeps < 1)
 
-proc newRbf*[T](points: Tensor[float], values: Tensor[T], rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfType[T] =
+proc newRbfBase*[T](points: Tensor[float], values: Tensor[T], rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfBaseType[T] =
   assert points.shape[0] == values.shape[0]
   let dist = distanceMatrix(points, points)
   let A = rbfFunc(dist, epsilon)
   let coeffs = solve(A, values)
-  result = RbfType[T](points: points, values: values, coeffs: coeffs, epsilon: epsilon, f: rbfFunc)
+  result = RbfBaseType[T](points: points, values: values, coeffs: coeffs, epsilon: epsilon, f: rbfFunc)
 
-proc eval*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
+proc eval*[T](rbf: RbfBaseType[T], x: Tensor[float]): Tensor[T] =
   let dist = distanceMatrix(rbf.points, x)
   let A = rbf.f(dist, rbf.epsilon)
   result = A * rbf.coeffs
@@ -148,7 +148,7 @@ proc scalePoint*(x: Tensor[float], limits: tuple[upper: Tensor[float], lower: Te
   let upper = limits.upper +. 0.01
   (x -. lower) /. (upper - lower)
 
-proc newRbfPu*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfPUType[T] =
+proc newRbf*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfType[T] =
   assert points.shape[0] == values.shape[0]
   assert points.shape.len == 2 and values.shape.len == 2
   let upperLimit = max(points, 0)
@@ -158,18 +158,18 @@ proc newRbfPu*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, r
   let dataGrid = newRbfGrid(scaledPoints, values, gridSize)
   let patchPoints = dataGrid.constructMeshedPatches()
   let nPatches = patchPoints.shape[0]
-  var patchRbfs: seq[RbfType[T]] #= newTensor[RbfType[T]](nPatches, 1)
+  var patchRbfs: seq[RbfBaseType[T]] #= newTensor[RbfBaseType[T]](nPatches, 1)
   var patchIndices: seq[int]
   for i in 0 ..< nPatches:
     let indices = dataGrid.findAllWithin(patchPoints[i, _], dataGrid.gridDelta)
     if indices.len > 0:
-      patchRbfs.add newRbf(dataGrid.points[indices,_], values[indices, _], epsilon=epsilon)
+      patchRbfs.add newRbfBase(dataGrid.points[indices,_], values[indices, _], epsilon=epsilon)
       patchIndices.add i
 
   let patchGrid = newRbfGrid(patchPoints[patchIndices, _], patchRbfs.toTensor.unsqueeze(1), gridSize)
-  result = RbfPUType[T](limits: limits, grid: patchGrid, nValues: values.shape[1])
+  result = RbfType[T](limits: limits, grid: patchGrid, nValues: values.shape[1])
 
-proc eval*[T](rbf: RbfPUType[T], x: Tensor[float]): Tensor[T] =
+proc eval*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
   assert x.shape.len == 2
   assert (not ((x <=. rbf.limits.upper) and (x >=. rbf.limits.lower))).astype(int).sum() == 0, "Some of your points are outside the allowed limits"
 
@@ -192,7 +192,7 @@ proc eval*[T](rbf: RbfPUType[T], x: Tensor[float]): Tensor[T] =
     else:
       result[row, _] = T(Nan) # allow to pass default value to newRbfPU?
 
-proc evalAlt*[T](rbf: RbfPUType[T], x: Tensor[float]): Tensor[T] =
+proc evalAlt*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
   assert x.shape.len == 2
   assert (not ((x <=. rbf.limits.upper) and (x >=. rbf.limits.lower))).astype(int).sum() == 0, "Some of your points are outside the allowed limits"
 

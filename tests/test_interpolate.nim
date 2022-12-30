@@ -411,10 +411,10 @@ test "Trilinear f = x*y*z T: Tensor[float]":
                check abs(spline.eval(i, j, k)[1] - i*j*k) < 1e-12
                check abs(spline.eval(i, j, k)[2] - 1) < 1e-16
 
-test "rbf f=x*y*z":
+test "rbfBase f=x*y*z":
     let pos = meshgrid(arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5))
     let vals = pos[_, 0] *. pos[_, 1] *. pos[_, 2]
-    let rbfObj = newRbf(pos, vals)
+    let rbfObj = newRbfBase(pos, vals)
 
     # We want test points in the interior to avoid the edges
     let xTest = meshgrid(arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10))
@@ -424,10 +424,10 @@ test "rbf f=x*y*z":
         check x < 0.16
     check mean_squared_error(yTest, yCorrect) < 2e-4
     
-test "rbfPu f=x*y*z":
+test "rbf f=x*y*z":
     let pos = meshgrid(arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5), arraymancer.linspace(0.0, 1.0, 5))
     let vals = pos[_, 0] *. pos[_, 1] *. pos[_, 2]
-    let rbfObj = newRbfPu(pos, vals)
+    let rbfObj = newRbf(pos, vals)
 
     # We want test points in the interior to avoid the edges
     let xTest = meshgrid(arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10), arraymancer.linspace(0.1, 0.9, 10))
