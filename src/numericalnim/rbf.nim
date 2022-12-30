@@ -40,11 +40,6 @@ iterator neighbours*[T](grid: RbfGrid[T], k: int, searchLevels: int = 1): int =
             break loopBody
           elif (k div step) mod grid.gridSize == grid.gridSize - level and x >= level:
             break loopBody
-        #[ if ((k div step) mod grid.gridSize == 0 and x == -1) or ((k div step) mod grid.gridSize == 1 and x == -2):
-          break loopBody
-        elif (k div step) mod grid.gridSize == grid.gridSize - 1 and x == 1:
-          break loopBody
-        else: ]#
         kNeigh += x * step
       if kNeigh >= 0 and kNeigh < grid.gridSize ^ grid.gridDim:
         yield kNeigh
@@ -149,11 +144,17 @@ proc scalePoint*(x: Tensor[float], limits: tuple[upper: Tensor[float], lower: Te
   (x -. lower) /. (upper - lower)
 
 proc newRbf*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfType[T] =
+  ## Construct a Radial basis function interpolator using Partition of Unity.
+  ## points: The positions of the data points. Shape: (nPoints, nDims)
+  ## values: The values at the points. Can be multivalued. Shape: (nPoints, nValues)
+  ## gridSize: The number of cells along each dimension. Setting it to the default 0 will automatically choose a value based on the number of points.
+  ## rbfFunc: The RBF function that accepts shape parameter. Default is a C^2 compactly supported function.
+  ## epsilon: shape parameter. Default 1.
   assert points.shape[0] == values.shape[0]
   assert points.shape.len == 2 and values.shape.len == 2
   let upperLimit = max(points, 0)
   let lowerLimit = min(points, 0)
-  let limits = (upper: upperLimit, lower: lowerLimit) # move this buff to scalePoint
+  let limits = (upper: upperLimit, lower: lowerLimit)
   let scaledPoints = points.scalePoint(limits)
   let dataGrid = newRbfGrid(scaledPoints, values, gridSize)
   let patchPoints = dataGrid.constructMeshedPatches()
@@ -190,7 +191,7 @@ proc eval*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
         result[row, _] = result[row, _] + ci * val
       result[row, _] = result[row, _] / c
     else:
-      result[row, _] = T(Nan) # allow to pass default value to newRbfPU?
+      result[row, _] = T(Nan) # allow to pass default value to newRbf?
 
 proc evalAlt*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
   assert x.shape.len == 2
@@ -217,42 +218,3 @@ proc evalAlt*[T](rbf: RbfType[T], x: Tensor[float]): Tensor[T] =
 
   result /.= c
   result[not isSet, _] = T(NaN)
-
-when isMainModule:
-  let x1 = @[@[0.01, 0.01, 0.01], @[1.0, 1.0, 0.0], @[1.0, 2.0, 4.0]].toTensor
-  let x2 = @[@[0.0, 0.0, 1.0], @[1.0, 1.0, 2.0], @[1.0, 2.0, 3.0]].toTensor
-  #echo distanceMatrix(x1, x1)
-  let values = @[0.1, 1.0, 2.0].toTensor.unsqueeze(1)
-  #echo newRbf(x1, values, epsilon=10)
-
-  import benchy
-
-  var pos = randomTensor(100000, 3, 1.0)
-  pos[0, _] = [[1.0, 1.0, 1.0]]
-  pos[1, _] = [[0.0, 0.0, 0.0]]
-  let vals = randomTensor(100000, 1, 1.0)
-  let evalPos = randomTensor(100000, 3, 0.9)
-  #let rb = newRbf(pos, vals)
-  #let rbPU = newRbfPu(pos, vals)
-  #timeIt "RbfPU eval":
-  #  keep rbPU.eval(evalPos)
-  #timeIt "Rbf eval":
-  #  keep rb.eval(evalPos)
-  
-  #let rbfPu = newRbfPu(x1, values, 3)
-  #echo rbfPu.grid.values[1, 0]
-  #echo rbfPu.eval(x1[[2, 1, 0], _])
-
-  #echo rbfPu.eval(sqrt x1)
-  echo "----------------"
-  for y in countdown(4, 0):
-    var row = ""
-    for x in 0 .. 4:
-      row &= $(x*5 + y) & "\t"
-    echo row
-
-  let xGrid = [[0.1, 0.1], [0.2, 0.3], [0.9, 0.9], [0.4, 0.4]].toTensor
-  let valuesGrid = @[0, 1, 9, 5].toTensor.reshape(4, 1)
-  let grid = newRbfGrid(xGrid, valuesGrid, 5)
-  #echo grid 
-  echo grid.neighbours(7, 1).toSeq
