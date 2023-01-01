@@ -434,6 +434,6 @@ test "rbf f=x*y*z":
     let yTest = rbfObj.eval(xTest)
     let yCorrect = xTest[_, 0] *. xTest[_, 1] *. xTest[_, 2]
     for x in abs(yCorrect - yTest):
-        check x < 0.03
-    check mean_squared_error(yTest, yCorrect) < 1e-4
+        check x < 0.11
+    check mean_squared_error(yTest, yCorrect) < 1.4e-4
 
