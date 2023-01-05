@@ -317,6 +317,10 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="utils: checkVectorSizes(v1, v2: Vector)" href="numericalnim/utils.html#checkVectorSizes%2CVector%2CVector">utils: checkVectorSizes(v1, v2: Vector)</a></li>
           </ul></dd>
+<dt><a name="chi2" href="#chi2"><span>chi2:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="utils: chi2[T](yData, yFit, yError: seq[T] or Tensor[T]): T" href="numericalnim/utils.html#chi2%2C%2C%2C">utils: chi2[T](yData, yFit, yError: seq[T] or Tensor[T]): T</a></li>
+          </ul></dd>
 <dt><a name="clone" href="#clone"><span>clone:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="utils: clone[T](x: T): T" href="numericalnim/utils.html#clone%2CT">utils: clone[T](x: T): T</a></li>
@@ -575,11 +579,11 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="lbfgs" href="#lbfgs"><span>lbfgs:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="optimize: lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; m: int = 10;
-    options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U]();
+          data-doc-search-tag="optimize: lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; options: OptimOptions[
+    U, LBFGSOptions[U]] = lbfgsOptions[U]();
                         analyticGradient: proc (x: Tensor[U]): Tensor[T] = nil): Tensor[
-    U]" href="numericalnim/optimize.html#lbfgs%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2Cint%2COptimOptions%5BU%2CLBFGSOptions%5BU%5D%5D%2Cproc%28Tensor%5BU%5D%29">optimize: lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; m: int = 10;
-    options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U]();
+    U]" href="numericalnim/optimize.html#lbfgs%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2COptimOptions%5BU%2CLBFGSOptions%5BU%5D%5D%2Cproc%28Tensor%5BU%5D%29">optimize: lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; options: OptimOptions[
+    U, LBFGSOptions[U]] = lbfgsOptions[U]();
                         analyticGradient: proc (x: Tensor[U]): Tensor[T] = nil): Tensor[
     U]</a></li>
           </ul></dd>
@@ -604,10 +608,12 @@ window.addEventListener('DOMContentLoaded', main);
           data-doc-search-tag="optimize: levmarq[U; T: not Tensor](f: proc (params: Tensor[U]; x: U): T;
                           params0: Tensor[U]; xData: Tensor[U];
                           yData: Tensor[T]; options: OptimOptions[U,
-    LevMarqOptions[U]] = levmarqOptions[U]()): Tensor[U]" href="numericalnim/optimize.html#levmarq%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BU%5D%2CTensor%5BT%3A%20not%20Tensor%5D%2COptimOptions%5BU%2CLevMarqOptions%5BU%5D%5D">optimize: levmarq[U; T: not Tensor](f: proc (params: Tensor[U]; x: U): T;
+    LevMarqOptions[U]] = levmarqOptions[U]();
+                          yError: Tensor[T] = ones_like(yData)): Tensor[U]" href="numericalnim/optimize.html#levmarq%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BU%5D%2CTensor%5BT%3A%20not%20Tensor%5D%2COptimOptions%5BU%2CLevMarqOptions%5BU%5D%5D%2CTensor%5BT%3A%20not%20Tensor%5D">optimize: levmarq[U; T: not Tensor](f: proc (params: Tensor[U]; x: U): T;
                           params0: Tensor[U]; xData: Tensor[U];
                           yData: Tensor[T]; options: OptimOptions[U,
-    LevMarqOptions[U]] = levmarqOptions[U]()): Tensor[U]</a></li>
+    LevMarqOptions[U]] = levmarqOptions[U]();
+                          yError: Tensor[T] = ones_like(yData)): Tensor[U]</a></li>
           </ul></dd>
 <dt><a name="LevMarqOptions" href="#LevMarqOptions"><span>LevMarqOptions:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -819,17 +825,27 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="optimOptions" href="#optimOptions"><span>optimOptions:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="optimize: optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); lambda0: U = U(1);
-                fastMode: bool = false; maxIterations: int = 10000;
+          data-doc-search-tag="optimize: optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); fastMode: bool = false;
+                maxIterations: int = 10000;
                 lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[
-    U, StandardOptions]" href="numericalnim/optimize.html#optimOptions%2CU%2CU%2CU%2Cbool%2Cint%2CLineSearchCriterion">optimize: optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); lambda0: U = U(1);
-                fastMode: bool = false; maxIterations: int = 10000;
+    U, StandardOptions]" href="numericalnim/optimize.html#optimOptions%2CU%2CU%2Cbool%2Cint%2CLineSearchCriterion">optimize: optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); fastMode: bool = false;
+                maxIterations: int = 10000;
                 lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[
     U, StandardOptions]</a></li>
           </ul></dd>
 <dt><a name="pairs" href="#pairs"><span>pairs:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="utils: pairs[T](v: Vector[T]): (int, T)" href="numericalnim/utils.html#pairs.i%2CVector%5BT%5D">utils: pairs[T](v: Vector[T]): (int, T)</a></li>
+          </ul></dd>
+<dt><a name="paramUncertainties" href="#paramUncertainties"><span>paramUncertainties:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="optimize: paramUncertainties[U; T](params: Tensor[U];
+                         fitFunc: proc (params: Tensor[U]; x: U): T;
+                         yData: Tensor[T]; xData: Tensor[U]; yError: Tensor[T];
+                         returnFullCov = false): Tensor[T]" href="numericalnim/optimize.html#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BT%5D%2CTensor%5BU%5D%2CTensor%5BT%5D">optimize: paramUncertainties[U; T](params: Tensor[U];
+                         fitFunc: proc (params: Tensor[U]; x: U): T;
+                         yData: Tensor[T]; xData: Tensor[U]; yError: Tensor[T];
+                         returnFullCov = false): Tensor[T]</a></li>
           </ul></dd>
 <dt><a name="pop" href="#pop"><span>pop:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -1058,7 +1074,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 15:40:47 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:00:43 UTC</small>
       </div>
     </div>
   </div>

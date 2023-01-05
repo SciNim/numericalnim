@@ -170,12 +170,12 @@ window.addEventListener('DOMContentLoaded', main);
 
   </ul>
   <ul class="simple nested-toc-section">lbfgs
-      <li><a class="reference" href="#lbfgs%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2Cint%2COptimOptions%5BU%2CLBFGSOptions%5BU%5D%5D%2Cproc%28Tensor%5BU%5D%29"
-    title="lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; m: int = 10;
-    options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U]();
+      <li><a class="reference" href="#lbfgs%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2COptimOptions%5BU%2CLBFGSOptions%5BU%5D%5D%2Cproc%28Tensor%5BU%5D%29"
+    title="lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; options: OptimOptions[
+    U, LBFGSOptions[U]] = lbfgsOptions[U]();
                         analyticGradient: proc (x: Tensor[U]): Tensor[T] = nil): Tensor[
-    U]">lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; m: int = 10;
-    options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U]();
+    U]">lbfgs[U; T: not Tensor](f: proc (x: Tensor[U]): T; x0: Tensor[U]; options: OptimOptions[
+    U, LBFGSOptions[U]] = lbfgsOptions[U]();
                         analyticGradient: proc (x: Tensor[U]): Tensor[T] = nil): Tensor[
     U]</a></li>
 
@@ -194,14 +194,16 @@ window.addEventListener('DOMContentLoaded', main);
 
   </ul>
   <ul class="simple nested-toc-section">levmarq
-      <li><a class="reference" href="#levmarq%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BU%5D%2CTensor%5BT%3A%20not%20Tensor%5D%2COptimOptions%5BU%2CLevMarqOptions%5BU%5D%5D"
+      <li><a class="reference" href="#levmarq%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BU%5D%2CTensor%5BT%3A%20not%20Tensor%5D%2COptimOptions%5BU%2CLevMarqOptions%5BU%5D%5D%2CTensor%5BT%3A%20not%20Tensor%5D"
     title="levmarq[U; T: not Tensor](f: proc (params: Tensor[U]; x: U): T;
                           params0: Tensor[U]; xData: Tensor[U];
                           yData: Tensor[T]; options: OptimOptions[U,
-    LevMarqOptions[U]] = levmarqOptions[U]()): Tensor[U]">levmarq[U; T: not Tensor](f: proc (params: Tensor[U]; x: U): T;
+    LevMarqOptions[U]] = levmarqOptions[U]();
+                          yError: Tensor[T] = ones_like(yData)): Tensor[U]">levmarq[U; T: not Tensor](f: proc (params: Tensor[U]; x: U): T;
                           params0: Tensor[U]; xData: Tensor[U];
                           yData: Tensor[T]; options: OptimOptions[U,
-    LevMarqOptions[U]] = levmarqOptions[U]()): Tensor[U]</a></li>
+    LevMarqOptions[U]] = levmarqOptions[U]();
+                          yError: Tensor[T] = ones_like(yData)): Tensor[U]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">levmarqOptions
@@ -254,14 +256,25 @@ window.addEventListener('DOMContentLoaded', main);
 
   </ul>
   <ul class="simple nested-toc-section">optimOptions
-      <li><a class="reference" href="#optimOptions%2CU%2CU%2CU%2Cbool%2Cint%2CLineSearchCriterion"
-    title="optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); lambda0: U = U(1);
-                fastMode: bool = false; maxIterations: int = 10000;
+      <li><a class="reference" href="#optimOptions%2CU%2CU%2Cbool%2Cint%2CLineSearchCriterion"
+    title="optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); fastMode: bool = false;
+                maxIterations: int = 10000;
                 lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[
-    U, StandardOptions]">optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); lambda0: U = U(1);
-                fastMode: bool = false; maxIterations: int = 10000;
+    U, StandardOptions]">optimOptions[U](tol: U = U(0.000001); alpha: U = U(1); fastMode: bool = false;
+                maxIterations: int = 10000;
                 lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[
     U, StandardOptions]</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">paramUncertainties
+      <li><a class="reference" href="#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BT%5D%2CTensor%5BU%5D%2CTensor%5BT%5D"
+    title="paramUncertainties[U; T](params: Tensor[U];
+                         fitFunc: proc (params: Tensor[U]; x: U): T;
+                         yData: Tensor[T]; xData: Tensor[U]; yError: Tensor[T];
+                         returnFullCov = false): Tensor[T]">paramUncertainties[U; T](params: Tensor[U];
+                         fitFunc: proc (params: Tensor[U]; x: U): T;
+                         yData: Tensor[T]; xData: Tensor[U]; yError: Tensor[T];
+                         returnFullCov = false): Tensor[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">secant
@@ -320,11 +333,11 @@ class="link-seesrc" target="_blank">Source</a>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc"><h1 id="multidimensional-methods"><center>Multidimensional methods ##</center></h1></p>
+  <p class="module-desc"></p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="differentiate.html">differentiate</a>
+<a class="reference external" href="differentiate.html">differentiate</a>, <a class="reference external" href="utils.html">utils</a>
 </dl></div>
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
@@ -337,9 +350,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L146"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L148"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L146" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L148" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -351,9 +364,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L144"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L146"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L144" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L146" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -364,9 +377,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L133"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L135"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L133" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L135" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -382,9 +395,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L137"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L139"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L137" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -394,9 +407,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L143"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L145"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L143" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L145" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -411,11 +424,20 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>BFGS (Broyden–Fletcher–Goldfarb–Shanno) method for optimization.</p>
+<p>Inputs:</p>
+<ul class="simple"><li>f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.</li>
+<li>options: Options object (see <tt class="docutils literal"><span class="pre"><span class="Identifier">bfgsOptions</span></span></tt> for constructing one)</li>
+<li>analyticGradient: The analytic gradient of <tt class="docutils literal"><span class="pre"><span class="Identifier">f</span></span></tt> taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple"><li>The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L344"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L406"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L344" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L406" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -428,9 +450,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L300"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L362"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L300" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L362" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -441,11 +463,17 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#StandardOptions"><span class="Identifier">StandardOptions</span></a><span class="Other">]</span></pre></dt>
 <dd>
 
+Returns a BFGS OptimOptions<ul class="simple"><li>tol: The tolerance used. This is the criteria for convergence: <tt class="docutils literal"><span class="pre"><span class="Identifier">gradNorm</span> <span class="Operator">&lt;</span> <span class="Identifier">tol</span><span class="Operator">*</span><span class="Punctuation">(</span><span class="DecNumber">1</span> <span class="Operator">+</span> <span class="Identifier">fNorm</span><span class="Punctuation">)</span></span></tt>.</li>
+<li>alpha: The step size.</li>
+<li>fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. Else a more accurate but slowe second order finite difference scheme will be used.</li>
+<li>maxIteration: The maximum number of iteration before returning if convergence haven't been reached.</li>
+<li>lineSearchCriterion: Which line search method to use.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L171"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L193"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L171" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L193" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -466,24 +494,32 @@ Conjugate Gradient method. Given a Symmetric and Positive-Definite matrix A, sol
 </dl>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L42"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L44"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L44" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
-<div id="lbfgs,proc(Tensor[U]),Tensor[U],int,OptimOptions[U,LBFGSOptions[U]],proc(Tensor[U])">
-<dt><pre><span class="Keyword">proc</span> <a href="#lbfgs%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2Cint%2COptimOptions%5BU%2CLBFGSOptions%5BU%5D%5D%2Cproc%28Tensor%5BU%5D%29"><span class="Identifier">lbfgs</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">:</span> <span class="Keyword">not</span> <span class="Identifier">Tensor</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">x0</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
-                             <span class="Identifier">m</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">10</span><span class="Other">;</span> <span class="Identifier">options</span><span class="Other">:</span> <a href="optimize.html#OptimOptions"><span class="Identifier">OptimOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">,</span>
-    <a href="optimize.html#LBFGSOptions"><span class="Identifier">LBFGSOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">lbfgsOptions</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">analyticGradient</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span>
-    <span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
+<div id="lbfgs,proc(Tensor[U]),Tensor[U],OptimOptions[U,LBFGSOptions[U]],proc(Tensor[U])">
+<dt><pre><span class="Keyword">proc</span> <a href="#lbfgs%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2COptimOptions%5BU%2CLBFGSOptions%5BU%5D%5D%2Cproc%28Tensor%5BU%5D%29"><span class="Identifier">lbfgs</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">:</span> <span class="Keyword">not</span> <span class="Identifier">Tensor</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">x0</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">options</span><span class="Other">:</span> <a href="optimize.html#OptimOptions"><span class="Identifier">OptimOptions</span></a><span class="Other">[</span>
+    <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#LBFGSOptions"><span class="Identifier">LBFGSOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">lbfgsOptions</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">analyticGradient</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span>
+    <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>LBFGS (Limited-memory  Broyden–Fletcher–Goldfarb–Shanno) method for optimization.</p>
+<p>Inputs:</p>
+<ul class="simple"><li>f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.</li>
+<li>options: Options object (see <tt class="docutils literal"><span class="pre"><span class="Identifier">lbfgsOptions</span></span></tt> for constructing one)</li>
+<li>analyticGradient: The analytic gradient of <tt class="docutils literal"><span class="pre"><span class="Identifier">f</span></span></tt> taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple"><li>The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L424"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L495"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L424" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L495" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -495,26 +531,49 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#LBFGSOptions"><span class="Identifier">LBFGSOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
+Returns a LBFGS OptimOptions<ul class="simple"><li>tol: The tolerance used. This is the criteria for convergence: <tt class="docutils literal"><span class="pre"><span class="Identifier">gradNorm</span> <span class="Operator">&lt;</span> <span class="Identifier">tol</span><span class="Operator">*</span><span class="Punctuation">(</span><span class="DecNumber">1</span> <span class="Operator">+</span> <span class="Identifier">fNorm</span><span class="Punctuation">)</span></span></tt>.</li>
+<li>alpha: The step size.</li>
+<li>fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. Else a more accurate but slowe second order finite difference scheme will be used.</li>
+<li>maxIteration: The maximum number of iteration before returning if convergence haven't been reached.</li>
+<li>lineSearchCriterion: Which line search method to use.</li>
+<li>savedIterations: Number of past iterations to save. The higher the value, the better but slower steps.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L178"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L207"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L178" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L207" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
-<div id="levmarq,proc(Tensor[U],U),Tensor[U],Tensor[U],Tensor[T: not Tensor],OptimOptions[U,LevMarqOptions[U]]">
-<dt><pre><span class="Keyword">proc</span> <a href="#levmarq%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BU%5D%2CTensor%5BT%3A%20not%20Tensor%5D%2COptimOptions%5BU%2CLevMarqOptions%5BU%5D%5D"><span class="Identifier">levmarq</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">:</span> <span class="Keyword">not</span> <span class="Identifier">Tensor</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">U</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span>
+<div id="levmarq,proc(Tensor[U],U),Tensor[U],Tensor[U],Tensor[T: not Tensor],OptimOptions[U,LevMarqOptions[U]],Tensor[T: not Tensor]">
+<dt><pre><span class="Keyword">proc</span> <a href="#levmarq%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BU%5D%2CTensor%5BT%3A%20not%20Tensor%5D%2COptimOptions%5BU%2CLevMarqOptions%5BU%5D%5D%2CTensor%5BT%3A%20not%20Tensor%5D"><span class="Identifier">levmarq</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">:</span> <span class="Keyword">not</span> <span class="Identifier">Tensor</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">U</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span>
                                <span class="Identifier">params0</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
                                <span class="Identifier">yData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">options</span><span class="Other">:</span> <a href="optimize.html#OptimOptions"><span class="Identifier">OptimOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">,</span>
-    <a href="optimize.html#LevMarqOptions"><span class="Identifier">LevMarqOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">levmarqOptions</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
+    <a href="optimize.html#LevMarqOptions"><span class="Identifier">LevMarqOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">levmarqOptions</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                               <span class="Identifier">yError</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">ones_like</span><span class="Other">(</span><span class="Identifier">yData</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>Levenberg-Marquardt for non-linear least square solving. Basically it fits parameters of a function to data samples.</p>
+<p>Input:</p>
+<ul class="simple"><li><dl class="docutils"><dt>f: The function you want to fit the data to. The first argument should be a 1D Tensor with the values of the parameters</dt>
+<dd>and the second argument is the value if the independent variable to evaluate the function at.</dd>
+</dl>
+</li>
+<li>params0: The starting guess for the parameter values as a 1D Tensor.</li>
+<li>yData: The measured values of the dependent variable as 1D Tensor.</li>
+<li>xData: The values of the independent variable as 1D Tensor.</li>
+<li>options: Object with all the options like <tt class="docutils literal"><span class="pre"><span class="Identifier">tol</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">lambda0</span></span></tt>. (see <tt class="docutils literal"><span class="pre"><span class="Identifier">levmarqOptions</span></span></tt>)</li>
+<li>yError: The uncertainties of the <tt class="docutils literal"><span class="pre"><span class="Identifier">yData</span></span></tt> as 1D Tensor. Ideally these should be the 1σ standard deviation.</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple"><li>The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L478"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L558"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L478" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L558" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -525,11 +584,18 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#LevMarqOptions"><span class="Identifier">LevMarqOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
+Returns a levmarq OptimOptions<ul class="simple"><li>tol: The tolerance used. This is the criteria for convergence: <tt class="docutils literal"><span class="pre"><span class="Identifier">gradNorm</span> <span class="Operator">&lt;</span> <span class="Identifier">tol</span><span class="Operator">*</span><span class="Punctuation">(</span><span class="DecNumber">1</span> <span class="Operator">+</span> <span class="Identifier">fNorm</span><span class="Punctuation">)</span></span></tt>.</li>
+<li>alpha: The step size.</li>
+<li>fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. Else a more accurate but slowe second order finite difference scheme will be used.</li>
+<li>maxIteration: The maximum number of iteration before returning if convergence haven't been reached.</li>
+<li>lineSearchCriterion: Which line search method to use.</li>
+<li>lambda0: Starting value of dampening parameter</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L186"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L223"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L186" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L223" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -541,9 +607,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L207"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L252"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L207" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L252" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -553,11 +619,20 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>Newton's method for optimization.</p>
+<p>Inputs:</p>
+<ul class="simple"><li>f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.</li>
+<li>options: Options object (see <tt class="docutils literal"><span class="pre"><span class="Identifier">newtonOptions</span></span></tt> for constructing one)</li>
+<li>analyticGradient: The analytic gradient of <tt class="docutils literal"><span class="pre"><span class="Identifier">f</span></span></tt> taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple"><li>The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L277"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L330"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L277" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L330" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -568,11 +643,17 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#StandardOptions"><span class="Identifier">StandardOptions</span></a><span class="Other">]</span></pre></dt>
 <dd>
 
+Returns a Newton OptimOptions<ul class="simple"><li>tol: The tolerance used. This is the criteria for convergence: <tt class="docutils literal"><span class="pre"><span class="Identifier">gradNorm</span> <span class="Operator">&lt;</span> <span class="Identifier">tol</span><span class="Operator">*</span><span class="Punctuation">(</span><span class="DecNumber">1</span> <span class="Operator">+</span> <span class="Identifier">fNorm</span><span class="Punctuation">)</span></span></tt>.</li>
+<li>alpha: The step size.</li>
+<li>fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. Else a more accurate but slowe second order finite difference scheme will be used.</li>
+<li>maxIteration: The maximum number of iteration before returning if convergence haven't been reached.</li>
+<li>lineSearchCriterion: Which line search method to use.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L164"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L179"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L164" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L179" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -585,24 +666,58 @@ class="link-seesrc" target="_blank">Source</a>
 
 Newton-Raphson implementation for 1-dimensional functions
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L81"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L83"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L81" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L83" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
-<div id="optimOptions,U,U,U,bool,int,LineSearchCriterion">
-<dt><pre><span class="Keyword">proc</span> <a href="#optimOptions%2CU%2CU%2CU%2Cbool%2Cint%2CLineSearchCriterion"><span class="Identifier">optimOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tol</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="FloatNumber">0.000001</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">alpha</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="DecNumber">1</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">lambda0</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="DecNumber">1</span><span class="Other">)</span><span class="Other">;</span>
+<div id="optimOptions,U,U,bool,int,LineSearchCriterion">
+<dt><pre><span class="Keyword">proc</span> <a href="#optimOptions%2CU%2CU%2Cbool%2Cint%2CLineSearchCriterion"><span class="Identifier">optimOptions</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tol</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="FloatNumber">0.000001</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">alpha</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="DecNumber">1</span><span class="Other">)</span><span class="Other">;</span>
                      <span class="Identifier">fastMode</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">;</span> <span class="Identifier">maxIterations</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">10000</span><span class="Other">;</span>
                      <span class="Identifier">lineSearchCriterion</span><span class="Other">:</span> <a href="optimize.html#LineSearchCriterion"><span class="Identifier">LineSearchCriterion</span></a> <span class="Other">=</span> <span class="Identifier">NoLineSearch</span><span class="Other">)</span><span class="Other">:</span> <a href="optimize.html#OptimOptions"><span class="Identifier">OptimOptions</span></a><span class="Other">[</span>
     <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#StandardOptions"><span class="Identifier">StandardOptions</span></a><span class="Other">]</span></pre></dt>
 <dd>
 
+Returns a vanilla OptimOptions<ul class="simple"><li>tol: The tolerance used. This is the criteria for convergence: <tt class="docutils literal"><span class="pre"><span class="Identifier">gradNorm</span> <span class="Operator">&lt;</span> <span class="Identifier">tol</span><span class="Operator">*</span><span class="Punctuation">(</span><span class="DecNumber">1</span> <span class="Operator">+</span> <span class="Identifier">fNorm</span><span class="Punctuation">)</span></span></tt>.</li>
+<li>alpha: The step size.</li>
+<li>fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. Else a more accurate but slowe second order finite difference scheme will be used.</li>
+<li>maxIteration: The maximum number of iteration before returning if convergence haven't been reached.</li>
+<li>lineSearchCriterion: Which line search method to use.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L149"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L151"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L149" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L151" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="paramUncertainties,Tensor[U],proc(Tensor[U],U),Tensor[T],Tensor[U],Tensor[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BT%5D%2CTensor%5BU%5D%2CTensor%5BT%5D"><span class="Identifier">paramUncertainties</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
+                              <span class="Identifier">fitFunc</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">U</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span>
+                              <span class="Identifier">yData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
+                              <span class="Identifier">yError</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">returnFullCov</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span>
+    <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+<p>Returns the whole covariance matrix or only the diagonal elements for the parameters in <tt class="docutils literal"><span class="pre"><span class="Identifier">params</span></span></tt>.</p>
+<p>Inputs:</p>
+<ul class="simple"><li>params: The parameters in a 1D Tensor that the uncertainties are wanted for.</li>
+<li>fitFunc: The function used for fitting the parameters. (see <tt class="docutils literal"><span class="pre"><span class="Identifier">levmarq</span></span></tt> for more)</li>
+<li>yData: The measured values of the dependent variable as 1D Tensor.</li>
+<li>xData: The values of the independent variable as 1D Tensor.</li>
+<li>yError: The uncertainties of the <tt class="docutils literal"><span class="pre"><span class="Identifier">yData</span></span></tt> as 1D Tensor. Ideally these should be the 1σ standard deviation.</li>
+<li>returnFullConv: If true, the full covariance matrix will be returned as a 2D Tensor, else only the diagonal elements will be returned as a 1D Tensor.</li>
+</ul>
+<p>Returns:</p>
+<p>The uncertainties of the parameters in the form of a covariance matrix (or only the diagonal elements).</p>
+<p>Note: it is the covariance that is returned, so if you want the standard deviation you have to take the square root of it.</p>
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L629"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L629" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -614,9 +729,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L112"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L114"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L112" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L114" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -644,9 +759,9 @@ class="link-seesrc" target="_blank">Source</a>
 </dl>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L8"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L10"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L8" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L10" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -656,11 +771,20 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">analyticGradient</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span></pre></dt>
 <dd>
 
-Minimize scalar-valued function f. 
+<p>Steepest descent method for optimization.</p>
+<p>Inputs:</p>
+<ul class="simple"><li>f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.</li>
+<li>options: Options object (see <tt class="docutils literal"><span class="pre"><span class="Identifier">steepestDescentOptions</span></span></tt> for constructing one)</li>
+<li>analyticGradient: The analytic gradient of <tt class="docutils literal"><span class="pre"><span class="Identifier">f</span></span></tt> taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple"><li>The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.</li>
+</ul>
+
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L255"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L300"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L255" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L300" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -671,11 +795,17 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">U</span><span class="Other">,</span> <a href="optimize.html#StandardOptions"><span class="Identifier">StandardOptions</span></a><span class="Other">]</span></pre></dt>
 <dd>
 
+Returns a Steepest Descent OptimOptions<ul class="simple"><li>tol: The tolerance used. This is the criteria for convergence: <tt class="docutils literal"><span class="pre"><span class="Identifier">gradNorm</span> <span class="Operator">&lt;</span> <span class="Identifier">tol</span><span class="Operator">*</span><span class="Punctuation">(</span><span class="DecNumber">1</span> <span class="Operator">+</span> <span class="Identifier">fNorm</span><span class="Punctuation">)</span></span></tt>.</li>
+<li>alpha: The step size.</li>
+<li>fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. Else a more accurate but slowe second order finite difference scheme will be used.</li>
+<li>maxIteration: The maximum number of iteration before returning if convergence haven't been reached.</li>
+<li>lineSearchCriterion: Which line search method to use.</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L157"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L165"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L157" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L165" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -685,9 +815,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Calculates the norm of the vector, ie the sqrt(Σ vᵢ²)
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L197"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L242"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L197" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L242" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -701,7 +831,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 15:40:47 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:00:43 UTC</small>
       </div>
     </div>
   </div>
