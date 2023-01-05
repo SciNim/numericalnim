@@ -30,3 +30,8 @@ task test, "Run all tests":
   exec "nim c -r tests/test_optimize.nim"
   exec "nim c -r tests/test_utils.nim"
   exec "nim c -r tests/test_vector.nim"
+
+task docs, "Generate documentation":
+  # Based on Nico's script
+  exec "nim doc --project --index:on --git.url:https://github.com/SciNim/numericalnim --git.commit:master --outdir:docs src/numericalnim.nim"
+  exec "echo \"<meta http-equiv=\\\"Refresh\\\" content=\\\"0; url='theindex.html'\\\" />\" >> docs/index.html"
