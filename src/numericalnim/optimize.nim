@@ -128,9 +128,9 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
             raise newException(ArithmeticError, "Maximum iterations for Secant method exceeded")
     return xCurrent
 
-##############################
-## Multidimensional methods ##
-##############################
+############################
+# Multidimensional methods #
+############################
 
 type LineSearchCriterion* = enum
     Armijo, Wolfe, WolfeStrong, NoLineSearch
@@ -255,7 +255,15 @@ template analyticOrNumericGradient(analytic, f, x, options: untyped): untyped =
         analytic(x)
 
 proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = steepestDescentOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
-    ## Minimize scalar-valued function f. 
+    ## Steepest descent method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `steepestDescentOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x0))
@@ -277,6 +285,15 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
     result = x
 
 proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = newtonOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## Newton's method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `newtonOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x))
@@ -344,6 +361,15 @@ proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha:
     result = x
 
 proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## BFGS (Broyden–Fletcher–Goldfarb–Shanno) method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `bfgsOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     # Use gemm and gemv with preallocated Tensors and setting beta = 0
     var alpha = options.alpha
     var x = x0.clone()
@@ -423,7 +449,16 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: O
     #echo iters, " iterations done!"
     result = x
 
-proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## LBFGS (Limited-memory  Broyden–Fletcher–Goldfarb–Shanno) method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `lbfgsOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
@@ -431,7 +466,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
     var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
     var gradNorm = vectorNorm(gradient)
     var iters: int
-    #let m = 10 # number of past iterations to save
+    let m = options.savedIterations # number of past iterations to save
     var sk_queue = initDeque[Tensor[U]](m)
     var yk_queue = initDeque[Tensor[T]](m)
     # the problem is the first iteration as the gradient is huge and no adjustments are made
@@ -486,7 +521,7 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
     ## - params0: The starting guess for the parameter values as a 1D Tensor.
     ## - yData: The measured values of the dependent variable as 1D Tensor.
     ## - xData: The values of the independent variable as 1D Tensor.
-    ## - options: Object with all the options like `tol` and `lambda0`.
+    ## - options: Object with all the options like `tol` and `lambda0`. (see `levmarqOptions`)
     ## - yError: The uncertainties of the `yData` as 1D Tensor. Ideally these should be the 1σ standard deviation.
     ## 
     ## Returns:
