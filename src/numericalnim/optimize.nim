@@ -466,7 +466,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: 
     var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
     var gradNorm = vectorNorm(gradient)
     var iters: int
-    let m = options.savedIterations # number of past iterations to save
+    let m = options.algoOptions.savedIterations # number of past iterations to save
     var sk_queue = initDeque[Tensor[U]](m)
     var yk_queue = initDeque[Tensor[T]](m)
     # the problem is the first iteration as the gradient is huge and no adjustments are made
