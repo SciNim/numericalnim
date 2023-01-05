@@ -267,13 +267,13 @@ window.addEventListener('DOMContentLoaded', main);
 
   </ul>
   <ul class="simple nested-toc-section">paramUncertainties
-      <li><a class="reference" href="#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BT%5D%2CTensor%5BU%5D%2CTensor%5BT%5D"
+      <li><a class="reference" href="#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BT%5D%2CTensor%5BT%5D"
     title="paramUncertainties[U; T](params: Tensor[U];
                          fitFunc: proc (params: Tensor[U]; x: U): T;
-                         yData: Tensor[T]; xData: Tensor[U]; yError: Tensor[T];
+                         xData: Tensor[U]; yData: Tensor[T]; yError: Tensor[T];
                          returnFullCov = false): Tensor[T]">paramUncertainties[U; T](params: Tensor[U];
                          fitFunc: proc (params: Tensor[U]; x: U): T;
-                         yData: Tensor[T]; xData: Tensor[U]; yError: Tensor[T];
+                         xData: Tensor[U]; yData: Tensor[T]; yError: Tensor[T];
                          returnFullCov = false): Tensor[T]</a></li>
 
   </ul>
@@ -693,10 +693,10 @@ class="link-seesrc" target="_blank">Source</a>
 
 </dd>
 </div>
-<div id="paramUncertainties,Tensor[U],proc(Tensor[U],U),Tensor[T],Tensor[U],Tensor[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BT%5D%2CTensor%5BU%5D%2CTensor%5BT%5D"><span class="Identifier">paramUncertainties</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
+<div id="paramUncertainties,Tensor[U],proc(Tensor[U],U),Tensor[U],Tensor[T],Tensor[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#paramUncertainties%2CTensor%5BU%5D%2Cproc%28Tensor%5BU%5D%2CU%29%2CTensor%5BU%5D%2CTensor%5BT%5D%2CTensor%5BT%5D"><span class="Identifier">paramUncertainties</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">;</span> <span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
                               <span class="Identifier">fitFunc</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">params</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">U</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span>
-                              <span class="Identifier">yData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span>
+                              <span class="Identifier">xData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">yData</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span>
                               <span class="Identifier">yError</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">returnFullCov</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span>
     <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
@@ -705,8 +705,8 @@ class="link-seesrc" target="_blank">Source</a>
 <p>Inputs:</p>
 <ul class="simple"><li>params: The parameters in a 1D Tensor that the uncertainties are wanted for.</li>
 <li>fitFunc: The function used for fitting the parameters. (see <tt class="docutils literal"><span class="pre"><span class="Identifier">levmarq</span></span></tt> for more)</li>
-<li>yData: The measured values of the dependent variable as 1D Tensor.</li>
 <li>xData: The values of the independent variable as 1D Tensor.</li>
+<li>yData: The measured values of the dependent variable as 1D Tensor.</li>
 <li>yError: The uncertainties of the <tt class="docutils literal"><span class="pre"><span class="Identifier">yData</span></span></tt> as 1D Tensor. Ideally these should be the 1σ standard deviation.</li>
 <li>returnFullConv: If true, the full covariance matrix will be returned as a 2D Tensor, else only the diagonal elements will be returned as a 1D Tensor.</li>
 </ul>
@@ -831,7 +831,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:00:43 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:42:18 UTC</small>
       </div>
     </div>
   </div>
