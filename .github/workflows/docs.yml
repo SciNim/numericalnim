@@ -1,0 +1,24 @@
+name: Generate numericalnim docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  gen:
+    name: Generate and deploy docs
+    runs-on: ubuntu-latest  
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: iffy/install-nim@v4
+      - name: Generate
+        run: |
+          nimble install -y
+          nimble docs
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
