@@ -144,4 +144,19 @@ suite "Multi-dim":
         for x in abs(paramsSol - correctParams):
             check x < 1.3e-3
 
+    test "levmarq with yError":
+        let yError = ones_like(yData) * 1e-2
+        let paramsSol = levmarq(fitFunc, params0, xData, yData, yError=yError)
+        for x in abs(paramsSol - correctParams):
+            check x < 1.3e-3
+
+    test "paramUncertainties":
+        let yError = ones_like(yData) * 1e-2
+        let paramsSol = levmarq(fitFunc, params0, xData, yData, yError=yError)
+
+        let uncertainties = paramUncertainties(paramsSol, fitFunc, yData, xData, yError).sqrt()
+        
+        for (unc, err) in zip(uncertainties, abs(paramsSol - correctParams)):
+            check abs(unc / err) in 0.79 .. 3.6
+
 

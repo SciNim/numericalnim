@@ -1,6 +1,8 @@
 import std/[strformat, sequtils, math, deques]
 import arraymancer
-import ./differentiate
+import
+    ./differentiate,
+    ./utils
 
 when not defined(nimHasEffectsOf):
   {.pragma: effectsOf.}
@@ -126,9 +128,9 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
             raise newException(ArithmeticError, "Maximum iterations for Secant method exceeded")
     return xCurrent
 
-##############################
-## Multidimensional methods ##
-##############################
+# ######################## #
+# Multidimensional methods #
+# ######################## #
 
 type LineSearchCriterion* = enum
     Armijo, Wolfe, WolfeStrong, NoLineSearch
@@ -146,15 +148,28 @@ type
     LBFGSOptions*[U] = object
         savedIterations*: int
 
-proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), lambda0: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a vanilla OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
-    result.lambda0 = lambda0
     result.fastMode = fastMode
     result.maxIterations = maxIterations
     result.lineSearchCriterion = lineSearchCriterion
 
 proc steepestDescentOptions*[U](tol: U = U(1e-6), alpha: U = U(0.001), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a Steepest Descent OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -162,6 +177,13 @@ proc steepestDescentOptions*[U](tol: U = U(1e-6), alpha: U = U(0.001), fastMode:
     result.lineSearchCriterion = lineSearchCriterion
 
 proc newtonOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a Newton OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -169,6 +191,13 @@ proc newtonOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false
     result.lineSearchCriterion = lineSearchCriterion
 
 proc bfgsOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a BFGS OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -176,6 +205,14 @@ proc bfgsOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, 
     result.lineSearchCriterion = lineSearchCriterion
 
 proc lbfgsOptions*[U](savedIterations: int = 10, tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LBFGSOptions[U]] =
+    ## Returns a LBFGS OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
+    ## - savedIterations: Number of past iterations to save. The higher the value, the better but slower steps.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -184,6 +221,14 @@ proc lbfgsOptions*[U](savedIterations: int = 10, tol: U = U(1e-6), alpha: U = U(
     result.algoOptions.savedIterations = savedIterations
 
 proc levmarqOptions*[U](lambda0: U = U(1), tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LevMarqOptions[U]] =
+    ## Returns a levmarq OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
+    ## - lambda0: Starting value of dampening parameter
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -253,7 +298,15 @@ template analyticOrNumericGradient(analytic, f, x, options: untyped): untyped =
         analytic(x)
 
 proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = steepestDescentOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
-    ## Minimize scalar-valued function f. 
+    ## Steepest descent method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `steepestDescentOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x0))
@@ -275,6 +328,15 @@ proc steepestDescent*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U],
     result = x
 
 proc newton*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = newtonOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## Newton's method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `newtonOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     var alpha = options.alpha
     var x = x0.clone()
     var fNorm = abs(f(x))
@@ -342,6 +404,15 @@ proc bfgs_old*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], alpha:
     result = x
 
 proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, StandardOptions] = bfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## BFGS (Broyden–Fletcher–Goldfarb–Shanno) method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `bfgsOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     # Use gemm and gemv with preallocated Tensors and setting beta = 0
     var alpha = options.alpha
     var x = x0.clone()
@@ -421,7 +492,16 @@ proc bfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: O
     #echo iters, " iterations done!"
     result = x
 
-proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 10, options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], options: OptimOptions[U, LBFGSOptions[U]] = lbfgsOptions[U](), analyticGradient: proc(x: Tensor[U]): Tensor[T] = nil): Tensor[U] =
+    ## LBFGS (Limited-memory  Broyden–Fletcher–Goldfarb–Shanno) method for optimization.
+    ## 
+    ## Inputs:
+    ## - f: The function to optimize. It should take as input a 1D Tensor of the input variables and return a scalar.
+    ## - options: Options object (see `lbfgsOptions` for constructing one)
+    ## - analyticGradient: The analytic gradient of `f` taking in and returning a 1D Tensor. If not provided, a finite difference approximation will be performed instead.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     var alpha = options.alpha
     var x = x0.clone()
     let xLen = x.shape[0]
@@ -429,7 +509,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
     var gradient = 0.01*analyticOrNumericGradient(analyticGradient, f, x0, options)
     var gradNorm = vectorNorm(gradient)
     var iters: int
-    #let m = 10 # number of past iterations to save
+    let m = options.algoOptions.savedIterations # number of past iterations to save
     var sk_queue = initDeque[Tensor[U]](m)
     var yk_queue = initDeque[Tensor[T]](m)
     # the problem is the first iteration as the gradient is huge and no adjustments are made
@@ -475,7 +555,20 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
     #echo iters, " iterations done!"
     result = x
 
-proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U]()): Tensor[U] =
+proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U](), yError: Tensor[T] = ones_like(yData)): Tensor[U] =
+    ## Levenberg-Marquardt for non-linear least square solving. Basically it fits parameters of a function to data samples.
+    ## 
+    ## Input:
+    ## - f: The function you want to fit the data to. The first argument should be a 1D Tensor with the values of the parameters
+    ##      and the second argument is the value if the independent variable to evaluate the function at.
+    ## - params0: The starting guess for the parameter values as a 1D Tensor.
+    ## - yData: The measured values of the dependent variable as 1D Tensor.
+    ## - xData: The values of the independent variable as 1D Tensor.
+    ## - options: Object with all the options like `tol` and `lambda0`. (see `levmarqOptions`)
+    ## - yError: The uncertainties of the `yData` as 1D Tensor. Ideally these should be the 1σ standard deviation.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     assert xData.rank == 1
     assert yData.rank == 1
     assert params0.rank == 1
@@ -486,8 +579,8 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
 
     let residualFunc = # proc that returns the residual vector
         proc (params: Tensor[U]): Tensor[T] =
-            result = map2_inline(xData, yData):
-                f(params, x) - y
+            result = map3_inline(xData, yData, yError):
+                (f(params, x) - y) / z 
 
     let errorFunc = # proc that returns the scalar error
         proc (params: Tensor[U]): T =
@@ -523,6 +616,51 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
         echo "levmarq reached maximum number of iterations!"
     result = params
 
+
+proc inv[T](t: Tensor[T]): Tensor[T] =
+    result = solve(t, eye[T](t.shape[0]))
+
+proc getDiag[T](t: Tensor[T]): Tensor[T] =
+    let n = t.shape[0]
+    result = newTensor[T](n)
+    for i in 0 ..< n:
+      result[i] = t[i,i]
+
+proc paramUncertainties*[U; T](params: Tensor[U], fitFunc: proc(params: Tensor[U], x: U): T, yData: Tensor[T], xData: Tensor[U], yError: Tensor[T], returnFullCov = false): Tensor[T] =
+    ## Returns the whole covariance matrix or only the diagonal elements for the parameters in `params`.
+    ## 
+    ## Inputs:
+    ## - params: The parameters in a 1D Tensor that the uncertainties are wanted for.
+    ## - fitFunc: The function used for fitting the parameters. (see `levmarq` for more)
+    ## - yData: The measured values of the dependent variable as 1D Tensor.
+    ## - xData: The values of the independent variable as 1D Tensor.
+    ## - yError: The uncertainties of the `yData` as 1D Tensor. Ideally these should be the 1σ standard deviation.
+    ## - returnFullConv: If true, the full covariance matrix will be returned as a 2D Tensor, else only the diagonal elements will be returned as a 1D Tensor.
+    ## 
+    ## Returns:
+    ## 
+    ## The uncertainties of the parameters in the form of a covariance matrix (or only the diagonal elements). 
+    ## 
+    ## Note: it is the covariance that is returned, so if you want the standard deviation you have to
+    ## take the square root of it.
+    proc fError(params: Tensor[U]): T =
+        let yCurve = xData.map_inline:
+            fitFunc(params, x)
+        result = chi2(yData, yCurve, yError)
+    
+    let dof = xData.size - params.size
+    let sigma2 = fError(params) / T(dof)
+    let H = tensorHessian(fError, params)
+    let cov = sigma2 * H.inv()
+
+    if returnFullCov:
+        result = cov
+    else:
+        result = cov.getDiag()
+
+    
+
+    
 
         
 when isMainModule:

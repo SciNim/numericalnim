@@ -303,6 +303,22 @@ proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float],
           raise newException(ValueError, &"{a} not in interval {min(t)} - {max(t)}")
 
 
+
+proc chi2*[T](yData, yFit, yError: seq[T] or Tensor[T]): T =
+  when yData is Tensor:
+    assert yData.rank == 1
+    assert yFit.rank == 1
+    assert yError.rank == 1
+    assert yData.size == yFit.size
+    assert yFit.size == yError.size
+    let N = yData.size
+  else:
+    let N = yData.len
+  result = T(0)
+  for i in 0 ..< N:
+    let temp = (yData[i] - yFit[i]) / yError[i]
+    result += temp * temp
+
 proc delete*[T](s: var seq[T], idx: seq[int]) =
   ## Deletes the elements of seq s at indices idx.
   ## idx must not contain duplicates!
