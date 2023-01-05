@@ -128,9 +128,9 @@ proc secant*(f: proc(x: float64): float64, start: array[2, float64], precision: 
             raise newException(ArithmeticError, "Maximum iterations for Secant method exceeded")
     return xCurrent
 
-############################
+# ######################## #
 # Multidimensional methods #
-############################
+# ######################## #
 
 type LineSearchCriterion* = enum
     Armijo, Wolfe, WolfeStrong, NoLineSearch
@@ -148,15 +148,28 @@ type
     LBFGSOptions*[U] = object
         savedIterations*: int
 
-proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), lambda0: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+proc optimOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a vanilla OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
-    result.lambda0 = lambda0
     result.fastMode = fastMode
     result.maxIterations = maxIterations
     result.lineSearchCriterion = lineSearchCriterion
 
 proc steepestDescentOptions*[U](tol: U = U(1e-6), alpha: U = U(0.001), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a Steepest Descent OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -164,6 +177,13 @@ proc steepestDescentOptions*[U](tol: U = U(1e-6), alpha: U = U(0.001), fastMode:
     result.lineSearchCriterion = lineSearchCriterion
 
 proc newtonOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a Newton OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -171,6 +191,13 @@ proc newtonOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false
     result.lineSearchCriterion = lineSearchCriterion
 
 proc bfgsOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, StandardOptions] =
+    ## Returns a BFGS OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -178,6 +205,14 @@ proc bfgsOptions*[U](tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, 
     result.lineSearchCriterion = lineSearchCriterion
 
 proc lbfgsOptions*[U](savedIterations: int = 10, tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LBFGSOptions[U]] =
+    ## Returns a LBFGS OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
+    ## - savedIterations: Number of past iterations to save. The higher the value, the better but slower steps.
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
@@ -186,6 +221,14 @@ proc lbfgsOptions*[U](savedIterations: int = 10, tol: U = U(1e-6), alpha: U = U(
     result.algoOptions.savedIterations = savedIterations
 
 proc levmarqOptions*[U](lambda0: U = U(1), tol: U = U(1e-6), alpha: U = U(1), fastMode: bool = false, maxIterations: int = 10000, lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[U, LevMarqOptions[U]] =
+    ## Returns a levmarq OptimOptions
+    ## - tol: The tolerance used. This is the criteria for convergence: `gradNorm < tol*(1 + fNorm)`.
+    ## - alpha: The step size.
+    ## - fastMode: If true, a faster first order accurate finite difference approximation of the derivative will be used. 
+    ##   Else a more accurate but slowe second order finite difference scheme will be used.
+    ## - maxIteration: The maximum number of iteration before returning if convergence haven't been reached.
+    ## - lineSearchCriterion: Which line search method to use.
+    ## - lambda0: Starting value of dampening parameter
     result.tol = tol
     result.alpha = alpha
     result.fastMode = fastMode
