@@ -478,6 +478,19 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
     result = x
 
 proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U](), yError: Tensor[T] = ones_like(yData)): Tensor[U] =
+    ## Levenberg-Marquardt for non-linear least square solving. Basically it fits parameters of a function to data samples.
+    ## 
+    ## Input:
+    ## - f: The function you want to fit the data to. The first argument should be a 1D Tensor with the values of the parameters
+    ##      and the second argument is the value if the independent variable to evaluate the function at.
+    ## - params0: The starting guess for the parameter values as a 1D Tensor.
+    ## - yData: The measured values of the dependent variable as 1D Tensor.
+    ## - xData: The values of the independent variable as 1D Tensor.
+    ## - options: Object with all the options like `tol` and `lambda0`.
+    ## - yError: The uncertainties of the `yData` as 1D Tensor. Ideally these should be the 1σ standard deviation.
+    ## 
+    ## Returns:
+    ## - The final solution for the parameters. Either because a (local) minimum was found or because the maximum number of iterations was reached.
     assert xData.rank == 1
     assert yData.rank == 1
     assert params0.rank == 1
@@ -536,6 +549,22 @@ proc getDiag[T](t: Tensor[T]): Tensor[T] =
       result[i] = t[i,i]
 
 proc paramUncertainties*[U; T](params: Tensor[U], fitFunc: proc(params: Tensor[U], x: U): T, yData: Tensor[T], xData: Tensor[U], yError: Tensor[T], returnFullCov = false): Tensor[T] =
+    ## Returns the whole covariance matrix or only the diagonal elements for the parameters in `params`.
+    ## 
+    ## Inputs:
+    ## - params: The parameters in a 1D Tensor that the uncertainties are wanted for.
+    ## - fitFunc: The function used for fitting the parameters. (see `levmarq` for more)
+    ## - yData: The measured values of the dependent variable as 1D Tensor.
+    ## - xData: The values of the independent variable as 1D Tensor.
+    ## - yError: The uncertainties of the `yData` as 1D Tensor. Ideally these should be the 1σ standard deviation.
+    ## - returnFullConv: If true, the full covariance matrix will be returned as a 2D Tensor, else only the diagonal elements will be returned as a 1D Tensor.
+    ## 
+    ## Returns:
+    ## 
+    ## The uncertainties of the parameters in the form of a covariance matrix (or only the diagonal elements). 
+    ## 
+    ## Note: it is the covariance that is returned, so if you want the standard deviation you have to
+    ## take the square root of it.
     proc fError(params: Tensor[U]): T =
         let yCurve = xData.map_inline:
             fitFunc(params, x)
