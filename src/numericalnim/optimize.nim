@@ -1,6 +1,8 @@
 import std/[strformat, sequtils, math, deques]
 import arraymancer
-import ./differentiate
+import
+    ./differentiate,
+    ./utils
 
 when not defined(nimHasEffectsOf):
   {.pragma: effectsOf.}
@@ -475,7 +477,7 @@ proc lbfgs*[U; T: not Tensor](f: proc(x: Tensor[U]): T, x0: Tensor[U], m: int = 
     #echo iters, " iterations done!"
     result = x
 
-proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U]()): Tensor[U] =
+proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U](), yError: Tensor[T] = ones_like(yData)): Tensor[U] =
     assert xData.rank == 1
     assert yData.rank == 1
     assert params0.rank == 1
@@ -486,8 +488,8 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
 
     let residualFunc = # proc that returns the residual vector
         proc (params: Tensor[U]): Tensor[T] =
-            result = map2_inline(xData, yData):
-                f(params, x) - y
+            result = map3_inline(xData, yData, yError):
+                (f(params, x) - y) / z 
 
     let errorFunc = # proc that returns the scalar error
         proc (params: Tensor[U]): T =
@@ -523,6 +525,35 @@ proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Te
         echo "levmarq reached maximum number of iterations!"
     result = params
 
+
+proc inv[T](t: Tensor[T]): Tensor[T] =
+    result = solve(t, eye[T](t.shape[0]))
+
+proc getDiag[T](t: Tensor[T]): Tensor[T] =
+    let n = t.shape[0]
+    result = newTensor[T](n)
+    for i in 0 ..< n:
+      result[i] = t[i,i]
+
+proc paramUncertainties*[U; T](params: Tensor[U], fitFunc: proc(params: Tensor[U], x: U): T, yData: Tensor[T], xData: Tensor[U], yError: Tensor[T], returnFullCov = false): Tensor[T] =
+    proc fError(params: Tensor[U]): T =
+        let yCurve = xData.map_inline:
+            fitFunc(params, x)
+        result = chi2(yData, yCurve, yError)
+    
+    let dof = xData.size - params.size
+    let sigma2 = fError(params) / T(dof)
+    let H = tensorHessian(fError, params)
+    let cov = sigma2 * H.inv()
+
+    if returnFullCov:
+        result = cov
+    else:
+        result = cov.getDiag()
+
+    
+
+    
 
         
 when isMainModule:

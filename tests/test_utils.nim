@@ -1,4 +1,4 @@
-import unittest, math, sequtils, algorithm
+import unittest, math, sequtils, algorithm, random
 import arraymancer
 import ./numericalnim
 
@@ -90,4 +90,27 @@ test "meshgrid":
   let z = [4, 5].toTensor
   let grid = meshgrid(x, y, z)
   check grid == [[0, 2, 4], [1, 2, 4], [0, 3, 4], [1, 3, 4], [0, 2, 5], [1, 2, 5], [0, 3, 5], [1, 3, 5]].toTensor
+
+test "chi2 Tensor":
+  randomize(1337)
+  let N = 100
+  let sigma = 1.23
+  let yMeasure = newSeqWith(N, gauss(0.0, sigma)).toTensor
+  let yCorrect = zeros[float](N)
+  let yError = ones[float](N) * sigma
+  let chi = chi2(yMeasure, yCorrect, yError)
+  # Check that the mean χ² is around 1 
+  check chi / N.float in 0.90 .. 1.1
+
+test "chi2 Seq":
+  randomize(1337)
+  let N = 100
+  let sigma = 1.23
+  let yMeasure = newSeqWith(N, gauss(0.0, sigma))
+  let yCorrect = newSeqWith(N, 0.0)
+  let yError = newSeqWith(N, sigma)
+  let chi = chi2(yMeasure, yCorrect, yError)
+  # Check that the mean χ² is around 1 
+  check chi / N.float in 0.90 .. 1.1
+
 
