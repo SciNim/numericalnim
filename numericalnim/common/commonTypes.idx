@@ -1,0 +1,13 @@
+NumContext	numericalnim/common/commonTypes.html#NumContext	commonTypes: NumContext	
+ODEProc	numericalnim/common/commonTypes.html#ODEProc	commonTypes: ODEProc	
+NumContextProc	numericalnim/common/commonTypes.html#NumContextProc	commonTypes: NumContextProc	
+InterpolatorProc	numericalnim/common/commonTypes.html#InterpolatorProc	commonTypes: InterpolatorProc	
+newNumContext	numericalnim/common/commonTypes.html#newNumContext,Table[string,U],Table[string,T]	commonTypes: newNumContext[T; U](fValues: Table[string, U] = initTable[string, U]();\n                    tValues: Table[string, T] = initTable[string, T]()): NumContext[\n    T, U]	
+`[]`	numericalnim/common/commonTypes.html#[],NumContext[T,U],string	commonTypes: `[]`[T; U](ctx: NumContext[T, U]; key: string): T	
+`[]`	numericalnim/common/commonTypes.html#[],NumContext[T,U],	commonTypes: `[]`[T; U](ctx: NumContext[T, U]; key: enum): T	
+`[]=`	numericalnim/common/commonTypes.html#[]=,NumContext[T,U],string,T	commonTypes: `[]=`[T; U](ctx: NumContext[T, U]; key: string; val: T)	
+`[]=`	numericalnim/common/commonTypes.html#[]=,NumContext[T,U],,T	commonTypes: `[]=`[T; U](ctx: NumContext[T, U]; key: enum; val: T)	
+getF	numericalnim/common/commonTypes.html#getF,NumContext[T,U],string	commonTypes: getF[T; U](ctx: NumContext[T, U]; key: string): U	
+setF	numericalnim/common/commonTypes.html#setF,NumContext[T,U],string,U	commonTypes: setF[T; U](ctx: NumContext[T, U]; key: string; val: U)	
+getF	numericalnim/common/commonTypes.html#getF,NumContext[T,U],	commonTypes: getF[T; U](ctx: NumContext[T, U]; key: enum): U	
+setF	numericalnim/common/commonTypes.html#setF,NumContext[T,U],,U	commonTypes: setF[T; U](ctx: NumContext[T, U]; key: enum; val: U)	

@@ -1,0 +1,77 @@
+Vector	numericalnim/utils.html#Vector	utils: Vector	
+newVector	numericalnim/utils.html#newVector,openArray[T]	utils: newVector[T](components: openArray[T]): Vector[T]	
+checkVectorSizes	numericalnim/utils.html#checkVectorSizes,Vector,Vector	utils: checkVectorSizes(v1, v2: Vector)	
+`[]`	numericalnim/utils.html#[],Vector[T],int	utils: `[]`[T](v: Vector[T]; i: int): T	
+`[]`	numericalnim/utils.html#[],Vector[T],int_2	utils: `[]`[T](v: var Vector[T]; i: int): var T	
+`[]=`	numericalnim/utils.html#[]=,Vector[T],int,T	utils: `[]=`[T](v: var Vector[T]; i: int; value: T)	
+items	numericalnim/utils.html#items.i,Vector[T]	utils: items[T](v: Vector[T]): T	
+mitems	numericalnim/utils.html#mitems.i,Vector[T]	utils: mitems[T](v: var Vector[T]): var T	
+pairs	numericalnim/utils.html#pairs.i,Vector[T]	utils: pairs[T](v: Vector[T]): (int, T)	
+`$`	numericalnim/utils.html#$,Vector	utils: `$`(v: Vector): string	
+`@`	numericalnim/utils.html#@,Vector[T]	utils: `@`[T](v: Vector[T]): seq[T]	
+`@`	numericalnim/utils.html#@,Vector[Vector[T]]	utils: `@`[T](v: Vector[Vector[T]]): seq[seq[T]]	
+`@`	numericalnim/utils.html#@,Vector[Vector[Vector[T]]]	utils: `@`[T](v: Vector[Vector[Vector[T]]]): seq[seq[seq[T]]]	
+toTensor	numericalnim/utils.html#toTensor,Vector	utils: toTensor(v: Vector): Tensor[float]	
+`==`	numericalnim/utils.html#==,Vector[T],Vector[T]	utils: `==`[T](v1, v2: Vector[T]): bool	
+size	numericalnim/utils.html#size,Vector[T]	utils: size[T](v: Vector[T]): int	
+`+`	numericalnim/utils.html#+,Vector[T],Vector[T]	utils: `+`[T](v1, v2: Vector[T]): Vector[T]	
+`+`	numericalnim/utils.html#+,Vector[T],float	utils: `+`[T](v1: Vector[T]; d: float): Vector[T]	
+`+`	numericalnim/utils.html#+,float,Vector[T]	utils: `+`[T](d: float; v1: Vector[T]): Vector[T]	
+`+.`	numericalnim/utils.html#+..t,float,Vector[T]	utils: `+.`[T](d: float; v1: Vector[T]): Vector[T]	
+`+.`	numericalnim/utils.html#+..t,Vector[T],float	utils: `+.`[T](v1: Vector[T]; d: float): Vector[T]	
+`+`	numericalnim/utils.html#+,Vector[T],T	utils: `+`[T](v1: Vector[T]; d: T): Vector[T]	
+`+`	numericalnim/utils.html#+,T,Vector[T]	utils: `+`[T](d: T; v1: Vector[T]): Vector[T]	
+`+=`	numericalnim/utils.html#+=,Vector[T],Vector[T]	utils: `+=`[T](v1: var Vector[T]; v2: Vector[T])	
+`+=`	numericalnim/utils.html#+=,Vector[T],float	utils: `+=`[T](v1: var Vector[T]; d: float)	
+`+.=`	numericalnim/utils.html#+.=.t,Vector[T],float	utils: `+.=`[T](v1: var Vector[T]; d: float)	
+`+=`	numericalnim/utils.html#+=,Vector[T],T	utils: `+=`[T](v1: var Vector[T]; d: T)	
+`-`	numericalnim/utils.html#-,Vector[T],Vector[T]	utils: `-`[T](v1, v2: Vector[T]): Vector[T]	
+`-`	numericalnim/utils.html#-,Vector[T],float	utils: `-`[T](v1: Vector[T]; d: float): Vector[T]	
+`-`	numericalnim/utils.html#-,float,Vector[T]	utils: `-`[T](d: float; v1: Vector[T]): Vector[T]	
+`-.`	numericalnim/utils.html#-..t,float,Vector[T]	utils: `-.`[T](d: float; v1: Vector[T]): Vector[T]	
+`-.`	numericalnim/utils.html#-..t,Vector[T],float	utils: `-.`[T](v1: Vector[T]; d: float): Vector[T]	
+`-`	numericalnim/utils.html#-,Vector[T],T	utils: `-`[T](v1: Vector[T]; d: T): Vector[T]	
+`-`	numericalnim/utils.html#-,T,Vector[T]	utils: `-`[T](d: T; v1: Vector[T]): Vector[T]	
+`-=`	numericalnim/utils.html#-=,Vector[T],Vector[T]	utils: `-=`[T](v1: var Vector[T]; v2: Vector[T])	
+`-=`	numericalnim/utils.html#-=,Vector[T],float	utils: `-=`[T](v1: var Vector[T]; d: float)	
+`-.=`	numericalnim/utils.html#-.=.t,Vector[T],float	utils: `-.=`[T](v1: var Vector[T]; d: float)	
+`-=`	numericalnim/utils.html#-=,Vector[T],T	utils: `-=`[T](v1: var Vector[T]; d: T)	
+`/`	numericalnim/utils.html#/,Vector[T],float	utils: `/`[T](v1: Vector[T]; d: float): Vector[T]	
+`*`	numericalnim/utils.html#*,Vector[T],float	utils: `*`[T](v1: Vector[T]; d: float): Vector[T]	
+`*`	numericalnim/utils.html#*,float,Vector[T]	utils: `*`[T](d: float; v1: Vector[T]): Vector[T]	
+`*`	numericalnim/utils.html#*,Vector[T],Vector[T]	utils: `*`[T](v1, v2: Vector[T]): float	
+`*.`	numericalnim/utils.html#*.,Vector[T],Vector[T]	utils: `*.`[T](v1, v2: Vector[T]): Vector[T]	
+`/.`	numericalnim/utils.html#/.,Vector[T],Vector[T]	utils: `/.`[T](v1, v2: Vector[T]): Vector[T]	
+`*.=`	numericalnim/utils.html#*.=,Vector[T],Vector[T]	utils: `*.=`[T](v1: var Vector[T]; v2: Vector[T])	
+`/.=`	numericalnim/utils.html#/.=,Vector[T],Vector[T]	utils: `/.=`[T](v1: var Vector[T]; v2: Vector[T])	
+dot	numericalnim/utils.html#dot,Vector[T],Vector[T]	utils: dot[T](v1, v2: Vector[T]): float	
+`*=`	numericalnim/utils.html#*=,Vector[T],float	utils: `*=`[T](v1: var Vector[T]; d: float)	
+`/=`	numericalnim/utils.html#/=,Vector[T],float	utils: `/=`[T](v1: var Vector[T]; d: float)	
+`-`	numericalnim/utils.html#-,Vector[T]	utils: `-`[T](v1: Vector[T]): Vector[T]	
+abs	numericalnim/utils.html#abs,Vector[T]	utils: abs[T](v1: Vector[T]): Vector[T]	
+norm	numericalnim/utils.html#norm,Vector,int	utils: norm(v1: Vector; p: int = 2): float64	
+sum	numericalnim/utils.html#sum,Vector[T]	utils: sum[T](v: Vector[T]): T	
+mean_squared_error	numericalnim/utils.html#mean_squared_error,Vector[T],Vector[T]	utils: mean_squared_error[T](v1, v2: Vector[T]): float	
+`^`	numericalnim/utils.html#^,Vector[float],Natural	utils: `^`[float](v: Vector[float]; power: Natural): Vector[float]	
+`^`	numericalnim/utils.html#^,Vector[float],float	utils: `^`[float](v: Vector[float]; power: float): Vector[float]	
+clone	numericalnim/utils.html#clone,T	utils: clone[T](x: T): T	
+mean_squared_error	numericalnim/utils.html#mean_squared_error,T,T	utils: mean_squared_error[T](y_true, y: T): auto	
+calcError	numericalnim/utils.html#calcError,T,T	utils: calcError[T](y_true, y: T): auto	
+hermiteSpline	numericalnim/utils.html#hermiteSpline,float,float,float,T,T,T,T	utils: hermiteSpline[T](x, x1, x2: float; y1, y2, dy1, dy2: T): T	
+hermiteInterpolate	numericalnim/utils.html#hermiteInterpolate,openArray[float],openArray[float],openArray[T],openArray[T]	utils: hermiteInterpolate[T](x: openArray[float]; t: openArray[float];\n                      y, dy: openArray[T]): seq[T]	
+delete	numericalnim/utils.html#delete,seq[T],seq[int]	utils: delete[T](s: var seq[T]; idx: seq[int])	
+getIndexTable	numericalnim/utils.html#getIndexTable,openArray[T]	utils: getIndexTable[T](x: openArray[T]): Table[T, seq[int]]	
+findDuplicates	numericalnim/utils.html#findDuplicates,openArray[T],bool	utils: findDuplicates[T](x: openArray[T]; isSorted: bool = false): seq[seq[int]]	
+removeDuplicates	numericalnim/utils.html#removeDuplicates,seq[Tx],seq[seq[Ty]]	utils: removeDuplicates[Tx, Ty](x: seq[Tx]; y: seq[seq[Ty]]): tuple[x: seq[Tx],\n    y: seq[seq[Ty]]]	
+sortDataset	numericalnim/utils.html#sortDataset,seq[Tx],seq[seq[Ty]],SortOrder	utils: sortDataset[Tx, Ty](x: seq[Tx]; y: seq[seq[Ty]];\n                    sortOrder: SortOrder = Ascending): tuple[x: seq[Tx],\n    y: seq[seq[Ty]]]	
+sortDataset	numericalnim/utils.html#sortDataset,seq[Tx],seq[Ty],SortOrder	utils: sortDataset[Tx, Ty](x: seq[Tx]; y: seq[Ty]; sortOrder: SortOrder = Ascending): tuple[\n    x: seq[Tx], y: seq[Ty]]	
+sortAndTrimDataset	numericalnim/utils.html#sortAndTrimDataset,seq[Tx],seq[seq[Ty]],SortOrder	utils: sortAndTrimDataset[Tx, Ty](x: seq[Tx]; y: seq[seq[Ty]];\n                           sortOrder: SortOrder = Ascending): tuple[x: seq[Tx],\n    y: seq[seq[Ty]]]	
+sortAndTrimDataset	numericalnim/utils.html#sortAndTrimDataset,seq[Tx],seq[Ty],SortOrder	utils: sortAndTrimDataset[Tx, Ty](x: seq[Tx]; y: seq[Ty];\n                           sortOrder: SortOrder = Ascending): tuple[x: seq[Tx],\n    y: seq[Ty]]	
+sortDataset	numericalnim/utils.html#sortDataset,openArray[float],openArray[T]	utils: sortDataset[T](X: openArray[float]; Y: openArray[T]): seq[(float, T)]	
+meshgridFlat	numericalnim/utils.html#meshgridFlat,Tensor[T],Tensor[T]	utils: meshgridFlat[T](x, y: Tensor[T]): (Tensor[T], Tensor[T])	
+meshgrid	numericalnim/utils.html#meshgrid,varargs[Tensor[T]]	utils: meshgrid[T](ts: varargs[Tensor[T]]): Tensor[T]	
+isClose	numericalnim/utils.html#isClose,T,T,float	utils: isClose[T](y1, y2: T; tol: float = 0.001): bool	
+arange	numericalnim/utils.html#arange,float,float,float	utils: arange(x1, x2, dx: float; includeStart = true; includeEnd = false): seq[float]	
+linspace	numericalnim/utils.html#linspace,float,float,int	utils: linspace(x1, x2: float; N: int): seq[float]	
+timeit	numericalnim/utils.html#timeit.t,untyped,int,string	utils: timeit(s: untyped; n = 100; msg = &quot;&quot;): untyped	
+benchmarkit	numericalnim/utils.html#benchmarkit.t,untyped,int,string,T	utils: benchmarkit[T](s: untyped; n = 100; msg = &quot;&quot;; answer: T; onlyEfficiency = false): untyped	
