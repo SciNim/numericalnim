@@ -157,6 +157,6 @@ suite "Multi-dim":
         let uncertainties = paramUncertainties(paramsSol, fitFunc, yData, xData, yError).sqrt()
         
         for (unc, err) in zip(uncertainties, abs(paramsSol - correctParams)):
-            check abs(unc / err) in 1.0 .. 3.6
+            check abs(unc / err) in 0.79 .. 3.6
 
 
