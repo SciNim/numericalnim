@@ -93,7 +93,7 @@ test "meshgrid":
 
 test "chi2 Tensor":
   randomize(1337)
-  let N = 100
+  let N = 1000
   let sigma = 1.23
   let yMeasure = newSeqWith(N, gauss(0.0, sigma)).toTensor
   let yCorrect = zeros[float](N)
@@ -104,7 +104,7 @@ test "chi2 Tensor":
 
 test "chi2 Seq":
   randomize(1337)
-  let N = 100
+  let N = 1000
   let sigma = 1.23
   let yMeasure = newSeqWith(N, gauss(0.0, sigma))
   let yCorrect = newSeqWith(N, 0.0)
