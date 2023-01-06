@@ -1,6 +1,38 @@
 import std/strformat
 import arraymancer
 
+## ## Differentiation
+## This module implements various finite difference methods for
+## approximating derivatives.
+## 
+## For multi-valued functions, it is expected that
+## both the inputs and outputs are 1D `Tensor`s.
+## 
+## Here is an example with a scalar multi-variate function:
+
+runnableExamples:
+  import arraymancer, std/math
+  # f(x, y) = sin(x) + 2*sin(y)
+  proc f(x: Tensor[float]): float =
+    sin(x[0]) + 2*sin(x[1])
+
+  let x = [1.0, 1.0].toTensor
+  let gradient = tensorGradient(f, x)
+
+## Here's an example with a multi-valued function:
+
+runnableExamples:
+  import arraymancer, std/math
+  # f(x, y) = [sin(x*y), cos(x*y)]
+  proc f(x: Tensor[float]): Tensor[float] =
+    result = newTensor[float](2)
+    let arg = x[0] * x[1]
+    result[0] = sin(arg)
+    result[1] = cos(arg)
+
+  let x = [1.0, 1.0].toTensor
+  let jacobian = tensorJacobian(f, x)
+
 proc diff1dForward*[U, T](f: proc(x: U): T, x0: U, h: U = U(1e-6)): T =
   ## Numerically calculate the derivative of f(x) at x0 using a step size h.
   ## Uses forward difference which has accuracy O(h)
@@ -35,9 +67,12 @@ proc tensorGradient*[U; T: not Tensor](
     h: U = U(1e-6),
     fastMode: bool = false
   ): Tensor[T] =
-  ## Calculates the gradient of f(x) w.r.t vector x at x0 using step size h.
+  ## Calculates the gradient of scalar f(x) w.r.t vector x at x0 using step size h.
   ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
   ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+  ## 
+  ## Returns:
+  ## - The gradient as a 1D Tensor.
   assert x0.rank == 1 # must be a 1d vector
   let f0 = f(x0) # make use of this with a `fastMode` switch so we use forward difference instead of central difference?
   let xLen = x0.shape[0]
@@ -61,10 +96,14 @@ proc tensorGradient*[U, T](
     h: U = U(1e-6),
     fastMode: bool = false
   ): Tensor[T] =
-  ## Calculates the gradient of f(x) w.r.t vector x at x0 using step size h.
+  ## Calculates the gradient of multi-valued f(x) w.r.t vector x at x0 using step size h.
+  ## f(x) is expected to take as input and return a 1D Tensor.
   ## Every column is the gradient of one component of f.
   ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
   ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+  ## 
+  ## Returns:
+  ## - The gradient as a 2D Tensor with shape (nInputs, nOutputs). This is the transpose of the Jacobian.
   assert x0.rank == 1 # must be a 1d vector
   let f0 = f(x0) # make use of this with a `fastMode` switch so we use forward difference instead of central difference?
   assert f0.rank == 1
@@ -90,13 +129,18 @@ proc tensorJacobian*[U, T](
     h: U = U(1e-6),
     fastMode: bool = false
   ): Tensor[T] =
-    ## Calculates the jacobian of f(x) w.r.t vector x at x0 using step size h.
+    ## Calculates the jacobian of multi-valued f(x) w.r.t vector x at x0 using step size h.
+    ## f(x) is expected to take as input and return a 1D Tensor.
     ## Every row is the gradient of one component of f.
     ## By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative.
     ## When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+    ## Returns:
+    ## - The Jacobian as a 2D Tensor with shape (nOutputs, nInputs).
     transpose(tensorGradient(f, x0, h, fastMode))
 
 proc mixedDerivative*[U, T](f: proc(x: Tensor[U]): T, x0: var Tensor[U], indices: (int, int), h: U = U(1e-6)): T =
+  ## Used internally in `tensorHessian`. Calculates the mixed derivative d²f/(dx_i dx_j).
+  ## Modifies x0. 
   result = 0
   let i = indices[0]
   let j = indices[1]
@@ -129,6 +173,11 @@ proc tensorHessian*[U; T: not Tensor](
     x0: Tensor[U],
     h: U = U(1e-6)
   ): Tensor[T] =
+    ## Calculates the Hessian of a scalar function f(x) using finite differences at x0.
+    ## f(x) should accept a 1D Tensor of input values.
+    ## 
+    ## Returns:
+    ## - The Hessian as a 2D Tensor of shape (nInputs, nInputs).
     assert x0.rank == 1 # must be a 1d vector
     let f0 = f(x0)
     let xLen = x0.shape[0]
