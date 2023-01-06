@@ -1,7 +1,7 @@
 import std/strformat
 import arraymancer
 
-## ## Differentiation
+## # Differentiation
 ## This module implements various finite difference methods for
 ## approximating derivatives.
 ## 
