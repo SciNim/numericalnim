@@ -3,6 +3,14 @@ import arraymancer
 
 export tables
 
+## # Utils
+## This module implements various procs that don't fit in any of the other modules.
+## 
+## Highlights:
+## - `meshgrid` to produce meshed points.
+## - `linspace` and `arange` to generate points.
+## - `chi2` to calculate χ²-test on data and fit.
+
 type
   Vector*[T] = object
     components*: seq[T]
@@ -273,8 +281,9 @@ proc hermiteSpline*[T](x, x1, x2: float, y1, y2, dy1, dy2: T): T {.inline.}=
 
 proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float],
               y, dy: openArray[T]): seq[T] {.inline.} =
-  ## x is the points to evaluate the spline in
-  ## t, y, dy are the raw input values used to form the spline
+  ## Hermite interpolate data points.
+  ## - x is the points to evaluate the spline in
+  ## - t, y, dy are the raw input values used to form the spline
   # loop over each interval and check if x is in there, if x is sorted
   result = newSeqOfCap[T](x.len)
   var xIndex = 0
@@ -305,6 +314,7 @@ proc hermiteInterpolate*[T](x: openArray[float], t: openArray[float],
 
 
 proc chi2*[T](yData, yFit, yError: seq[T] or Tensor[T]): T =
+  ## Calculates the χ²-test on the fit of a curve to data points.
   when yData is Tensor:
     assert yData.rank == 1
     assert yFit.rank == 1
@@ -399,10 +409,12 @@ proc sortDataset*[Tx, Ty](x: seq[Tx], y: seq[Ty], sortOrder: SortOrder = Ascendi
   result.y = sortedDataset.y[0]
 
 proc sortAndTrimDataset*[Tx, Ty](x: seq[Tx], y: seq[seq[Ty]], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[seq[Ty]]] =
+  ## Sorts `x` and `y` according to `x` and removes duplicate values.
   let (xSorted, ySorted) = sortDataset(x, y, sortOrder)
   (result.x, result.y) = removeDuplicates(xSorted, ySorted)
 
 proc sortAndTrimDataset*[Tx, Ty](x: seq[Tx], y: seq[Ty], sortOrder: SortOrder = Ascending): tuple[x: seq[Tx], y: seq[Ty]] =
+  ## Sorts `x` and `y` according to `x` and removes duplicate values.
   let trimmedDataset = sortAndTrimDataset(x, @[y], sortOrder)
   result.x = trimmedDataset.x
   result.y = trimmedDataset.y[0]
@@ -443,6 +455,13 @@ proc meshgridInternal[T](x1, x2: Tensor[T]): Tensor[T] =
     result[i*len1 ..< (i+1)*len1, ^1] = x2[i]
 
 proc meshgrid*[T](ts: varargs[Tensor[T]]): Tensor[T] =
+  ## Creates a Tensor with the coordinates on a meshgrid defined by the inputs.
+  ## Each input is expected to be a 1D Tensor with the grid values in that dimension.
+  ## If N inputs are given, a N-dimensional meshgrid will be created and returned
+  ## in a (nPoints, N) Tensor.
+  ## 
+  ##  Note: This is different from for example MATLAB's meshgrid which returns
+  ##  a N-dimensional Tensor instead.
   if ts.len == 1:
     result = ts[0]
   elif ts.len == 0:
@@ -461,6 +480,9 @@ proc isClose*[T](y1, y2: T, tol: float = 1e-3): bool {.inline.} =
 
 
 proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[float] {.inline.} =
+  ## Generates points between `x1` and `x2` with spacing `dx`.
+  ## By default, `x2` is not included unless it ends up *exactly* on it.
+  ## Set `includeEnd = true` if you want to include it.
   let dx = abs(dx) * sgn(x2 - x1).toFloat
   if dx == 0.0:
     raise newException(ValueError, "dx must be bigger than 0")
@@ -474,6 +496,7 @@ proc arange*(x1, x2, dx: float, includeStart = true, includeEnd = false): seq[fl
 
 
 proc linspace*(x1, x2: float, N: int): seq[float] {.inline.} =
+  ## Generates N evenly spaced points between (and including) x1 and x2.
   if N <= 0:
     raise newException(ValueError, &"Number of samples {N} must be greater then 0")
 
