@@ -3,6 +3,25 @@ import arraymancer
 import ./utils
 import ./common/commonTypes
 
+## # ODEs
+## This module implements routines for solving ODEs numerically.
+## 
+## The recommended methods to use are: `tsit54`, `dopri54`, `vern65`.
+## All of these are adaptive high-order methods that are both accurate and fast.
+## Settings like tolerances and step size can be provided in a options object, see `newODEoptions <#newODEoptions,float,float,float,float,float,float,float,float>`_.
+
+runnableExamples:
+    import numericalnim
+    # dy = -y
+    proc dy(t: float, y: float, ctx: NumContext[float, float]): float =
+        -y
+    
+    let y0 = 1.0
+    let tspan = linspace(0.0, 10.0, 100)
+    let (tSol, ySol) = solveODE(dy, y0, tspan, integrator="tsit54")
+
+
+
 type
     ODEoptions* = object
         dt*: float
