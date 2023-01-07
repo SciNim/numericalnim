@@ -12,7 +12,7 @@ from ./interpolate import InterpolatorType, newHermiteSpline
 ## 
 ## ## Integrate discrete data:
 ## - `trapz`, `simpson`: works for any spacing between points.
-## - `romberg`: requires equally spaced points.
+## - `romberg`: requires equally spaced points and the number of points must be of the form 2^k + 1 ie 3, 5, 9, 17, 33, 65, 129 etc.
 
 runnableExamples:
     import numericalnim, std/[sequtils]
