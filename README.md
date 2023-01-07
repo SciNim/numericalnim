@@ -50,7 +50,7 @@ NumericalNim is a collection of numerical methods written in Nim. Currently it h
 
 # Documentation & Tutorials
 - NumericalNim's [documentation](https://scinim.github.io/numericalnim/)
-- SciNim's [getting-started](scinim.github.io/getting-started/) site has a bunch of tutorials. Specific tutorial are linked below in their respective sections.
+- SciNim's [getting-started](https://scinim.github.io/getting-started/) site has a bunch of tutorials. Specific tutorial are linked below in their respective sections.
 
 # Installation
 Install NumericalNim using Nimble:
@@ -147,6 +147,11 @@ Cubic splines are piecewise polynomials of degree 3 ie. it is defined differentl
 Cubic Hermite Splines are piecewise polynomials of degree 3, the same as Natural Cubic Splines. The difference is that we can pass the the derivative at each point as well as the function value. If the derivatives are not passed, a three-point finite difference will be used instead but this will not give as accurate results compared to with derivatives. It may be better to use Natural Cubic Splines then instead. The advantage Hermite Splines have over Natural Cubic Splines in NumericalNim is that it can handle other types of y-values than floats. For example if you want to interpolate data (dependent on one variable) in Arraymancer `Tensor`s you can do it by passing those as a `seq[Tensor]`. Hermite Splines' main mission in NumericalNim is to interpolate data points you get from solving ODEs as both the function value and the derivative is known at every point in time. 
 
 ## Radial basis function interpolation
+Radial basis function interpolation conceptually works by placing a Gaussian at every data point in the dataset and
+scale them all such that the linear combination of them interpolates the values in each point. This means that this 
+method don't have to construct a mesh. It also means the interpolant will be smooth as it simply is a sum of smooth Gaussians.
+Internally a *partition of unity* method is employed though to improve performance and numerical stability. Simply put,
+the domain is divided into patches and only points in neighboring patches affect each other. 
 
 # Utils
 I have included a few handy tools in `numericalnim/utils`.
