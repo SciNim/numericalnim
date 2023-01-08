@@ -6,3 +6,4 @@ adaptiveODE	numericalnim/ode.html#adaptiveODE	ode: adaptiveODE
 allODE	numericalnim/ode.html#allODE	ode: allODE	
 newODEoptions	numericalnim/ode.html#newODEoptions,float,float,float,float,float,float,float,float	ode: newODEoptions(dt: float = 0.0001; absTol: float = 0.0001;\n              relTol: float = 0.0001; dtMax: float = 0.01;\n              dtMin: float = 0.0001; scaleMax: float = 4.0;\n              scaleMin: float = 0.1; tStart: float = 0.0): ODEoptions	
 solveODE	numericalnim/ode.html#solveODE,ODEProc[T],T,openArray[float],ODEoptions,NumContext[T,float],string	ode: solveODE[T](f: ODEProc[T]; y0: T; tspan: openArray[float];\n            options: ODEoptions = DEFAULT_ODEoptions;\n            ctx: NumContext[T, float] = nil; integrator = &quot;dopri54&quot;): (\n    seq[float], seq[T])	
+ODEs	numericalnim/ode.html#odes	 ODEs	

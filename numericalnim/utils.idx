@@ -76,3 +76,4 @@ arange	numericalnim/utils.html#arange,float,float,float	utils: arange(x1, x2, dx
 linspace	numericalnim/utils.html#linspace,float,float,int	utils: linspace(x1, x2: float; N: int): seq[float]	
 timeit	numericalnim/utils.html#timeit.t,untyped,int,string	utils: timeit(s: untyped; n = 100; msg = &quot;&quot;): untyped	
 benchmarkit	numericalnim/utils.html#benchmarkit.t,untyped,int,string,T	utils: benchmarkit[T](s: untyped; n = 100; msg = &quot;&quot;; answer: T; onlyEfficiency = false): untyped	
+Utils	numericalnim/utils.html#utils	 Utils	

@@ -17,3 +17,4 @@ scalePoint	numericalnim/rbf.html#scalePoint,Tensor[float],tuple[Tensor[float],Te
 newRbf	numericalnim/rbf.html#newRbf,Tensor[float],Tensor[T],int,RbfFunc,float	rbf: newRbf[T](points: Tensor[float]; values: Tensor[T]; gridSize: int = 0;\n          rbfFunc: RbfFunc = compactRbfFunc; epsilon: float = 1): RbfType[T]	
 eval	numericalnim/rbf.html#eval,RbfType[T],Tensor[float]	rbf: eval[T](rbf: RbfType[T]; x: Tensor[float]): Tensor[T]	
 evalAlt	numericalnim/rbf.html#evalAlt,RbfType[T],Tensor[float]	rbf: evalAlt[T](rbf: RbfType[T]; x: Tensor[float]): Tensor[T]	
+Radial basis function interpolation	numericalnim/rbf.html#radial-basis-function-interpolation	 Radial basis function interpolation	

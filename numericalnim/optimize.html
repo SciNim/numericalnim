@@ -98,7 +98,10 @@ window.addEventListener('DOMContentLoaded', main);
     </select>
   </div>
   <ul class="simple simple-toc" id="toc-list">
-<li>
+<li><a class="reference" id="optimization_toc" href="#optimization">Optimization</a></li>
+<ul class="simple"><li><a class="reference" id="optimization-optimization_toc" href="#optimization-optimization">Optimization</a></li>
+<li><a class="reference" id="optimization-curve-fitting_toc" href="#optimization-curve-fitting">Curve fitting</a></li>
+</ul><li>
   <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
   <ul class="simple simple-toc-section">
     
@@ -333,7 +336,47 @@ class="link-seesrc" target="_blank">Source</a>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc"></p>
+  <p class="module-desc">
+<h1><a class="toc-backref" id="optimization" href="#optimization">Optimization</a></h1><p>This module implements optimization and curve fitting routines.</p>
+
+<h2><a class="toc-backref" id="optimization-optimization" href="#optimization-optimization">Optimization</a></h2><p>These optimization methods are provided:</p>
+<ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">lbfgs</span></span></tt> (recommended): A quasi-Newton method that strikes a good balance between accuracy and performance.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">bfgs</span></span></tt>: A quasi-Newton method. <tt class="docutils literal"><span class="pre"><span class="Identifier">lbfgs</span></span></tt> is a lighter version of this.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">newton</span></span></tt>: Newton's method. Fast for small problems but struggles when the number of variables increase.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">steepestDescent</span></span></tt>: The classical gradient descent. Has slow convergence compared to the others.</li>
+</ul>
+<p>By default the gradients are approximated using finite differences. Optionally an analytical gradient can be supplied with the <tt class="docutils literal"><span class="pre"><span class="Identifier">analyticGradient</span></span></tt> argument.</p>
+
+<p><strong class="examples_text">Example:</strong></p>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">src</span><span class="Operator">/</span><span class="Identifier">numericalnim</span><span class="Operator">/</span><span class="Identifier">optimize</span>
+<span class="Keyword">import</span> <span class="Identifier">arraymancer</span>
+<span class="Comment"># f(x, y) = x^2 + y^2</span>
+<span class="Keyword">proc</span> <span class="Identifier">f</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">:</span> <span class="Identifier">Tensor</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span><span class="Punctuation">)</span><span class="Punctuation">:</span> <span class="Identifier">float</span> <span class="Operator">=</span>
+    <span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span><span class="Operator">*</span><span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span> <span class="Operator">+</span> <span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span><span class="Operator">*</span><span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span>
+
+<span class="Keyword">let</span> <span class="Identifier">guess</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">,</span> <span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+<span class="Keyword">let</span> <span class="Identifier">sol</span> <span class="Operator">=</span> <span class="Identifier">lbfgs</span><span class="Punctuation">(</span><span class="Identifier">f</span><span class="Punctuation">,</span> <span class="Identifier">guess</span><span class="Punctuation">)</span></pre>
+<h2><a class="toc-backref" id="optimization-curve-fitting" href="#optimization-curve-fitting">Curve fitting</a></h2><p>A Levenberg-Marquardt non-linear least squares solver is provided in <tt class="docutils literal"><span class="pre"><span class="Identifier">levmarq</span></span></tt>. The curve to fit is provided as a function taking in a 1D <tt class="docutils literal"><span class="pre"><span class="Identifier">Tensor</span></span></tt> with all parameters and the value of the independent variable to evaluate it at.</p>
+<p>Optionally the <tt class="docutils literal"><span class="pre"><span class="Identifier">y</span></span></tt>-errors can be supplied to the <tt class="docutils literal"><span class="pre"><span class="Identifier">yError</span></span></tt> argument to take the uncertainties of each of the points into account. The uncertainties of the fitted parameters can be obtained by calling <tt class="docutils literal"><span class="pre"><span class="Identifier">paramUncertainties</span></span></tt>.</p>
+
+<p><strong class="examples_text">Example:</strong></p>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">src</span><span class="Operator">/</span><span class="Identifier">numericalnim</span><span class="Operator">/</span><span class="Identifier">optimize</span>
+<span class="Keyword">import</span> <span class="Identifier">arraymancer</span>
+<span class="Comment"># f(x) = a*x + b</span>
+<span class="Keyword">proc</span> <span class="Identifier">f</span><span class="Punctuation">(</span><span class="Identifier">params</span><span class="Punctuation">:</span> <span class="Identifier">Tensor</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Identifier">x</span><span class="Punctuation">:</span> <span class="Identifier">float</span><span class="Punctuation">)</span><span class="Punctuation">:</span> <span class="Identifier">float</span> <span class="Operator">=</span>
+    <span class="Keyword">let</span> <span class="Identifier">a</span> <span class="Operator">=</span> <span class="Identifier">params</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span>
+    <span class="Keyword">let</span> <span class="Identifier">b</span> <span class="Operator">=</span> <span class="Identifier">params</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span>
+    <span class="Identifier">result</span> <span class="Operator">=</span> <span class="Identifier">a</span><span class="Operator">*</span><span class="Identifier">x</span> <span class="Operator">+</span> <span class="Identifier">b</span>
+
+<span class="Comment"># Generate measurements</span>
+<span class="Keyword">let</span> <span class="Identifier">x</span> <span class="Operator">=</span> <span class="Identifier">linspace</span><span class="Punctuation">(</span><span class="FloatNumber">0.0</span><span class="Punctuation">,</span> <span class="FloatNumber">10.0</span><span class="Punctuation">,</span> <span class="DecNumber">10</span><span class="Punctuation">)</span>
+<span class="Keyword">let</span> <span class="Identifier">y</span> <span class="Operator">=</span> <span class="FloatNumber">3.14</span> <span class="Operator">*</span> <span class="Identifier">x</span> <span class="Operator">+.</span> <span class="FloatNumber">2.81</span> <span class="Operator">+</span> <span class="Identifier">randomNormalTensor</span><span class="Punctuation">(</span><span class="DecNumber">10</span><span class="Punctuation">,</span> <span class="FloatNumber">0.0</span><span class="Punctuation">,</span> <span class="FloatNumber">0.05</span><span class="Punctuation">)</span>
+<span class="Keyword">let</span> <span class="Identifier">yError</span> <span class="Operator">=</span> <span class="FloatNumber">0.05</span> <span class="Operator">*</span> <span class="Identifier">ones</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="DecNumber">10</span><span class="Punctuation">)</span>
+<span class="Comment"># Solve for best fit parameters</span>
+<span class="Keyword">let</span> <span class="Identifier">guess</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">,</span> <span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+<span class="Keyword">let</span> <span class="Identifier">solution</span> <span class="Operator">=</span> <span class="Identifier">levmarq</span><span class="Punctuation">(</span><span class="Identifier">f</span><span class="Punctuation">,</span> <span class="Identifier">guess</span><span class="Punctuation">,</span> <span class="Identifier">x</span><span class="Punctuation">,</span> <span class="Identifier">y</span><span class="Punctuation">,</span> <span class="Identifier">yError</span><span class="Operator">=</span><span class="Identifier">yError</span><span class="Punctuation">)</span>
+<span class="Comment"># Calculate uncertainties in fitted parameters</span>
+<span class="Keyword">let</span> <span class="Identifier">uncertainties</span> <span class="Operator">=</span> <span class="Identifier">sqrt</span><span class="Punctuation">(</span><span class="Identifier">paramUncertainties</span><span class="Punctuation">(</span><span class="Identifier">solution</span><span class="Punctuation">,</span> <span class="Identifier">f</span><span class="Punctuation">,</span> <span class="Identifier">x</span><span class="Punctuation">,</span> <span class="Identifier">y</span><span class="Punctuation">,</span> <span class="Identifier">yError</span><span class="Punctuation">)</span><span class="Punctuation">)</span></pre></p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
@@ -350,9 +393,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L148"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L200"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L148" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L200" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -364,9 +407,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L146"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L198"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L146" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L198" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -377,9 +420,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L135"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L187"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L135" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L187" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -395,9 +438,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L139"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L191"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L191" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -407,9 +450,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L145"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L197"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L145" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L197" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -435,9 +478,9 @@ class="link-seesrc" target="_blank">Source</a>
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L406"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L458"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L406" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L458" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -450,9 +493,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L362"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L414"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L362" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L414" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -471,9 +514,9 @@ Returns a BFGS OptimOptions<ul class="simple"><li>tol: The tolerance used. This 
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L193"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L245"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L193" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L245" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -494,9 +537,9 @@ Conjugate Gradient method. Given a Symmetric and Positive-Definite matrix A, sol
 </dl>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L44"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L96"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L44" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L96" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -517,9 +560,9 @@ class="link-seesrc" target="_blank">Source</a>
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L495"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L547"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L495" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L547" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -540,9 +583,9 @@ Returns a LBFGS OptimOptions<ul class="simple"><li>tol: The tolerance used. This
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L207"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L259"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L207" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L259" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -571,9 +614,9 @@ class="link-seesrc" target="_blank">Source</a>
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L558"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L610"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L558" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L610" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -593,9 +636,9 @@ Returns a levmarq OptimOptions<ul class="simple"><li>tol: The tolerance used. Th
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L223"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L275"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L223" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L275" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -607,9 +650,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L252"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L304"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L252" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L304" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -630,9 +673,9 @@ class="link-seesrc" target="_blank">Source</a>
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L330"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L382"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L330" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L382" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -651,9 +694,9 @@ Returns a Newton OptimOptions<ul class="simple"><li>tol: The tolerance used. Thi
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L179"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L231"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L179" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L231" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -666,9 +709,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Newton-Raphson implementation for 1-dimensional functions
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L83"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L135"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L83" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L135" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -687,9 +730,9 @@ Returns a vanilla OptimOptions<ul class="simple"><li>tol: The tolerance used. Th
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L151"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L203"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L151" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L203" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -712,12 +755,12 @@ class="link-seesrc" target="_blank">Source</a>
 </ul>
 <p>Returns:</p>
 <p>The uncertainties of the parameters in the form of a covariance matrix (or only the diagonal elements).</p>
-<p>Note: it is the covariance that is returned, so if you want the standard deviation you have to take the square root of it.</p>
+<blockquote><p>Note: it is the covariance that is returned, so if you want the standard deviation you have to take the square root of it.</p></blockquote>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L629"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L681"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L629" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L681" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -729,9 +772,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L114"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L166"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L114" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L166" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -759,9 +802,9 @@ class="link-seesrc" target="_blank">Source</a>
 </dl>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L10"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L62"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L10" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L62" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -782,9 +825,9 @@ class="link-seesrc" target="_blank">Source</a>
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L300"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L352"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L300" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L352" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -803,9 +846,9 @@ Returns a Steepest Descent OptimOptions<ul class="simple"><li>tol: The tolerance
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L165"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L217"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L165" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L217" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -815,9 +858,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Calculates the norm of the vector, ie the sqrt(Σ vᵢ²)
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L242"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/optimize.nim#L294"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L242" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/optimize.nim#L294" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -831,7 +874,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:42:18 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-08 08:32:57 UTC</small>
       </div>
     </div>
   </div>

@@ -38,4 +38,7 @@ eval	numericalnim/interpolate.html#eval.t,InterpolatorUnstructured2DType[T,U],T,
 eval_trilinear	numericalnim/interpolate.html#eval_trilinear,Interpolator3DType[T],float,float,float	interpolate: eval_trilinear[T](self: Interpolator3DType[T]; x, y, z: float): T	
 newTrilinearSpline	numericalnim/interpolate.html#newTrilinearSpline,Tensor[T],,,	interpolate: newTrilinearSpline[T](f: Tensor[T]; xlim, ylim, zlim: (float, float)): Interpolator3DType[\n    T]	
 eval	numericalnim/interpolate.html#eval.t,Interpolator3DType[T],float,float,float	interpolate: eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped	
-CubicSpline	numericalnim/interpolate.html#cubicspline	 CubicSpline	
+Interpolation	numericalnim/interpolate.html#interpolation	 Interpolation	
+1D interpolation	numericalnim/interpolate.html#interpolation-Z1d-interpolation	  1D interpolation	
+2D interpolation	numericalnim/interpolate.html#interpolation-Z2d-interpolation	  2D interpolation	
+3D interpolation	numericalnim/interpolate.html#interpolation-Z3d-interpolation	  3D interpolation	

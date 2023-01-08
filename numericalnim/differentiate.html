@@ -98,6 +98,7 @@ window.addEventListener('DOMContentLoaded', main);
     </select>
   </div>
   <ul class="simple simple-toc" id="toc-list">
+<li><a class="reference" id="differentiation_toc" href="#differentiation">Differentiation</a></li>
 <li>
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
@@ -193,7 +194,32 @@ class="link-seesrc" target="_blank">Source</a>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc"></p>
+  <p class="module-desc">
+<h1><a class="toc-backref" id="differentiation" href="#differentiation">Differentiation</a></h1><p>This module implements various finite difference methods for approximating derivatives.</p>
+<p>For multi-valued functions, it is expected that both the inputs and outputs are 1D <tt class="docutils literal"><span class="pre"><span class="Identifier">Tensor</span></span></tt>s.</p>
+<p>Here is an example with a scalar multi-variate function:</p>
+
+<p><strong class="examples_text">Example:</strong></p>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">src</span><span class="Operator">/</span><span class="Identifier">numericalnim</span><span class="Operator">/</span><span class="Identifier">differentiate</span>
+<span class="Keyword">import</span> <span class="Identifier">arraymancer</span><span class="Punctuation">,</span> <span class="Identifier">std</span><span class="Operator">/</span><span class="Identifier">math</span>
+<span class="Comment"># f(x, y) = sin(x) + 2*sin(y)</span>
+<span class="Keyword">proc</span> <span class="Identifier">f</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">:</span> <span class="Identifier">Tensor</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span><span class="Punctuation">)</span><span class="Punctuation">:</span> <span class="Identifier">float</span> <span class="Operator">=</span>
+  <span class="Identifier">sin</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span><span class="Punctuation">)</span> <span class="Operator">+</span> <span class="DecNumber">2</span><span class="Operator">*</span><span class="Identifier">sin</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span><span class="Punctuation">)</span>
+
+<span class="Keyword">let</span> <span class="Identifier">x</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">,</span> <span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+<span class="Keyword">let</span> <span class="Identifier">gradient</span> <span class="Operator">=</span> <span class="Identifier">tensorGradient</span><span class="Punctuation">(</span><span class="Identifier">f</span><span class="Punctuation">,</span> <span class="Identifier">x</span><span class="Punctuation">)</span></pre>Here's an example with a multi-valued function:
+<p><strong class="examples_text">Example:</strong></p>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">src</span><span class="Operator">/</span><span class="Identifier">numericalnim</span><span class="Operator">/</span><span class="Identifier">differentiate</span>
+<span class="Keyword">import</span> <span class="Identifier">arraymancer</span><span class="Punctuation">,</span> <span class="Identifier">std</span><span class="Operator">/</span><span class="Identifier">math</span>
+<span class="Comment"># f(x, y) = [sin(x*y), cos(x*y)]</span>
+<span class="Keyword">proc</span> <span class="Identifier">f</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">:</span> <span class="Identifier">Tensor</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span><span class="Punctuation">)</span><span class="Punctuation">:</span> <span class="Identifier">Tensor</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span> <span class="Operator">=</span>
+  <span class="Identifier">result</span> <span class="Operator">=</span> <span class="Identifier">newTensor</span><span class="Punctuation">[</span><span class="Identifier">float</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="DecNumber">2</span><span class="Punctuation">)</span>
+  <span class="Keyword">let</span> <span class="Identifier">arg</span> <span class="Operator">=</span> <span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span> <span class="Operator">*</span> <span class="Identifier">x</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span>
+  <span class="Identifier">result</span><span class="Punctuation">[</span><span class="DecNumber">0</span><span class="Punctuation">]</span> <span class="Operator">=</span> <span class="Identifier">sin</span><span class="Punctuation">(</span><span class="Identifier">arg</span><span class="Punctuation">)</span>
+  <span class="Identifier">result</span><span class="Punctuation">[</span><span class="DecNumber">1</span><span class="Punctuation">]</span> <span class="Operator">=</span> <span class="Identifier">cos</span><span class="Punctuation">(</span><span class="Identifier">arg</span><span class="Punctuation">)</span>
+
+<span class="Keyword">let</span> <span class="Identifier">x</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">,</span> <span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+<span class="Keyword">let</span> <span class="Identifier">jacobian</span> <span class="Operator">=</span> <span class="Identifier">tensorJacobian</span><span class="Punctuation">(</span><span class="Identifier">f</span><span class="Punctuation">,</span> <span class="Identifier">x</span><span class="Punctuation">)</span></pre></p>
   <div class="section" id="12">
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
@@ -205,9 +231,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Checks if the provided gradient function <tt class="docutils literal"><span class="pre"><span class="Identifier">fGrad</span></span></tt> gives the same values as numeric gradient.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L143"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L192"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L143" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L192" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -219,9 +245,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Checks if the provided gradient function <tt class="docutils literal"><span class="pre"><span class="Identifier">fGrad</span></span></tt> gives the same values as numeric gradient.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L153"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L202"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L153" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L202" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -231,9 +257,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Numerically calculate the derivative of f(x) at x0 using a step size h. Uses backward difference which has accuracy O(h)
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L9"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L41"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L9" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L41" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -243,9 +269,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Numerically calculate the derivative of f(x) at x0 using a step size h. Uses central difference which has accuracy O(h^2)
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L14"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L46"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L14" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L46" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -255,9 +281,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Numerically calculate the derivative of f(x) at x0 using a step size h. Uses forward difference which has accuracy O(h)
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L4"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L36"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L4" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L36" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -266,11 +292,11 @@ class="link-seesrc" target="_blank">Source</a>
                            <span class="Identifier">indices</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">int</span><span class="Other">,</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">h</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="FloatNumber">0.000001</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
 <dd>
 
-
+Used internally in <tt class="docutils literal"><span class="pre"><span class="Identifier">tensorHessian</span></span></tt>. Calculates the mixed derivative d²f/(dx_i dx_j). Modifies x0. 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L99"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L141"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L99" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L141" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -280,9 +306,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Numerically calculate the second derivative of f(x) at x0 using a step size h.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L23"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L55"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L23" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L55" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -292,9 +318,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Numerically calculate the second derivative of f(x) at x0 using a step size h. Uses central difference which has accuracy O(h^2)
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L27"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L59"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L27" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L59" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -304,9 +330,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Numerically calculate the second derivative of f(x) at x0 using a step size h.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L19"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L51"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L19" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L51" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -315,11 +341,15 @@ class="link-seesrc" target="_blank">Source</a>
                           <span class="Identifier">h</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="FloatNumber">0.000001</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">fastMode</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-Calculates the gradient of f(x) w.r.t vector x at x0 using step size h. Every column is the gradient of one component of f. By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative. When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+<p>Calculates the gradient of multi-valued f(x) w.r.t vector x at x0 using step size h. f(x) is expected to take as input and return a 1D Tensor. Every column is the gradient of one component of f. By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative. When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.</p>
+<p>Returns:</p>
+<ul class="simple"><li>The gradient as a 2D Tensor with shape (nInputs, nOutputs). This is the transpose of the Jacobian.</li>
+</ul>
+
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L58"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L93"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L58" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L93" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -329,11 +359,15 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-Calculates the gradient of f(x) w.r.t vector x at x0 using step size h. By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative. When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+<p>Calculates the gradient of scalar f(x) w.r.t vector x at x0 using step size h. By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative. When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.</p>
+<p>Returns:</p>
+<ul class="simple"><li>The gradient as a 1D Tensor.</li>
+</ul>
+
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L32"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L64"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L32" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L64" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -342,11 +376,15 @@ class="link-seesrc" target="_blank">Source</a>
                                      <span class="Identifier">h</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="FloatNumber">0.000001</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>Calculates the Hessian of a scalar function f(x) using finite differences at x0. f(x) should accept a 1D Tensor of input values.</p>
+<p>Returns:</p>
+<ul class="simple"><li>The Hessian as a 2D Tensor of shape (nInputs, nInputs).</li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L127"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L171"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L127" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L171" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -355,11 +393,13 @@ class="link-seesrc" target="_blank">Source</a>
                           <span class="Identifier">h</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">U</span><span class="Other">(</span><span class="FloatNumber">0.000001</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">fastMode</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-Calculates the jacobian of f(x) w.r.t vector x at x0 using step size h. Every row is the gradient of one component of f. By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative. When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate.
+Calculates the jacobian of multi-valued f(x) w.r.t vector x at x0 using step size h. f(x) is expected to take as input and return a 1D Tensor. Every row is the gradient of one component of f. By default it uses central difference for approximating the derivatives. This requires two function evaluations per derivative. When fastMode is true it will instead use the forward difference which only uses 1 function evaluation per derivative but is less accurate. Returns:<ul class="simple"><li>The Jacobian as a 2D Tensor with shape (nOutputs, nInputs).</li>
+</ul>
+
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L87"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/differentiate.nim#L126"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L87" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/differentiate.nim#L126" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -373,7 +413,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:42:18 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-08 08:32:53 UTC</small>
       </div>
     </div>
   </div>

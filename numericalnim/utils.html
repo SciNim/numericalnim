@@ -98,6 +98,7 @@ window.addEventListener('DOMContentLoaded', main);
     </select>
   </div>
   <ul class="simple simple-toc" id="toc-list">
+<li><a class="reference" id="utils_toc" href="#utils">Utils</a></li>
 <li>
   <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
@@ -466,7 +467,14 @@ class="link-seesrc" target="_blank">Source</a>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc"></p>
+  <p class="module-desc">
+<h1><a class="toc-backref" id="utils" href="#utils">Utils</a></h1><p>This module implements various procs that don't fit in any of the other modules.</p>
+<p>Highlights:</p>
+<ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">meshgrid</span></span></tt> to produce meshed points.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">linspace</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">arange</span></span></tt> to generate points.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">chi2</span></span></tt> to calculate χ²-test on data and fit.</li>
+</ul>
+</p>
   <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
@@ -479,9 +487,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L7"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L15"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L7" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L15" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -496,531 +504,14 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L34"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L42"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L34" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
 <div id="*.=,Vector[T],Vector[T]">
 <dt><pre><span class="Keyword">proc</span> <a href="#%2A.%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`*.=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L190"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L190" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="*.,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2A.%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`*.`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L178"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L178" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="*=,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2A%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`*=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L200"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L200" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="*,float,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2A%2Cfloat%2CVector%5BT%5D"><span class="Identifier">`*`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L168"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L168" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="*,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2A%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`*`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L173"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L173" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="*,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2A%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`*`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L163"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L163" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+=,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`+=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L94"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L94" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+=,Vector[T],T">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%3D%2CVector%5BT%5D%2CT"><span class="Identifier">`+=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L101"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L101" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+=,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`+=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L89"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L89" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+,float,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2Cfloat%2CVector%5BT%5D"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L64"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L64" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+,T,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CT%2CVector%5BT%5D"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L83"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L83" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L51"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L51" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L58"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L58" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="+,Vector[T],T">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CVector%5BT%5D%2CT"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L77"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L77" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-=,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`-=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L147"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L147" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-=,Vector[T],T">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%3D%2CVector%5BT%5D%2CT"><span class="Identifier">`-=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L154"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L154" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-=,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`-=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L142"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L142" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-,float,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%2Cfloat%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L118"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L118" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-,T,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%2CT%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L136"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L136" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L105"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L105" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L206"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L206" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L112"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L112" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="-,Vector[T],T">
-<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D%2CT"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L130"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L130" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="/.=,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2F.%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`/.=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L194"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L194" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="/.,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2F.%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`/.`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L184"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L184" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="/=,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2F%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`/=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L203"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L203" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="/,Vector[T],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%2F%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`/`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L158"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L158" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="==,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%3D%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`==`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L43"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L43" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="@,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%40%2CVector%5BT%5D"><span class="Identifier">`@`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L35"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L35" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="@,Vector[Vector[T]]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%40%2CVector%5BVector%5BT%5D%5D"><span class="Identifier">`@`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L36"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L36" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="@,Vector[Vector[Vector[T]]]">
-<dt><pre><span class="Keyword">proc</span> <a href="#%40%2CVector%5BVector%5BVector%5BT%5D%5D%5D"><span class="Identifier">`@`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L39"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L39" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="[]=,Vector[T],int,T">
-<dt><pre><span class="Keyword">proc</span> <a href="#%5B%5D%3D%2CVector%5BT%5D%2Cint%2CT"><span class="Identifier">`[]=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L23"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L23" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="[],Vector[T],int_2">
-<dt><pre><span class="Keyword">proc</span> <a href="#%5B%5D%2CVector%5BT%5D%2Cint_2"><span class="Identifier">`[]`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L22"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L22" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="[],Vector[T],int">
-<dt><pre><span class="Keyword">proc</span> <a href="#%5B%5D%2CVector%5BT%5D%2Cint"><span class="Identifier">`[]`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L21"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="^,Vector[float],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#%5E%2CVector%5Bfloat%5D%2Cfloat"><span class="Identifier">`^`</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">power</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-Returns a Vector object after raising each element to a power (float powers)
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L253"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L253" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="^,Vector[float],Natural">
-<dt><pre><span class="Keyword">proc</span> <a href="#%5E%2CVector%5Bfloat%5D%2CNatural"><span class="Identifier">`^`</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">power</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-Returns a Vector object after raising each element to a power (Natural number powers)
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L246"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L246" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="abs,Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#abs%2CVector%5BT%5D"><span class="Identifier">abs</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L211"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L211" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="arange,float,float,float">
-<dt><pre><span class="Keyword">proc</span> <a href="#arange%2Cfloat%2Cfloat%2Cfloat"><span class="Identifier">arange</span></a><span class="Other">(</span><span class="Identifier">x1</span><span class="Other">,</span> <span class="Identifier">x2</span><span class="Other">,</span> <span class="Identifier">dx</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">includeStart</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">includeEnd</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
-    <span class="Identifier">float</span><span class="Other">]</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L463"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L463" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="calcError,T,T">
-<dt><pre><span class="Keyword">proc</span> <a href="#calcError%2CT%2CT"><span class="Identifier">calcError</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">y_true</span><span class="Other">,</span> <span class="Identifier">y</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">auto</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L263"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L263" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="checkVectorSizes,Vector,Vector">
-<dt><pre><span class="Keyword">proc</span> <a href="#checkVectorSizes%2CVector%2CVector"><span class="Identifier">checkVectorSizes</span></a><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L14"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L14" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="chi2,,,">
-<dt><pre><span class="Keyword">proc</span> <a href="#chi2%2C%2C%2C"><span class="Identifier">chi2</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">yData</span><span class="Other">,</span> <span class="Identifier">yFit</span><span class="Other">,</span> <span class="Identifier">yError</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Keyword">or</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L307"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L307" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="clone,T">
-<dt><pre><span class="Keyword">proc</span> <a href="#clone%2CT"><span class="Identifier">clone</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span>.}</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L261"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L261" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="delete,seq[T],seq[int]">
-<dt><pre><span class="Keyword">proc</span> <a href="#delete%2Cseq%5BT%5D%2Cseq%5Bint%5D"><span class="Identifier">delete</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
-<dd>
-
-Deletes the elements of seq s at indices idx. idx must not contain duplicates!
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L322"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L322" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="dot,Vector[T],Vector[T]">
-<dt><pre><span class="Keyword">proc</span> <a href="#dot%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">dot</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> {.<span class="Identifier">inline</span>.}</pre></dt>
 <dd>
 
 
@@ -1031,15 +522,532 @@ class="link-seesrc" target="_blank">Source</a>
 
 </dd>
 </div>
+<div id="*.,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2A.%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`*.`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L186"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L186" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="*=,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2A%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`*=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L208"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L208" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="*,float,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2A%2Cfloat%2CVector%5BT%5D"><span class="Identifier">`*`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L176"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L176" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="*,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2A%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`*`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L181"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L181" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="*,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2A%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`*`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L171"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L171" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+=,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`+=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L102"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L102" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+=,Vector[T],T">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%3D%2CVector%5BT%5D%2CT"><span class="Identifier">`+=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L109"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L109" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+=,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`+=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L97"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L97" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+,float,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2Cfloat%2CVector%5BT%5D"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L72"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L72" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+,T,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CT%2CVector%5BT%5D"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L91"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L91" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L59"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L59" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L66"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L66" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="+,Vector[T],T">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2B%2CVector%5BT%5D%2CT"><span class="Identifier">`+`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L85"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L85" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-=,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`-=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L155"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L155" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-=,Vector[T],T">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%3D%2CVector%5BT%5D%2CT"><span class="Identifier">`-=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L162"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L162" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-=,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`-=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L150"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L150" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-,float,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%2Cfloat%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L126"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L126" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-,T,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%2CT%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L144"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L144" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L113"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L113" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L214"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L214" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L120"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L120" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="-,Vector[T],T">
+<dt><pre><span class="Keyword">proc</span> <a href="#-%2CVector%5BT%5D%2CT"><span class="Identifier">`-`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L138"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L138" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="/.=,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2F.%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`/.=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L202"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L202" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="/.,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2F.%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`/.`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L192"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L192" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="/=,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2F%3D%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`/=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L211"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L211" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="/,Vector[T],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%2F%2CVector%5BT%5D%2Cfloat"><span class="Identifier">`/`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">d</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L166"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L166" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="==,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%3D%3D%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">`==`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L51"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L51" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="@,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%40%2CVector%5BT%5D"><span class="Identifier">`@`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L43"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L43" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="@,Vector[Vector[T]]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%40%2CVector%5BVector%5BT%5D%5D"><span class="Identifier">`@`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L44"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L44" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="@,Vector[Vector[Vector[T]]]">
+<dt><pre><span class="Keyword">proc</span> <a href="#%40%2CVector%5BVector%5BVector%5BT%5D%5D%5D"><span class="Identifier">`@`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L47"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L47" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="[]=,Vector[T],int,T">
+<dt><pre><span class="Keyword">proc</span> <a href="#%5B%5D%3D%2CVector%5BT%5D%2Cint%2CT"><span class="Identifier">`[]=`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L31"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L31" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="[],Vector[T],int_2">
+<dt><pre><span class="Keyword">proc</span> <a href="#%5B%5D%2CVector%5BT%5D%2Cint_2"><span class="Identifier">`[]`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L30"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L30" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="[],Vector[T],int">
+<dt><pre><span class="Keyword">proc</span> <a href="#%5B%5D%2CVector%5BT%5D%2Cint"><span class="Identifier">`[]`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L29"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L29" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="^,Vector[float],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#%5E%2CVector%5Bfloat%5D%2Cfloat"><span class="Identifier">`^`</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">power</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+Returns a Vector object after raising each element to a power (float powers)
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L261"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L261" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="^,Vector[float],Natural">
+<dt><pre><span class="Keyword">proc</span> <a href="#%5E%2CVector%5Bfloat%5D%2CNatural"><span class="Identifier">`^`</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">power</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+Returns a Vector object after raising each element to a power (Natural number powers)
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L254"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L254" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="abs,Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#abs%2CVector%5BT%5D"><span class="Identifier">abs</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L219"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L219" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="arange,float,float,float">
+<dt><pre><span class="Keyword">proc</span> <a href="#arange%2Cfloat%2Cfloat%2Cfloat"><span class="Identifier">arange</span></a><span class="Other">(</span><span class="Identifier">x1</span><span class="Other">,</span> <span class="Identifier">x2</span><span class="Other">,</span> <span class="Identifier">dx</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">includeStart</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">includeEnd</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Identifier">float</span><span class="Other">]</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+<dd>
+
+Generates points between <tt class="docutils literal"><span class="pre"><span class="Identifier">x1</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">x2</span></span></tt> with spacing <tt class="docutils literal"><span class="pre"><span class="Identifier">dx</span></span></tt>. By default, <tt class="docutils literal"><span class="pre"><span class="Identifier">x2</span></span></tt> is not included unless it ends up <em>exactly</em> on it. Set <tt class="docutils literal"><span class="pre"><span class="Identifier">includeEnd</span> <span class="Operator">=</span> <span class="Identifier">true</span></span></tt> if you want to include it.
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L482"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L482" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="calcError,T,T">
+<dt><pre><span class="Keyword">proc</span> <a href="#calcError%2CT%2CT"><span class="Identifier">calcError</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">y_true</span><span class="Other">,</span> <span class="Identifier">y</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">auto</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L271"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L271" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="checkVectorSizes,Vector,Vector">
+<dt><pre><span class="Keyword">proc</span> <a href="#checkVectorSizes%2CVector%2CVector"><span class="Identifier">checkVectorSizes</span></a><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">)</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L22"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L22" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="chi2,,,">
+<dt><pre><span class="Keyword">proc</span> <a href="#chi2%2C%2C%2C"><span class="Identifier">chi2</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">yData</span><span class="Other">,</span> <span class="Identifier">yFit</span><span class="Other">,</span> <span class="Identifier">yError</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Keyword">or</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+<dd>
+
+Calculates the χ²-test on the fit of a curve to data points.
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L316"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L316" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="clone,T">
+<dt><pre><span class="Keyword">proc</span> <a href="#clone%2CT"><span class="Identifier">clone</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L269"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L269" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="delete,seq[T],seq[int]">
+<dt><pre><span class="Keyword">proc</span> <a href="#delete%2Cseq%5BT%5D%2Cseq%5Bint%5D"><span class="Identifier">delete</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
+<dd>
+
+Deletes the elements of seq s at indices idx. idx must not contain duplicates!
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L332"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L332" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="dot,Vector[T],Vector[T]">
+<dt><pre><span class="Keyword">proc</span> <a href="#dot%2CVector%5BT%5D%2CVector%5BT%5D"><span class="Identifier">dot</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">v1</span><span class="Other">,</span> <span class="Identifier">v2</span><span class="Other">:</span> <a href="utils.html#Vector"><span class="Identifier">Vector</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> {.<span class="Identifier">inline</span>.}</pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L206"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L206" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
 <div id="findDuplicates,openArray[T],bool">
 <dt><pre><span class="Keyword">proc</span> <a href="#findDuplicates%2CopenArray%5BT%5D%2Cbool"><span class="Identifier">findDuplicates</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">isSorted</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
 Finds and returns the indices of duplicates in an openArray. [1, 1, 2, 1, 4, 5, 4] would yield @[@[0, 1, 3], @[4, 6]] for the duplicate 1's and 4's
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L339"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L349"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L339" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L349" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1049,9 +1057,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L332"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L342"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L332" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L342" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1060,11 +1068,14 @@ class="link-seesrc" target="_blank">Source</a>
                            <span class="Identifier">y</span><span class="Other">,</span> <span class="Identifier">dy</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> {.<span class="Identifier">inline</span>.}</pre></dt>
 <dd>
 
-x is the points to evaluate the spline in t, y, dy are the raw input values used to form the spline
+Hermite interpolate data points.<ul class="simple"><li>x is the points to evaluate the spline in</li>
+<li>t, y, dy are the raw input values used to form the spline</li>
+</ul>
+
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L274"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L282"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L274" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L282" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1074,9 +1085,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L265"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L273"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L265" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L273" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1086,9 +1097,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L455"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L474"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L455" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L474" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1097,11 +1108,11 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
 <dd>
 
-
+Generates N evenly spaced points between (and including) x1 and x2.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L476"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L498"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L476" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L498" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1111,9 +1122,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L244"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L252"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L244" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L252" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1123,9 +1134,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L262"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L270"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L262" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L270" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1133,11 +1144,12 @@ class="link-seesrc" target="_blank">Source</a>
 <dt><pre><span class="Keyword">proc</span> <a href="#meshgrid%2Cvarargs%5BTensor%5BT%5D%5D"><span class="Identifier">meshgrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">ts</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
+Creates a Tensor with the coordinates on a meshgrid defined by the inputs. Each input is expected to be a 1D Tensor with the grid values in that dimension. If N inputs are given, a N-dimensional meshgrid will be created and returned in a (nPoints, N) Tensor.<blockquote><p>Note: This is different from for example MATLAB's meshgrid which returns a N-dimensional Tensor instead.</p></blockquote>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L445"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L457"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L445" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L457" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1147,9 +1159,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns two flat (rank 1) tensors with the grid coordinates specified by <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">y</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L417"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L429"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L417" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L429" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1159,9 +1171,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L11"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L19"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L11" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L19" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1171,9 +1183,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Calculate various norms of our Vector class
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L217"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L225"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L217" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L225" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1184,9 +1196,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Pure duplicates, ie exactly the same x and y values, are removed. If impure duplicate, same x but different y, exception will be raised.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L350"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L360"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L350" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L360" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1196,9 +1208,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L49"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L57"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L49" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1208,11 +1220,11 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">Tx</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">y</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">Ty</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
-
+Sorts <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">y</span></span></tt> according to <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> and removes duplicate values.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L401"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L411"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L401" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L411" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1222,11 +1234,11 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">Tx</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">y</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">Ty</span><span class="Other">]</span><span class="Other">]</span></pre></dt>
 <dd>
 
-
+Sorts <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">y</span></span></tt> according to <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> and removes duplicate values.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L405"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L416"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L405" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L416" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1237,9 +1249,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L410"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L422"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L410" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L422" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1251,9 +1263,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Sorts seqs of according to the first seq in the openarray.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L375"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L385"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L375" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L385" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1265,9 +1277,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L396"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L406"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L396" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L406" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1277,9 +1289,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L235"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L243"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L235" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L243" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1289,9 +1301,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L42"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L50"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L50" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1306,9 +1318,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L25"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L33"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L25" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L33" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1318,9 +1330,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L28"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L36"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L28" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L36" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1330,9 +1342,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L31"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L39"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L31" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L39" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1347,9 +1359,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L98"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L106"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L98" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L106" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1359,9 +1371,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L70"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L78"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L70" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L78" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1371,9 +1383,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L73"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L81"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L73" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L81" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1383,9 +1395,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L151"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L159"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L151" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L159" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1395,9 +1407,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L124"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L132"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L124" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L132" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1407,9 +1419,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L127"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L135"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L127" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L135" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1420,9 +1432,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L495"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L518"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L495" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L518" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1432,9 +1444,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L487"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/utils.nim#L510"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L487" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/utils.nim#L510" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -1448,7 +1460,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:42:17 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-08 08:32:33 UTC</small>
       </div>
     </div>
   </div>

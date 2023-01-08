@@ -98,6 +98,7 @@ window.addEventListener('DOMContentLoaded', main);
     </select>
   </div>
   <ul class="simple simple-toc" id="toc-list">
+<li><a class="reference" id="radial-basis-function-interpolation_toc" href="#radial-basis-function-interpolation">Radial basis function interpolation</a></li>
 <li>
   <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
   <ul class="simple simple-toc-section">
@@ -247,7 +248,20 @@ class="link-seesrc" target="_blank">Source</a>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc"></p>
+  <p class="module-desc">
+<h1><a class="toc-backref" id="radial-basis-function-interpolation" href="#radial-basis-function-interpolation">Radial basis function interpolation</a></h1><p>This module implements RBF interpolation of scattered data in arbitrary dimensions.</p>
+
+<p><strong class="examples_text">Example:</strong></p>
+<pre class="listing"><span class="Keyword">import</span> <span class="Identifier">src</span><span class="Operator">/</span><span class="Identifier">numericalnim</span><span class="Operator">/</span><span class="Identifier">rbf</span>
+<span class="Keyword">import</span> <span class="Identifier">arraymancer</span>
+
+<span class="Keyword">let</span> <span class="Identifier">points</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="Punctuation">[</span><span class="FloatNumber">0.0</span><span class="Punctuation">,</span> <span class="FloatNumber">0.0</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">,</span> <span class="FloatNumber">0.0</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">0.0</span><span class="Punctuation">,</span> <span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">,</span> <span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+<span class="Keyword">let</span> <span class="Identifier">values</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="Punctuation">[</span><span class="FloatNumber">0.0</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">1.0</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">2.0</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">3.0</span><span class="Punctuation">]</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+
+<span class="Keyword">let</span> <span class="Identifier">interp</span> <span class="Operator">=</span> <span class="Identifier">newRbf</span><span class="Punctuation">(</span><span class="Identifier">points</span><span class="Punctuation">,</span> <span class="Identifier">values</span><span class="Punctuation">)</span>
+
+<span class="Keyword">let</span> <span class="Identifier">evalPoints</span> <span class="Operator">=</span> <span class="Punctuation">[</span><span class="Punctuation">[</span><span class="FloatNumber">0.5</span><span class="Punctuation">,</span> <span class="FloatNumber">0.5</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="FloatNumber">0.314</span><span class="Punctuation">,</span> <span class="FloatNumber">0.281</span><span class="Punctuation">]</span><span class="Punctuation">]</span><span class="Operator">.</span><span class="Identifier">toTensor</span>
+<span class="Keyword">let</span> <span class="Identifier">val</span> <span class="Operator">=</span> <span class="Identifier">interp</span><span class="Operator">.</span><span class="Identifier">eval</span><span class="Punctuation">(</span><span class="Identifier">evalPoints</span><span class="Punctuation">)</span></pre></p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
@@ -268,9 +282,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L8"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L21"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L8" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -280,9 +294,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L7"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L20"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L7" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L20" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -298,9 +312,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L15"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L28"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L15" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L28" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -314,9 +328,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L22"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L35"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L22" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L35" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -332,75 +346,14 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L127"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L140"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L127" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L140" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
 <div id="constructMeshedPatches,RbfGrid[T]">
 <dt><pre><span class="Keyword">proc</span> <a href="#constructMeshedPatches%2CRbfGrid%5BT%5D"><span class="Identifier">constructMeshedPatches</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">grid</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L58"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L58" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="eval,RbfBaseType[T],Tensor[float]">
-<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CRbfBaseType%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">rbf</span><span class="Other">:</span> <a href="rbf.html#RbfBaseType"><span class="Identifier">RbfBaseType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L141"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L141" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="eval,RbfType[T],Tensor[float]">
-<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CRbfType%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">rbf</span><span class="Other">:</span> <a href="rbf.html#RbfType"><span class="Identifier">RbfType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L185"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L185" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="evalAlt,RbfType[T],Tensor[float]">
-<dt><pre><span class="Keyword">proc</span> <a href="#evalAlt%2CRbfType%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">evalAlt</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">rbf</span><span class="Other">:</span> <a href="rbf.html#RbfType"><span class="Identifier">RbfType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L208"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L208" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="findAllBetween,RbfGrid[T],Tensor[float],float,float">
-<dt><pre><span class="Keyword">proc</span> <a href="#findAllBetween%2CRbfGrid%5BT%5D%2CTensor%5Bfloat%5D%2Cfloat%2Cfloat"><span class="Identifier">findAllBetween</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">grid</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rho1</span><span class="Other">,</span> <span class="Identifier">rho2</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
-    <span class="Identifier">int</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L80"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L80" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="findAllWithin,RbfGrid[T],Tensor[float],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#findAllWithin%2CRbfGrid%5BT%5D%2CTensor%5Bfloat%5D%2Cfloat"><span class="Identifier">findAllWithin</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">grid</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rho</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -411,15 +364,76 @@ class="link-seesrc" target="_blank">Source</a>
 
 </dd>
 </div>
+<div id="eval,RbfBaseType[T],Tensor[float]">
+<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CRbfBaseType%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">rbf</span><span class="Other">:</span> <a href="rbf.html#RbfBaseType"><span class="Identifier">RbfBaseType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L154"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L154" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="eval,RbfType[T],Tensor[float]">
+<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CRbfType%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">rbf</span><span class="Other">:</span> <a href="rbf.html#RbfType"><span class="Identifier">RbfType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L203"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L203" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="evalAlt,RbfType[T],Tensor[float]">
+<dt><pre><span class="Keyword">proc</span> <a href="#evalAlt%2CRbfType%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">evalAlt</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">rbf</span><span class="Other">:</span> <a href="rbf.html#RbfType"><span class="Identifier">RbfType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L226"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L226" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="findAllBetween,RbfGrid[T],Tensor[float],float,float">
+<dt><pre><span class="Keyword">proc</span> <a href="#findAllBetween%2CRbfGrid%5BT%5D%2CTensor%5Bfloat%5D%2Cfloat%2Cfloat"><span class="Identifier">findAllBetween</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">grid</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rho1</span><span class="Other">,</span> <span class="Identifier">rho2</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Identifier">int</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L93"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L93" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="findAllWithin,RbfGrid[T],Tensor[float],float">
+<dt><pre><span class="Keyword">proc</span> <a href="#findAllWithin%2CRbfGrid%5BT%5D%2CTensor%5Bfloat%5D%2Cfloat"><span class="Identifier">findAllWithin</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">grid</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rho</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L84"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L84" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
 <div id="findIndex,RbfGrid[T],Tensor[float]">
 <dt><pre><span class="Keyword">proc</span> <a href="#findIndex%2CRbfGrid%5BT%5D%2CTensor%5Bfloat%5D"><span class="Identifier">findIndex</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">grid</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">point</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L53"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L66"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L53" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L66" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -428,11 +442,22 @@ class="link-seesrc" target="_blank">Source</a>
                <span class="Identifier">rbfFunc</span><span class="Other">:</span> <a href="rbf.html#RbfFunc"><span class="Identifier">RbfFunc</span></a> <span class="Other">=</span> <span class="Identifier">compactRbfFunc</span><span class="Other">;</span> <span class="Identifier">epsilon</span><span class="Other">:</span> <span class="Identifier">float</span> <span class="Other">=</span> <span class="DecNumber">1</span><span class="Other">)</span><span class="Other">:</span> <a href="rbf.html#RbfType"><span class="Identifier">RbfType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-Construct a Radial basis function interpolator using Partition of Unity. points: The positions of the data points. Shape: (nPoints, nDims) values: The values at the points. Can be multivalued. Shape: (nPoints, nValues) gridSize: The number of cells along each dimension. Setting it to the default 0 will automatically choose a value based on the number of points. rbfFunc: The RBF function that accepts shape parameter. Default is a C^2 compactly supported function. epsilon: shape parameter. Default 1.
+<p>Construct a Radial basis function interpolator using Partition of Unity.</p>
+<p>Inputs:</p>
+<ul class="simple"><li>points: The positions of the data points. Shape: (nPoints, nDims)</li>
+<li>values: The values at the points. Can be multivalued. Shape: (nPoints, nValues)</li>
+<li>gridSize: The number of cells along each dimension. Setting it to the default 0 will automatically choose a value based on the number of points.</li>
+<li>rbfFunc: The RBF function that accepts shape parameter. Default is a C^2 compactly supported function.</li>
+<li>epsilon: shape parameter. Default 1.</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple"><li>Interpolant that can be evaluated using <tt class="docutils literal"><span class="pre"><span class="Identifier">interp</span><span class="Operator">.</span><span class="Identifier">eval</span><span class="Punctuation">(</span><span class="Identifier">points</span><span class="Punctuation">)</span></span></tt>.</li>
+</ul>
+
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L151"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L164"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L151" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L164" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -444,9 +469,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L134"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L147"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L134" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L147" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -457,9 +482,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L97"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L110"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L97" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L110" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -471,9 +496,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L146"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L159"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L146" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L159" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -488,9 +513,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L30"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L43"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L30" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L43" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -500,9 +525,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L48"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L61"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L48" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L61" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -517,9 +542,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L124"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/rbf.nim#L137"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L124" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/rbf.nim#L137" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -533,7 +558,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-05 22:42:17 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-01-08 08:32:38 UTC</small>
       </div>
     </div>
   </div>
