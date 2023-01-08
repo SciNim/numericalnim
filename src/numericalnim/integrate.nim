@@ -6,6 +6,66 @@ import arraymancer
 
 from ./interpolate import InterpolatorType, newHermiteSpline
 
+## # Integration
+## This module implements various integration routines.
+## It provides:
+## 
+## ## Integrate discrete data:
+## - `trapz`, `simpson`: works for any spacing between points.
+## - `romberg`: requires equally spaced points and the number of points must be of the form 2^k + 1 ie 3, 5, 9, 17, 33, 65, 129 etc.
+
+runnableExamples:
+    import numericalnim, std/[sequtils]
+    let x = linspace(0.0, 5.0, 5)
+    let y = x.mapIt(it*it/2)
+
+    let integral = simpson(y, x)
+
+
+## ## Integrate continous functions:
+## - `adaptiveGauss` (recommended): Adaptive Gaussian quadrature. This is often the best choice as it is both fast and accurate.
+##   It also handles infinite integration limits.
+## - `gaussQuad`: Fixed step size Gaussian quadrature.
+## - `romberg`: Adaptive method based on Richardson Extrapolation.
+## - `adaptiveSimpson`: Adaptive step size. 
+## - `simpson`: Fixed step size.
+## - `trapz`: Fixed step size.
+
+runnableExamples:
+    import numericalnim, std/math
+
+    proc f(x: float, ctx: NumContext[float, float]): float =
+        exp(x)
+    
+    let a = 0.0
+    let b = Inf
+    let integral = adaptiveGauss(f, a, b)
+
+## ## Cumulative integration:
+## - Discrete: `cumtrapz`, `cumsimpson`.
+## - Continous:
+##   - `cumGauss`: adaptive step size.
+##   - `cumGaussSpline`: returns a HermiteSpline constructed from the cumulative integral.
+##   - `cumsimpson`, `cumtrapz`: fixed step size.
+
+runnableExamples:
+    import numericalnim, std/[sequtils]
+    # Discrete cumulative
+    let x = linspace(0.0, 5.0, 5)
+    let y = x.mapIt(it*it/2)
+
+    let cumintegral = cumsimpson(y, x)
+
+runnableExamples:
+    import numericalnim, std/math
+    # Continous cumulative
+    proc f(x: float, ctx: NumContext[float, float]): float =
+        exp(x)
+
+    # The values we want the cumulative integral at:
+    let xspan = linspace(0.0, 5.0, 10)
+    let cumintegral = cumGauss(f, xspan)
+
 type
     IntervalType[T; U; V] = object
         lower, upper: U # integration bounds

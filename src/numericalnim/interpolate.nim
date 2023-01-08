@@ -8,6 +8,65 @@ import
 
 export rbf
 
+## # Interpolation
+## This module implements various interpolation routines.
+## See also:
+## - `rbf module<rbf.html>`_ for RBF interpolation of scattered data in arbitrary dimensions.
+## 
+## ## 1D interpolation
+## - Hermite spline (recommended): cubic spline that works with many types of values. Accepts derivatives if available.
+## - Cubic spline: cubic spline that only works with `float`s.
+## - Linear spline: Linear spline that works with many types of values.
+
+runnableExamples:
+  import numericalnim, std/[math, sequtils]
+  
+  let x = linspace(0.0, 1.0, 10)
+  let y = x.mapIt(sin(it))
+
+  let interp = newHermiteSpline(x, y)
+
+  let val = interp.eval(0.314)
+
+## ## 2D interpolation
+## - Bicubic: Works on gridded data.
+## - Bilinear: Works on gridded data.
+## - Nearest neighbour: Works on gridded data.
+## - Barycentric: Works on scattered data.
+
+runnableExamples:
+  import arraymancer, numericalnim
+
+  var z = newTensor[float](10, 10)
+  for i, x in linspace(0.0, 1.0, 10):
+    for j, y in linspace(0.0, 1.0, 10):
+      z[i, j] = x * y
+
+  let xlim = (0.0, 1.0)
+  let ylim = (0.0, 1.0)
+  let interp = newBicubicSpline(z, xlim, ylim)
+
+  let val = interp.eval(0.314, 0.628)
+
+## ## 3D interpolation
+## - Trilinear: works on gridded data
+
+runnableExamples:
+  import arraymancer, numericalnim
+
+  var f = newTensor[float](10, 10, 10)
+  for i, x in linspace(0.0, 1.0, 10):
+    for j, y in linspace(0.0, 1.0, 10):
+      for k, z in linspace(0.0, 1.0, 10):
+        f[i, j, k] = x * y * z
+
+  let xlim = (0.0, 1.0)
+  let ylim = (0.0, 1.0)
+  let zlim = (0.0, 1.0)
+  let interp = newTrilinearSpline(f, xlim, ylim, zlim)
+
+  let val = interp.eval(0.314, 0.628, 0.414)
+
 type
   InterpolatorType*[T] = ref object
     X*: seq[float]
@@ -69,7 +128,7 @@ proc findInterval*(list: openArray[float], x: float): int {.inline.} =
     # x is in the interval
     return n]#
 
-### CubicSpline
+# CubicSpline
 
 proc constructCubicSpline[T](X: openArray[float], Y: openArray[T]): Tensor[float] =
   let n = X.len - 1
@@ -128,6 +187,7 @@ proc derivEval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
 
 proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
+  ## Returns a cubic spline. 
   let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   let coeffs = constructCubicSpline(xSorted, ySorted)
   result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
@@ -135,7 +195,7 @@ proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
       deriveval_handler: derivEval_cubicspline)
 
 
-## HermiteSpline
+# HermiteSpline
 
 proc eval_hermitespline*[T](spline: InterpolatorType[T], x: float): T =
   let n = findInterval(spline.X, x)
@@ -170,7 +230,7 @@ proc derivEval_hermitespline*[T](spline: InterpolatorType[T], x: float): T =
 
 proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
     T]): InterpolatorType[T] =
-  ## X, Y and dY must be sorted by X in ascending order
+  ## Constructs a cubic Hermite spline using x, y and derivatives of y.
   #let sortedData = sortDataset(X, Y)
   #let sortedData_dY = sortDataset(X, dY)
   #var xSorted = newSeq[float](X.len)
@@ -195,6 +255,7 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
 
 proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
+  ## Constructs a cubic Hermite spline by approximating the derivatives. 
   # if only (x, y) is given, use three-point difference to calculate dY.
   let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   var dySorted = newSeq[T](ySorted.len)
@@ -231,6 +292,7 @@ proc derivEval_linear1d*[T](spline: InterpolatorType[T], x: float): T =
 
 proc newLinear1D*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
+  ## Constructs a linear interpolator.
   if X.len != Y.len:
     raise newException(ValueError, &"X and Y and dY must have the same length. X.len is {X.len} and Y.len is {Y.len}")
   let sortedDataset = sortAndTrimDataset(@X, @Y)
@@ -246,37 +308,45 @@ proc newLinear1D*[T](X: openArray[float], Y: openArray[
 # General Spline stuff
 
 template eval*[T](interpolator: InterpolatorType[T], x: float): untyped =
+  ## Evaluates an interpolator.
   interpolator.eval_handler(interpolator, x)
 
 template derivEval*[T](interpolator: InterpolatorType[T], x: float): untyped =
+  ## Evaluates the derivative of an interpolator.
   interpolator.deriveval_handler(interpolator, x)
 
 proc eval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
+  ## Evaluates an interpolator at all points in `x`. 
   result = newSeq[T](x.len)
   for i, xi in x:
     result[i] = eval(spline, xi)
 
 proc toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
+  ## Returns a proc to evaluate the interpolator.
   result = proc(x: float): T = eval(spline, x)
 
 converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, float] =
+  ## Convert interpolator to `NumContextProc`.
   result = proc(x: float, ctx: NumContext[T, float]): T = eval(spline, x)
 
 proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
+  ## Evaluates the derivative of an interpolator at all points in `x`.
   result = newSeq[T](x.len)
   for i, xi in x:
     result[i] = derivEval(spline, xi)
 
 proc toDerivProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
+  ## Returns a proc to evaluate the derivative of the interpolator.
   result = proc(x: float): T = derivEval(spline, x)
 
 proc toDerivNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, float] =
+  ## Convert interpolator's derivative to `NumContextProc`.
   result = proc(x: float, ctx: NumContext[T, float]): T = derivEval(spline, x)
 
 
-##############################################
-############ 2D Interpolation ################
-##############################################
+# ############################################ #
+# ########### 2D Interpolation ############### #
+# ############################################ #
 
 # Nearest Neighbour interpolation
 
@@ -305,9 +375,9 @@ proc eval_nearestneigh*[T](self: Interpolator2DType[T], x, y: float): T {.nimcal
 
 proc newNearestNeighbour2D*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
   ## Returns a nearest neighbour interpolator for regularly gridded data.
-  ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
-  ## xlim - the lowest and highest x-value
-  ## ylim - the lowest and highest y-value
+  ## - z: Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
+  ## - xlim: the lowest and highest x-value
+  ## - ylim: the lowest and highest y-value
   assert z.rank == 2, "z must be a 2D tensor"
   new result
   let nx = z.shape[0]
@@ -346,9 +416,9 @@ proc eval_bilinear*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} 
 
 proc newBilinearSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
   ## Returns a bilinear spline for regularly gridded data.
-  ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
-  ## xlim - the lowest and highest x-value
-  ## ylim - the lowest and highest y-value
+  ## - z: Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
+  ## - xlim: the lowest and highest x-value
+  ## - ylim: the lowest and highest y-value
   assert z.rank == 2, "z must be a 2D tensor"
   new result
   let nx = z.shape[0]
@@ -444,9 +514,9 @@ proc eval_bicubic*[T](self: Interpolator2DType[T], x, y: float): T {.nimcall.} =
 
 proc newBicubicSpline*[T](z: Tensor[T], xlim, ylim: (float, float)): Interpolator2DType[T] =
   ## Returns a bicubic spline for regularly gridded data.
-  ## z - Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
-  ## xlim - the lowest and highest x-value
-  ## ylim - the lowest and highest y-value
+  ## - z: Tensor with the function values. x corrensponds to the rows and y to the columns. Must be sorted so ascendingly in both variables.
+  ## - xlim: the lowest and highest x-value
+  ## - ylim: the lowest and highest y-value
   assert z.rank == 2, "z must be a 2D tensor"
   new result
   let nx = z.shape[0]
@@ -510,6 +580,14 @@ proc eval_barycentric2d*[T, U](self: InterpolatorUnstructured2DType[T, U]; x, y:
     result = self.z[(x: point1.x, y: point1.y)]
 
 proc newBarycentric2D*[T: SomeFloat, U](points: Tensor[T], values: Tensor[U]): InterpolatorUnstructured2DType[T, U] =
+  ## Barycentric interpolation of scattered points in 2D.
+  ## 
+  ## Inputs:
+  ##  - points: Tensor of shape (nPoints, 2) with the coordinates of all points.
+  ##  - values: Tensor of shape (nPoints) with the function values.
+  ## 
+  ## Returns:
+  ##  - Interpolator object that can be evaluated using `interp.eval(x, y`.
   assert points.rank == 2 and points.shape[1] == 2
   assert values.rank == 1
   assert values.shape[0] == points.shape[0]
@@ -534,14 +612,16 @@ proc newBarycentric2D*[T: SomeFloat, U](points: Tensor[T], values: Tensor[U]): I
 # General Interpolator2D stuff
 
 template eval*[T](interpolator: Interpolator2DType[T], x, y: float): untyped =
+  ## Evaluate interpolator.
   interpolator.eval_handler(interpolator, x, y)
 
 template eval*[T, U](interpolator: InterpolatorUnstructured2DType[T, U], x, y: T): untyped =
+  ## Evaluate interpolator.
   interpolator.eval_handler(interpolator, x, y)
 
-##############################################
-############ 3D Interpolation ################
-##############################################
+# #############################################
+# ########### 3D Interpolation ################
+# #############################################
 
 proc checkInterpolationInterval[T](self: Interpolator3DType[T], x, y, z: float) =
   let raiseX = not(self.xLim.lower <= x and x <= self.xLim.upper)
@@ -584,10 +664,10 @@ proc eval_trilinear*[T](self: Interpolator3DType[T], x, y, z: float): T {.nimcal
 
 proc newTrilinearSpline*[T](f: Tensor[T], xlim, ylim, zlim: (float, float)): Interpolator3DType[T] =
   ## Returns a trilinear spline for regularly gridded data.
-  ## z - Tensor with the function values. x corrensponds to the first dimension, y to the second and z to the third. Must be sorted so ascendingly in both variables.
-  ## xlim - the lowest and highest x-value
-  ## ylim - the lowest and highest y-value
-  ## zlim - the lowest and highest z-value
+  ## - z: Tensor with the function values. x corrensponds to the first dimension, y to the second and z to the third. Must be sorted so ascendingly in both variables.
+  ## - xlim: the lowest and highest x-value
+  ## - ylim: the lowest and highest y-value
+  ## - zlim: the lowest and highest z-value
   assert f.rank == 3, "f must be a 3D tensor"
   new result
   let nx = f.shape[0]
@@ -613,6 +693,7 @@ proc newTrilinearSpline*[T](f: Tensor[T], xlim, ylim, zlim: (float, float)): Int
 
 # General Interpolator3D stuff
 template eval*[T](interpolator: Interpolator3DType[T], x, y, z: float): untyped =
+  ## Evaluate interpolator.
   interpolator.eval_handler(interpolator, x, y, z)
 
 #[

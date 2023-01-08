@@ -2,6 +2,19 @@ import std / [math, algorithm, tables, sequtils, strutils]
 import arraymancer
 import ./utils
 
+## # Radial basis function interpolation
+## This module implements RBF interpolation of scattered data in arbitrary dimensions.
+
+runnableExamples:
+  import arraymancer
+
+  let points = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]].toTensor
+  let values = [[0.0], [1.0], [2.0], [3.0]].toTensor
+
+  let interp = newRbf(points, values)
+
+  let evalPoints = [[0.5, 0.5], [0.314, 0.281]].toTensor
+  let val = interp.eval(evalPoints)
 
 type
   RbfFunc* = proc (r: Tensor[float], epsilon: float): Tensor[float]
@@ -150,11 +163,16 @@ proc scalePoint*(x: Tensor[float], limits: tuple[upper: Tensor[float], lower: Te
 
 proc newRbf*[T](points: Tensor[float], values: Tensor[T], gridSize: int = 0, rbfFunc: RbfFunc = compactRbfFunc, epsilon: float = 1): RbfType[T] =
   ## Construct a Radial basis function interpolator using Partition of Unity.
-  ## points: The positions of the data points. Shape: (nPoints, nDims)
-  ## values: The values at the points. Can be multivalued. Shape: (nPoints, nValues)
-  ## gridSize: The number of cells along each dimension. Setting it to the default 0 will automatically choose a value based on the number of points.
-  ## rbfFunc: The RBF function that accepts shape parameter. Default is a C^2 compactly supported function.
-  ## epsilon: shape parameter. Default 1.
+  ## 
+  ## Inputs:
+  ## - points: The positions of the data points. Shape: (nPoints, nDims)
+  ## - values: The values at the points. Can be multivalued. Shape: (nPoints, nValues)
+  ## - gridSize: The number of cells along each dimension. Setting it to the default 0 will automatically choose a value based on the number of points.
+  ## - rbfFunc: The RBF function that accepts shape parameter. Default is a C^2 compactly supported function.
+  ## - epsilon: shape parameter. Default 1.
+  ## 
+  ## Returns:
+  ## - Interpolant that can be evaluated using `interp.eval(points)`.
   assert points.shape[0] == values.shape[0]
   assert points.shape.len == 2 and values.shape.len == 2
 

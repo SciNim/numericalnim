@@ -4,6 +4,58 @@ import
     ./differentiate,
     ./utils
 
+## # Optimization
+## This module implements optimization and curve fitting routines.
+## 
+## ## Optimization
+## These optimization methods are provided:
+## - `lbfgs` (recommended): A quasi-Newton method that strikes a good balance between accuracy and performance.
+## - `bfgs`: A quasi-Newton method. `lbfgs` is a lighter version of this. 
+## - `newton`: Newton's method. Fast for small problems but struggles when the number of variables increase.
+## - `steepestDescent`: The classical gradient descent. Has slow convergence compared to the others.
+## 
+## By default the gradients are approximated using finite differences. Optionally an analytical gradient can
+## be supplied with the `analyticGradient` argument.
+
+runnableExamples:
+    import arraymancer
+    # f(x, y) = x^2 + y^2
+    proc f(x: Tensor[float]): float =
+        x[0]*x[0] + x[1]*x[1]
+
+    let guess = [1.0, 1.0].toTensor
+    let sol = lbfgs(f, guess)
+
+## ## Curve fitting
+## A Levenberg-Marquardt non-linear least squares solver is provided in `levmarq`.
+## The curve to fit is provided as a function taking in a 1D `Tensor` with all parameters
+## and the value of the independent variable to evaluate it at. 
+## 
+## Optionally the `y`-errors can be supplied to the `yError` argument to take the uncertainties
+## of each of the points into account. The uncertainties of the fitted parameters can be obtained
+## by calling `paramUncertainties`.
+
+runnableExamples:
+    import arraymancer
+    # f(x) = a*x + b
+    proc f(params: Tensor[float], x: float): float =
+        let a = params[0]
+        let b = params[1]
+        result = a*x + b
+
+    # Generate measurements
+    let x = linspace(0.0, 10.0, 10)
+    let y = 3.14 * x +. 2.81 + randomNormalTensor(10, 0.0, 0.05)
+    let yError = 0.05 * ones[float](10)
+    # Solve for best fit parameters
+    let guess = [1.0, 1.0].toTensor
+    let solution = levmarq(f, guess, x, y, yError=yError)
+    # Calculate uncertainties in fitted parameters
+    let uncertainties = sqrt(paramUncertainties(solution, f, x, y, yError))
+
+
+
+
 when not defined(nimHasEffectsOf):
   {.pragma: effectsOf.}
 
@@ -641,8 +693,8 @@ proc paramUncertainties*[U; T](params: Tensor[U], fitFunc: proc(params: Tensor[U
     ## 
     ## The uncertainties of the parameters in the form of a covariance matrix (or only the diagonal elements). 
     ## 
-    ## Note: it is the covariance that is returned, so if you want the standard deviation you have to
-    ## take the square root of it.
+    ##  Note: it is the covariance that is returned, so if you want the standard deviation you have to
+    ##  take the square root of it.
     proc fError(params: Tensor[U]): T =
         let yCurve = xData.map_inline:
             fitFunc(params, x)
