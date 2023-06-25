@@ -1,6 +1,6 @@
 import unittest, math, sequtils, algorithm, random
 import arraymancer
-import ./numericalnim
+import numericalnim
 
 test "isClose float":
   let a = 1.0
