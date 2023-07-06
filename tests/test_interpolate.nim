@@ -184,6 +184,40 @@ test "linear1DSpline derivEval, seq input":
     for i, val in res:
         check isClose(val, cos(tTest[i]), 5e-2)
 
+let tOutside = @[-0.1, 10.1]
+let yOutside = tOutside.map(f)
+
+test "Extrapolate Constant":
+    for interp in [linear1DSpline, cubicSpline, hermiteSpline]:
+        let res = interp.eval(tOutside, Constant, NaN)
+        for x in res:
+            check x.isNan()
+
+test "Extrapolate Edge":
+    for interp in [linear1DSpline, cubicSpline, hermiteSpline]:
+        let res = interp.eval(tOutside, Edge)
+        check res == @[y[0], y[^1]]
+
+test "Extrapolate Error":
+    for interp in [linear1DSpline, cubicSpline, hermiteSpline]:
+        expect ValueError:
+            let res = interp.eval(tOutside, Error)
+
+test "Extrapolate Linear":
+    let exact = linear1DSpline.eval(tOutside, Native)
+    for interp in [linear1DSpline, cubicSpline, hermiteSpline]:
+        let res = interp.eval(tOutside, ExtrapolateKind.Linear)
+        check res == exact
+
+test "Extrapolate Native (Cubic)":
+    let res = cubicSpline.eval(tOutside, Native)
+    for (y1, y2) in zip(res, yOutside):
+        check abs(y1 - y2) < 1e-2
+
+test "Extrapolate Native (Hermit)":
+    let res = hermiteSpline.eval(tOutside, Native)
+    for (y1, y2) in zip(res, yOutside):
+        check abs(y1 - y2) < 1.1e-2
 
 
 # 2D Interpolation
