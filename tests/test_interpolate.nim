@@ -191,7 +191,7 @@ test "Extrapolate Constant":
     for interp in [linear1DSpline, cubicSpline, hermiteSpline]:
         let res = interp.eval(tOutside, Constant, NaN)
         for x in res:
-            check x.isNan()
+            check classify(x) == fcNan
 
 test "Extrapolate Edge":
     for interp in [linear1DSpline, cubicSpline, hermiteSpline]:
