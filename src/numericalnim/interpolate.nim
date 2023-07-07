@@ -326,9 +326,41 @@ proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extrapolat
   result = interpolator.eval_handler(interpolator, x)
   
 
-template derivEval*[T](interpolator: InterpolatorType[T], x: float): untyped =
+proc derivEval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: ExtrapolateKind = Native, extrapValue: U = missing()): T =
   ## Evaluates the derivative of an interpolator.
-  interpolator.deriveval_handler(interpolator, x)
+  when U is Missing:
+    assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
+  else:
+    when not T is U:
+      {.error: &"Type of `extrap` ({U}) is not the same as the type of the interpolator ({T})!".}
+
+  let xLeft = x < interpolator.X[0]
+  let xRight = x > interpolator.X[^1]
+  if xLeft or xRight:
+    case extrap
+    of Constant:
+      when U is Missing:
+        discard
+      else:
+        return extrapValue
+    of Native:
+      discard
+    of Edge:
+      return
+        if xLeft: interpolator.deriveval_handler(interpolator, interpolator.X[0])
+        else: interpolator.deriveval_handler(interpolator, interpolator.X[^1])
+    of Linear:
+      let (xs, ys) =
+        if xLeft:
+          ((interpolator.X[0], interpolator.X[1]), (interpolator.deriveval_handler(interpolator, interpolator.X[0]), interpolator.deriveval_handler(interpolator, interpolator.X[1])))
+        else:
+          ((interpolator.X[^2], interpolator.X[^1]), (interpolator.deriveval_handler(interpolator, interpolator.X[^2]), interpolator.deriveval_handler(interpolator, interpolator.X[^1])))
+      let k = (x - xs[0]) / (xs[1] - xs[0])
+      return ys[0] + k * (ys[1] - ys[0])
+    of Error:
+      raise newException(ValueError, &"x = {x} isn't in the interval [{interpolator.X[0]}, {interpolator.X[^1]}]")
+
+  result = interpolator.deriveval_handler(interpolator, x)
 
 proc eval*[T; U](spline: InterpolatorType[T], x: openArray[float], extrap: ExtrapolateKind = Native, extrapValue: U = missing()): seq[T] =
   ## Evaluates an interpolator at all points in `x`. 
@@ -344,11 +376,11 @@ converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, f
   ## Convert interpolator to `NumContextProc`.
   result = proc(x: float, ctx: NumContext[T, float]): T = eval(spline, x)
 
-proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
+proc derivEval*[T; U](spline: InterpolatorType[T], x: openArray[float], extrap: ExtrapolateKind = Native, extrapValue: U = missing()): seq[T] =
   ## Evaluates the derivative of an interpolator at all points in `x`.
   result = newSeq[T](x.len)
   for i, xi in x:
-    result[i] = derivEval(spline, xi)
+    result[i] = derivEval(spline, xi, extrap, extrapValue)
 
 proc toDerivProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   ## Returns a proc to evaluate the derivative of the interpolator.
