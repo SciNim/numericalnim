@@ -290,7 +290,16 @@ proc missing(): Missing = discard
 
 proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: ExtrapolateKind = Native, extrapValue: U = missing()): T =
   ## Evaluates an interpolator.
-  # check for extrapolation
+  ## - `x`: The point to evaluate the interpolator at.
+  ## - `extrap`: The extrapolation method to use. Available options are:
+  ##  - `Constant`: Set all points outside the range of the interpolator to `extrapValue`.
+  ##  - `Edge`: Use the value of the left/right edge.
+  ##  - `Linear`: Uses linear extrapolation using the two points closest to the edge.
+  ##  - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
+  ##  - `Error`: Raises an `ValueError` if `x` is outside the range. 
+  ## - `extrapValue`: The extrapolation value to use when `extrap = Constant`.
+  ## 
+  ## > Beware: `Native` extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.
   when U is Missing:
     assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
   else:
@@ -328,6 +337,16 @@ proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extrapolat
 
 proc derivEval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: ExtrapolateKind = Native, extrapValue: U = missing()): T =
   ## Evaluates the derivative of an interpolator.
+  ## - `x`: The point to evaluate the interpolator at.
+  ## - `extrap`: The extrapolation method to use. Available options are:
+  ##  - `Constant`: Set all points outside the range of the interpolator to `extrapValue`.
+  ##  - `Edge`: Use the value of the left/right edge.
+  ##  - `Linear`: Uses linear extrapolation using the two points closest to the edge.
+  ##  - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
+  ##  - `Error`: Raises an `ValueError` if `x` is outside the range. 
+  ## - `extrapValue`: The extrapolation value to use when `extrap = Constant`.
+  ## 
+  ## > Beware: `Native` extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.
   when U is Missing:
     assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
   else:
