@@ -17,6 +17,12 @@ export rbf
 ## - Hermite spline (recommended): cubic spline that works with many types of values. Accepts derivatives if available.
 ## - Cubic spline: cubic spline that only works with `float`s.
 ## - Linear spline: Linear spline that works with many types of values.
+## 
+## ### Extrapolation
+## Extrapolation is supported for all 1D interpolators by passing the type of extrapolation as an argument of `eval`.
+## The default is to use the interpolator's native method to extrapolate. This means that Linear does linear extrapolation,
+## while Hermite and Cubic performs cubic extrapolation. Other options are using a constant value, using the values of the edges,
+## linear extrapolation and raising an error if the x-value is outside the domain.
 
 runnableExamples:
   import numericalnim, std/[math, sequtils]
@@ -27,6 +33,8 @@ runnableExamples:
   let interp = newHermiteSpline(x, y)
 
   let val = interp.eval(0.314)
+
+  let valExtrapolate = interp.eval(1.1, Edge)
 
 ## ## 2D interpolation
 ## - Bicubic: Works on gridded data.
