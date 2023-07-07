@@ -1,4 +1,4 @@
-import strformat, math, tables, algorithm
+import std/[strformat, math, tables, algorithm]
 import arraymancer, cdt/[dt, vectors, edges, types]
 import
   ./utils,
@@ -17,6 +17,12 @@ export rbf
 ## - Hermite spline (recommended): cubic spline that works with many types of values. Accepts derivatives if available.
 ## - Cubic spline: cubic spline that only works with `float`s.
 ## - Linear spline: Linear spline that works with many types of values.
+## 
+## ### Extrapolation
+## Extrapolation is supported for all 1D interpolators by passing the type of extrapolation as an argument of `eval`.
+## The default is to use the interpolator's native method to extrapolate. This means that Linear does linear extrapolation,
+## while Hermite and Cubic performs cubic extrapolation. Other options are using a constant value, using the values of the edges,
+## linear extrapolation and raising an error if the x-value is outside the domain.
 
 runnableExamples:
   import numericalnim, std/[math, sequtils]
@@ -27,6 +33,8 @@ runnableExamples:
   let interp = newHermiteSpline(x, y)
 
   let val = interp.eval(0.314)
+
+  let valExtrapolate = interp.eval(1.1, Edge)
 
 ## ## 2D interpolation
 ## - Bicubic: Works on gridded data.
@@ -70,6 +78,7 @@ runnableExamples:
 type
   InterpolatorType*[T] = ref object
     X*: seq[float]
+    Y*: seq[T]
     coeffs_f*: Tensor[float]
     coeffs_T*: Tensor[T]
     high*: int
@@ -77,6 +86,8 @@ type
     eval_handler*: EvalHandler[T]
     deriveval_handler*: EvalHandler[T]
   EvalHandler*[T] = proc(self: InterpolatorType[T], x: float): T {.nimcall.}
+  ExtrapolateKind* = enum
+    Constant, Edge, Linear, Native, Error
   Eval2DHandler*[T] = proc (self: Interpolator2DType[T], x, y: float): T {.nimcall.}
   Interpolator2DType*[T] = ref object
     z*, xGrad*, yGrad*, xyGrad*: Tensor[T] # 2D tensor
@@ -101,32 +112,7 @@ type
 
 
 proc findInterval*(list: openArray[float], x: float): int {.inline.} =
-  let highIndex = list.high
-  if x < list[0] or list[highIndex] < x:
-    raise newException(ValueError, &"x = {x} isn't in the interval [{list[0]}, {list[highIndex]}]")
-  result = max(0, lowerbound(list, x) - 1)
-  #[
-  ## Finds the index of the element to the left of x in list using binary search. list must be ordered.
-  let highIndex = list.high
-  if x < list[0] or list[highIndex] < x:
-    raise newException(ValueError, &"x = {x} isn't in the interval [{list[0]}, {list[highIndex]}]")
-  var upper = highIndex
-  var lower = 0
-  var n = floorDiv(upper + lower, 2)
-  # find interval using binary search
-  for i in 0 .. highIndex:
-    if x < list[n]:
-      # x is below current interval
-      upper = n
-      n = floorDiv(upper + lower, 2)
-      continue
-    if list[n+1] < x:
-      # x is above current interval
-      lower = n + 1
-      n = floorDiv(upper + lower, 2)
-      continue
-    # x is in the interval
-    return n]#
+  result = clamp(lowerbound(list, x) - 1, 0, list.high-1)
 
 # CubicSpline
 
@@ -190,7 +176,7 @@ proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
   ## Returns a cubic spline. 
   let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   let coeffs = constructCubicSpline(xSorted, ySorted)
-  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+  result = InterpolatorType[T](X: xSorted, Y: ySorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_cubicspline,
       deriveval_handler: derivEval_cubicspline)
 
@@ -249,7 +235,7 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
   var coeffs = newTensorUninit[T](ySorted.len, 2)
   for i in 0 .. ySorted.high:
     coeffs[i, _] = @[ySorted[i], dySorted[i]].toTensor.reshape(1, 2)
-  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+  result = InterpolatorType[T](X: xSorted, Y: ySorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_hermitespline,
       deriveval_handler: derivEval_hermitespline)
 
@@ -269,7 +255,7 @@ proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
   var coeffs = newTensorUninit[T](Y.len, 2)
   for i in 0 .. ySorted.high:
     coeffs[i, _] = @[ySorted[i], dySorted[i]].toTensor.reshape(1, 2)
-  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+  result = InterpolatorType[T](X: xSorted, Y: ySorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_hermitespline,
       deriveval_handler: derivEval_hermitespline)
 
@@ -301,25 +287,113 @@ proc newLinear1D*[T](X: openArray[float], Y: openArray[
   var coeffs = newTensor[T](ySorted.len, 1)
   for i in 0 .. ySorted.high:
     coeffs[i, 0] = ySorted[i]
-  result = InterpolatorType[T](X: xSorted, coeffs_T: coeffs, high: xSorted.high,
+  result = InterpolatorType[T](X: xSorted, Y: ySorted, coeffs_T: coeffs, high: xSorted.high,
       len: xSorted.len, eval_handler: eval_linear1d,
       deriveval_handler: derivEval_linear1d)
 
 # General Spline stuff
 
-template eval*[T](interpolator: InterpolatorType[T], x: float): untyped =
+type Missing = object
+proc missing(): Missing = discard
+
+proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: ExtrapolateKind = Native, extrapValue: U = missing()): T =
   ## Evaluates an interpolator.
-  interpolator.eval_handler(interpolator, x)
+  ## - `x`: The point to evaluate the interpolator at.
+  ## - `extrap`: The extrapolation method to use. Available options are:
+  ##  - `Constant`: Set all points outside the range of the interpolator to `extrapValue`.
+  ##  - `Edge`: Use the value of the left/right edge.
+  ##  - `Linear`: Uses linear extrapolation using the two points closest to the edge.
+  ##  - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
+  ##  - `Error`: Raises an `ValueError` if `x` is outside the range. 
+  ## - `extrapValue`: The extrapolation value to use when `extrap = Constant`.
+  ## 
+  ## > Beware: `Native` extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.
+  when U is Missing:
+    assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
+  else:
+    when not T is U:
+      {.error: &"Type of `extrap` ({U}) is not the same as the type of the interpolator ({T})!".}
+  
+  let xLeft = x < interpolator.X[0]
+  let xRight = x > interpolator.X[^1]
+  if xLeft or xRight:
+    case extrap
+    of Constant:
+      when U is Missing:
+        discard
+      else:
+        return extrapValue
+    of Native:
+      discard
+    of Edge:
+      return
+        if xLeft: interpolator.Y[0]
+        else: interpolator.Y[^1]
+    of Linear:
+      let (xs, ys) = 
+        if xLeft:
+          ((interpolator.X[0], interpolator.X[1]), (interpolator.Y[0], interpolator.Y[1]))
+        else:
+          ((interpolator.X[^2], interpolator.X[^1]), (interpolator.Y[^2], interpolator.Y[^1]))
+      let k = (x - xs[0]) / (xs[1] - xs[0])
+      return ys[0] + k * (ys[1] - ys[0])
+    of Error:
+      raise newException(ValueError, &"x = {x} isn't in the interval [{interpolator.X[0]}, {interpolator.X[^1]}]")
 
-template derivEval*[T](interpolator: InterpolatorType[T], x: float): untyped =
+  result = interpolator.eval_handler(interpolator, x)
+  
+
+proc derivEval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: ExtrapolateKind = Native, extrapValue: U = missing()): T =
   ## Evaluates the derivative of an interpolator.
-  interpolator.deriveval_handler(interpolator, x)
+  ## - `x`: The point to evaluate the interpolator at.
+  ## - `extrap`: The extrapolation method to use. Available options are:
+  ##  - `Constant`: Set all points outside the range of the interpolator to `extrapValue`.
+  ##  - `Edge`: Use the value of the left/right edge.
+  ##  - `Linear`: Uses linear extrapolation using the two points closest to the edge.
+  ##  - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
+  ##  - `Error`: Raises an `ValueError` if `x` is outside the range. 
+  ## - `extrapValue`: The extrapolation value to use when `extrap = Constant`.
+  ## 
+  ## > Beware: `Native` extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.
+  when U is Missing:
+    assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
+  else:
+    when not T is U:
+      {.error: &"Type of `extrap` ({U}) is not the same as the type of the interpolator ({T})!".}
 
-proc eval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
+  let xLeft = x < interpolator.X[0]
+  let xRight = x > interpolator.X[^1]
+  if xLeft or xRight:
+    case extrap
+    of Constant:
+      when U is Missing:
+        discard
+      else:
+        return extrapValue
+    of Native:
+      discard
+    of Edge:
+      return
+        if xLeft: interpolator.deriveval_handler(interpolator, interpolator.X[0])
+        else: interpolator.deriveval_handler(interpolator, interpolator.X[^1])
+    of Linear:
+      let (xs, ys) =
+        if xLeft:
+          ((interpolator.X[0], interpolator.X[1]), (interpolator.deriveval_handler(interpolator, interpolator.X[0]), interpolator.deriveval_handler(interpolator, interpolator.X[1])))
+        else:
+          ((interpolator.X[^2], interpolator.X[^1]), (interpolator.deriveval_handler(interpolator, interpolator.X[^2]), interpolator.deriveval_handler(interpolator, interpolator.X[^1])))
+      let k = (x - xs[0]) / (xs[1] - xs[0])
+      return ys[0] + k * (ys[1] - ys[0])
+    of Error:
+      raise newException(ValueError, &"x = {x} isn't in the interval [{interpolator.X[0]}, {interpolator.X[^1]}]")
+
+  result = interpolator.deriveval_handler(interpolator, x)
+
+proc eval*[T; U](spline: InterpolatorType[T], x: openArray[float], extrap: ExtrapolateKind = Native, extrapValue: U = missing()): seq[T] =
   ## Evaluates an interpolator at all points in `x`. 
   result = newSeq[T](x.len)
   for i, xi in x:
-    result[i] = eval(spline, xi)
+    result[i] = eval(spline, xi, extrap, extrapValue)
 
 proc toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   ## Returns a proc to evaluate the interpolator.
@@ -329,11 +403,11 @@ converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, f
   ## Convert interpolator to `NumContextProc`.
   result = proc(x: float, ctx: NumContext[T, float]): T = eval(spline, x)
 
-proc derivEval*[T](spline: InterpolatorType[T], x: openArray[float]): seq[T] =
+proc derivEval*[T; U](spline: InterpolatorType[T], x: openArray[float], extrap: ExtrapolateKind = Native, extrapValue: U = missing()): seq[T] =
   ## Evaluates the derivative of an interpolator at all points in `x`.
   result = newSeq[T](x.len)
   for i, xi in x:
-    result[i] = derivEval(spline, xi)
+    result[i] = derivEval(spline, xi, extrap, extrapValue)
 
 proc toDerivProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   ## Returns a proc to evaluate the derivative of the interpolator.

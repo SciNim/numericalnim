@@ -1,3 +1,37 @@
+# v0.8.7
+The 1D interpolation methods now support extrapolation using these methods:
+- `Constant`: Set all points outside the range of the interpolator to `extrapValue`.
+- `Edge`: Use the value of the left/right edge.
+- `Linear`: Uses linear extrapolation using the two points closest to the edge.
+- `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
+- `Error`: Raises an `ValueError` if `x` is outside the range. 
+
+These are passed in as an argument to `eval` and `derivEval`:
+```nim
+let valEdge = interp.eval(x, Edge)
+let valConstant = interp.eval(x, Constant, NaN)
+```
+
+# v0.8.6
+- `levmarq` now accepts `yError`.
+- `paramUncertainties` allows you to calculate the uncertainties of fitted parameters.
+- `chi2` test added
+
+# v0.8.5
+Fix rbf bug.
+
+# v0.8.4
+With radial basis function interpolation, `numericalnim` finally gets an interpolation method which works on scattered data in arbitrary dimensions!
+
+Basic usage:
+```
+let interp = newRbf(points, values)
+let result = interp.eval(evalPoints)
+```
+
+# v0.8.1-v0.8.3
+CI-related bug fixes.
+
 # v0.8.0 - 09.05.2022
 ## Optimization has joined the chat
 Multi-variate optimization and differentiation has been introduced.
