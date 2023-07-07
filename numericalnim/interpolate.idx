@@ -1,5 +1,11 @@
 InterpolatorType	numericalnim/interpolate.html#InterpolatorType	interpolate: InterpolatorType	
 EvalHandler	numericalnim/interpolate.html#EvalHandler	interpolate: EvalHandler	
+Constant	numericalnim/interpolate.html#Constant	ExtrapolateKind.Constant	
+Edge	numericalnim/interpolate.html#Edge	ExtrapolateKind.Edge	
+Linear	numericalnim/interpolate.html#Linear	ExtrapolateKind.Linear	
+Native	numericalnim/interpolate.html#Native	ExtrapolateKind.Native	
+Error	numericalnim/interpolate.html#Error	ExtrapolateKind.Error	
+ExtrapolateKind	numericalnim/interpolate.html#ExtrapolateKind	interpolate: ExtrapolateKind	
 Eval2DHandler	numericalnim/interpolate.html#Eval2DHandler	interpolate: Eval2DHandler	
 Interpolator2DType	numericalnim/interpolate.html#Interpolator2DType	interpolate: Interpolator2DType	
 EvalUnstructured2DHandler	numericalnim/interpolate.html#EvalUnstructured2DHandler	interpolate: EvalUnstructured2DHandler	
@@ -17,12 +23,12 @@ newHermiteSpline	numericalnim/interpolate.html#newHermiteSpline,openArray[float]
 eval_linear1d	numericalnim/interpolate.html#eval_linear1d,InterpolatorType[T],float	interpolate: eval_linear1d[T](spline: InterpolatorType[T]; x: float): T	
 derivEval_linear1d	numericalnim/interpolate.html#derivEval_linear1d,InterpolatorType[T],float	interpolate: derivEval_linear1d[T](spline: InterpolatorType[T]; x: float): T	
 newLinear1D	numericalnim/interpolate.html#newLinear1D,openArray[float],openArray[T]	interpolate: newLinear1D[T](X: openArray[float]; Y: openArray[T]): InterpolatorType[T]	
-eval	numericalnim/interpolate.html#eval.t,InterpolatorType[T],float	interpolate: eval[T](interpolator: InterpolatorType[T]; x: float): untyped	
-derivEval	numericalnim/interpolate.html#derivEval.t,InterpolatorType[T],float	interpolate: derivEval[T](interpolator: InterpolatorType[T]; x: float): untyped	
-eval	numericalnim/interpolate.html#eval,InterpolatorType[T],openArray[float]	interpolate: eval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]	
+eval	numericalnim/interpolate.html#eval,InterpolatorType[T],float,ExtrapolateKind,U	interpolate: eval[T; U](interpolator: InterpolatorType[T]; x: float;\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T	
+derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],float,ExtrapolateKind,U	interpolate: derivEval[T; U](interpolator: InterpolatorType[T]; x: float;\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T	
+eval	numericalnim/interpolate.html#eval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	interpolate: eval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]	
 toProc	numericalnim/interpolate.html#toProc,InterpolatorType[T]	interpolate: toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]	
 toNumContextProc	numericalnim/interpolate.html#toNumContextProc.c,InterpolatorType[T]	interpolate: toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]	
-derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],openArray[float]	interpolate: derivEval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]	
+derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	interpolate: derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[\n    T]	
 toDerivProc	numericalnim/interpolate.html#toDerivProc,InterpolatorType[T]	interpolate: toDerivProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]	
 toDerivNumContextProc	numericalnim/interpolate.html#toDerivNumContextProc,InterpolatorType[T]	interpolate: toDerivNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]	
 eval_nearestneigh	numericalnim/interpolate.html#eval_nearestneigh,Interpolator2DType[T],float,float	interpolate: eval_nearestneigh[T](self: Interpolator2DType[T]; x, y: float): T	
@@ -40,5 +46,6 @@ newTrilinearSpline	numericalnim/interpolate.html#newTrilinearSpline,Tensor[T],,,
 eval	numericalnim/interpolate.html#eval.t,Interpolator3DType[T],float,float,float	interpolate: eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped	
 Interpolation	numericalnim/interpolate.html#interpolation	 Interpolation	
 1D interpolation	numericalnim/interpolate.html#interpolation-Z1d-interpolation	  1D interpolation	
+Extrapolation	numericalnim/interpolate.html#Z1d-interpolation-extrapolation	   Extrapolation	
 2D interpolation	numericalnim/interpolate.html#interpolation-Z2d-interpolation	  2D interpolation	
 3D interpolation	numericalnim/interpolate.html#interpolation-Z3d-interpolation	  3D interpolation	

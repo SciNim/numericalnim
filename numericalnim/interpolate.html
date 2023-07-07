@@ -100,7 +100,8 @@ window.addEventListener('DOMContentLoaded', main);
   <ul class="simple simple-toc" id="toc-list">
 <li><a class="reference" id="interpolation_toc" href="#interpolation">Interpolation</a></li>
 <ul class="simple"><li><a class="reference" id="interpolation-Z1d-interpolation_toc" href="#interpolation-Z1d-interpolation">1D interpolation</a></li>
-<li><a class="reference" id="interpolation-Z2d-interpolation_toc" href="#interpolation-Z2d-interpolation">2D interpolation</a></li>
+<ul class="simple"><li><a class="reference" id="Z1d-interpolation-extrapolation_toc" href="#Z1d-interpolation-extrapolation">Extrapolation</a></li>
+</ul><li><a class="reference" id="interpolation-Z2d-interpolation_toc" href="#interpolation-Z2d-interpolation">2D interpolation</a></li>
 <li><a class="reference" id="interpolation-Z3d-interpolation_toc" href="#interpolation-Z3d-interpolation">3D interpolation</a></li>
 </ul><li>
   <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
@@ -121,6 +122,9 @@ window.addEventListener('DOMContentLoaded', main);
   <li><a class="reference" href="#EvalUnstructured2DHandler"
     title="EvalUnstructured2DHandler[T; U] = proc (self: InterpolatorUnstructured2DType[T,
     U]; x, y: float): U {.nimcall.}">EvalUnstructured2DHandler</a></li>
+  <li><a class="reference" href="#ExtrapolateKind"
+    title="ExtrapolateKind = enum
+  Constant, Edge, Linear, Native, Error">ExtrapolateKind</a></li>
   <li><a class="reference" href="#Interpolator2DType"
     title="Interpolator2DType[T] = ref object
   z*, xGrad*, yGrad*, xyGrad*: Tensor[T]
@@ -137,6 +141,7 @@ window.addEventListener('DOMContentLoaded', main);
   <li><a class="reference" href="#InterpolatorType"
     title="InterpolatorType[T] = ref object
   X*: seq[float]
+  Y*: seq[T]
   coeffs_f*: Tensor[float]
   coeffs_T*: Tensor[T]
   high*: int
@@ -158,8 +163,16 @@ window.addEventListener('DOMContentLoaded', main);
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">derivEval
-      <li><a class="reference" href="#derivEval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D"
-    title="derivEval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]">derivEval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]</a></li>
+      <li><a class="reference" href="#derivEval%2CInterpolatorType%5BT%5D%2Cfloat%2CExtrapolateKind%2CU"
+    title="derivEval[T; U](interpolator: InterpolatorType[T]; x: float;
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T">derivEval[T; U](interpolator: InterpolatorType[T]; x: float;
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T</a></li>
+  <li><a class="reference" href="#derivEval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2CExtrapolateKind%2CU"
+    title="derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[
+    T]">derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[
+    T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">derivEval_cubicspline
@@ -178,8 +191,14 @@ window.addEventListener('DOMContentLoaded', main);
 
   </ul>
   <ul class="simple nested-toc-section">eval
-      <li><a class="reference" href="#eval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D"
-    title="eval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]">eval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]</a></li>
+      <li><a class="reference" href="#eval%2CInterpolatorType%5BT%5D%2Cfloat%2CExtrapolateKind%2CU"
+    title="eval[T; U](interpolator: InterpolatorType[T]; x: float;
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T">eval[T; U](interpolator: InterpolatorType[T]; x: float;
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T</a></li>
+  <li><a class="reference" href="#eval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2CExtrapolateKind%2CU"
+    title="eval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]">eval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">eval_barycentric2d
@@ -315,20 +334,13 @@ window.addEventListener('DOMContentLoaded', main);
 <li>
   <a class="reference reference-toplevel" href="#18" id="68">Templates</a>
   <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">derivEval
-      <li><a class="reference" href="#derivEval.t%2CInterpolatorType%5BT%5D%2Cfloat"
-    title="derivEval[T](interpolator: InterpolatorType[T]; x: float): untyped">derivEval[T](interpolator: InterpolatorType[T]; x: float): untyped</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">eval
+      <ul class="simple nested-toc-section">eval
       <li><a class="reference" href="#eval.t%2CInterpolatorUnstructured2DType%5BT%2CU%5D%2CT%2CT"
     title="eval[T, U](interpolator: InterpolatorUnstructured2DType[T, U]; x, y: T): untyped">eval[T, U](interpolator: InterpolatorUnstructured2DType[T, U]; x, y: T): untyped</a></li>
   <li><a class="reference" href="#eval.t%2CInterpolator2DType%5BT%5D%2Cfloat%2Cfloat"
     title="eval[T](interpolator: Interpolator2DType[T]; x, y: float): untyped">eval[T](interpolator: Interpolator2DType[T]; x, y: float): untyped</a></li>
   <li><a class="reference" href="#eval.t%2CInterpolator3DType%5BT%5D%2Cfloat%2Cfloat%2Cfloat"
     title="eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped">eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped</a></li>
-  <li><a class="reference" href="#eval.t%2CInterpolatorType%5BT%5D%2Cfloat"
-    title="eval[T](interpolator: InterpolatorType[T]; x: float): untyped">eval[T](interpolator: InterpolatorType[T]; x: float): untyped</a></li>
 
   </ul>
 
@@ -362,6 +374,8 @@ class="link-seesrc" target="_blank">Source</a>
 <li>Linear spline: Linear spline that works with many types of values.</li>
 </ul>
 
+<h3><a class="toc-backref" id="Z1d-interpolation-extrapolation" href="#Z1d-interpolation-extrapolation">Extrapolation</a></h3><p>Extrapolation is supported for all 1D interpolators by passing the type of extrapolation as an argument of <tt class="docutils literal"><span class="pre"><span class="Identifier">eval</span></span></tt>. The default is to use the interpolator's native method to extrapolate. This means that Linear does linear extrapolation, while Hermite and Cubic performs cubic extrapolation. Other options are using a constant value, using the values of the edges, linear extrapolation and raising an error if the x-value is outside the domain.</p>
+
 <p><strong class="examples_text">Example:</strong></p>
 <pre class="listing"><span class="Keyword">import</span> <span class="Identifier">src</span><span class="Operator">/</span><span class="Identifier">numericalnim</span><span class="Operator">/</span><span class="Identifier">interpolate</span>
 <span class="Keyword">import</span> <span class="Identifier">numericalnim</span><span class="Punctuation">,</span> <span class="Identifier">std</span><span class="Operator">/</span><span class="Punctuation">[</span><span class="Identifier">math</span><span class="Punctuation">,</span> <span class="Identifier">sequtils</span><span class="Punctuation">]</span>
@@ -371,7 +385,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 <span class="Keyword">let</span> <span class="Identifier">interp</span> <span class="Operator">=</span> <span class="Identifier">newHermiteSpline</span><span class="Punctuation">(</span><span class="Identifier">x</span><span class="Punctuation">,</span> <span class="Identifier">y</span><span class="Punctuation">)</span>
 
-<span class="Keyword">let</span> <span class="Identifier">val</span> <span class="Operator">=</span> <span class="Identifier">interp</span><span class="Operator">.</span><span class="Identifier">eval</span><span class="Punctuation">(</span><span class="FloatNumber">0.314</span><span class="Punctuation">)</span></pre>
+<span class="Keyword">let</span> <span class="Identifier">val</span> <span class="Operator">=</span> <span class="Identifier">interp</span><span class="Operator">.</span><span class="Identifier">eval</span><span class="Punctuation">(</span><span class="FloatNumber">0.314</span><span class="Punctuation">)</span>
+
+<span class="Keyword">let</span> <span class="Identifier">valExtrapolate</span> <span class="Operator">=</span> <span class="Identifier">interp</span><span class="Operator">.</span><span class="Identifier">eval</span><span class="Punctuation">(</span><span class="FloatNumber">1.1</span><span class="Punctuation">,</span> <span class="Identifier">Edge</span><span class="Punctuation">)</span></pre>
 <h2><a class="toc-backref" id="interpolation-Z2d-interpolation" href="#interpolation-Z2d-interpolation">2D interpolation</a></h2><ul class="simple"><li>Bicubic: Works on gridded data.</li>
 <li>Bilinear: Works on gridded data.</li>
 <li>Nearest neighbour: Works on gridded data.</li>
@@ -425,9 +441,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L80"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L91"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L80" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L91" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -438,9 +454,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L95"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L106"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L95" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L106" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -450,9 +466,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L79"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L88"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L79" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L88" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -463,9 +479,22 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L87"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L98"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L87" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L98" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="ExtrapolateKind">
+<dt><pre><a href="interpolate.html#ExtrapolateKind"><span class="Identifier">ExtrapolateKind</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
+  <span class="Identifier">Constant</span><span class="Other">,</span> <span class="Identifier">Edge</span><span class="Other">,</span> <span class="Identifier">Linear</span><span class="Other">,</span> <span class="Identifier">Native</span><span class="Other">,</span> <span class="Identifier">Error</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L89"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L89" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -481,9 +510,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L81"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L92"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L81" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L92" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -498,15 +527,16 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L96"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L107"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L96" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L107" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
 <div id="InterpolatorType">
 <dt><pre><a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
   <span class="Identifier">X</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span>
+  <span class="Identifier">Y</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
   <span class="Identifier">coeffs_f</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span>
   <span class="Identifier">coeffs_T</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
   <span class="Identifier">high</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
@@ -518,9 +548,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L71"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L79"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L71" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L79" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -537,9 +567,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L88"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L99"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L88" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L99" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -548,15 +578,44 @@ class="link-seesrc" target="_blank">Source</a>
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
-<div id="derivEval,InterpolatorType[T],openArray[float]">
-<dt><pre><span class="Keyword">proc</span> <a href="#derivEval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D"><span class="Identifier">derivEval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<div id="derivEval,InterpolatorType[T],float,ExtrapolateKind,U">
+<dt><pre><span class="Keyword">proc</span> <a href="#derivEval%2CInterpolatorType%5BT%5D%2Cfloat%2CExtrapolateKind%2CU"><span class="Identifier">derivEval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">interpolator</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
+                     <span class="Identifier">extrap</span><span class="Other">:</span> <a href="interpolate.html#ExtrapolateKind"><span class="Identifier">ExtrapolateKind</span></a> <span class="Other">=</span> <span class="Identifier">Native</span><span class="Other">;</span>
+                     <span class="Identifier">extrapValue</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">missing</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+<dd>
+
+Evaluates the derivative of an interpolator.<ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt>: The point to evaluate the interpolator at.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">extrap</span></span></tt>: The extrapolation method to use. Available options are:</li>
+</ul>
+<blockquote><p><ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">Constant</span></span></tt>: Set all points outside the range of the interpolator to <tt class="docutils literal"><span class="pre"><span class="Identifier">extrapValue</span></span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Edge</span></span></tt>: Use the value of the left/right edge.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Linear</span></span></tt>: Uses linear extrapolation using the two points closest to the edge.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Native</span></span></tt> (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Error</span></span></tt>: Raises an <tt class="docutils literal"><span class="pre"><span class="Identifier">ValueError</span></span></tt> if <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> is outside the range.</li>
+</ul>
+</p></blockquote>
+<ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">extrapValue</span></span></tt>: The extrapolation value to use when <tt class="docutils literal"><span class="pre"><span class="Identifier">extrap</span> <span class="Operator">=</span> <span class="Identifier">Constant</span></span></tt>.</li>
+</ul>
+<p>&gt; Beware: <tt class="docutils literal"><span class="pre"><span class="Identifier">Native</span></span></tt> extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.</p>
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L346"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L346" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="derivEval,InterpolatorType[T],openArray[float],ExtrapolateKind,U">
+<dt><pre><span class="Keyword">proc</span> <a href="#derivEval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2CExtrapolateKind%2CU"><span class="Identifier">derivEval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span>
+                     <span class="Identifier">extrap</span><span class="Other">:</span> <a href="interpolate.html#ExtrapolateKind"><span class="Identifier">ExtrapolateKind</span></a> <span class="Other">=</span> <span class="Identifier">Native</span><span class="Other">;</span>
+                     <span class="Identifier">extrapValue</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">missing</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 Evaluates the derivative of an interpolator at all points in <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L332"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L406"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L332" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L406" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -566,9 +625,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L179"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L165"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L179" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L165" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -578,9 +637,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L216"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L202"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L216" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L202" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -590,21 +649,49 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L286"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L272"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L286" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L272" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
-<div id="eval,InterpolatorType[T],openArray[float]">
-<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<div id="eval,InterpolatorType[T],float,ExtrapolateKind,U">
+<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CInterpolatorType%5BT%5D%2Cfloat%2CExtrapolateKind%2CU"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">interpolator</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
+                <span class="Identifier">extrap</span><span class="Other">:</span> <a href="interpolate.html#ExtrapolateKind"><span class="Identifier">ExtrapolateKind</span></a> <span class="Other">=</span> <span class="Identifier">Native</span><span class="Other">;</span> <span class="Identifier">extrapValue</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">missing</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+<dd>
+
+Evaluates an interpolator.<ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt>: The point to evaluate the interpolator at.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">extrap</span></span></tt>: The extrapolation method to use. Available options are:</li>
+</ul>
+<blockquote><p><ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">Constant</span></span></tt>: Set all points outside the range of the interpolator to <tt class="docutils literal"><span class="pre"><span class="Identifier">extrapValue</span></span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Edge</span></span></tt>: Use the value of the left/right edge.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Linear</span></span></tt>: Uses linear extrapolation using the two points closest to the edge.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Native</span></span></tt> (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.</li>
+<li><tt class="docutils literal"><span class="pre"><span class="Identifier">Error</span></span></tt>: Raises an <tt class="docutils literal"><span class="pre"><span class="Identifier">ValueError</span></span></tt> if <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt> is outside the range.</li>
+</ul>
+</p></blockquote>
+<ul class="simple"><li><tt class="docutils literal"><span class="pre"><span class="Identifier">extrapValue</span></span></tt>: The extrapolation value to use when <tt class="docutils literal"><span class="pre"><span class="Identifier">extrap</span> <span class="Operator">=</span> <span class="Identifier">Constant</span></span></tt>.</li>
+</ul>
+<p>&gt; Beware: <tt class="docutils literal"><span class="pre"><span class="Identifier">Native</span></span></tt> extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.</p>
+
+&nbsp;&nbsp;<a
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L299"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L299" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="eval,InterpolatorType[T],openArray[float],ExtrapolateKind,U">
+<dt><pre><span class="Keyword">proc</span> <a href="#eval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2CExtrapolateKind%2CU"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span>
+                <span class="Identifier">extrap</span><span class="Other">:</span> <a href="interpolate.html#ExtrapolateKind"><span class="Identifier">ExtrapolateKind</span></a> <span class="Other">=</span> <span class="Identifier">Native</span><span class="Other">;</span> <span class="Identifier">extrapValue</span><span class="Other">:</span> <span class="Identifier">U</span> <span class="Other">=</span> <span class="Identifier">missing</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
 Evaluates an interpolator at all points in <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt>. 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L318"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L392"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L318" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L392" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -615,9 +702,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L544"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L618"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L544" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L618" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -627,9 +714,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L496"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L570"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L496" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L570" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -639,9 +726,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L400"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L474"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L400" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L474" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -651,9 +738,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L169"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L155"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L169" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L155" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -663,9 +750,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L200"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L186"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L200" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L186" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -675,9 +762,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L279"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L265"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L279" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L265" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -687,9 +774,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L369"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L443"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L369" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L443" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -699,22 +786,22 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L641"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L715"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L641" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L715" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
 <div id="findInterval,openArray[float],float">
-<dt><pre><span class="Keyword">proc</span> <a href="#findInterval%2CopenArray%5Bfloat%5D%2Cfloat"><span class="Identifier">findInterval</span></a><span class="Other">(</span><span class="Identifier">list</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span class="Identifier">inline</span><span class="Other">,</span>
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+<dt><pre><span class="Keyword">proc</span> <a href="#findInterval%2CopenArray%5Bfloat%5D%2Cfloat"><span class="Identifier">findInterval</span></a><span class="Other">(</span><span class="Identifier">list</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L103"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L114"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L103" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L114" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -735,9 +822,9 @@ Barycentric interpolation of scattered points in 2D.<dl class="docutils"><dt>Inp
 </dl>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L582"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L656"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L582" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L656" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -752,9 +839,9 @@ Returns a bicubic spline for regularly gridded data.<ul class="simple"><li>z: Te
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L515"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L589"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L515" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L589" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -769,9 +856,9 @@ Returns a bilinear spline for regularly gridded data.<ul class="simple"><li>z: T
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L417"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L491"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L417" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L491" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -782,9 +869,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a cubic spline. 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L188"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L174"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L188" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L174" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -795,9 +882,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Constructs a cubic Hermite spline using x, y and derivatives of y.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L231"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L217"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L231" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L217" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -808,9 +895,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Constructs a cubic Hermite spline by approximating the derivatives. 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L256"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L242"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L256" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L242" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -820,9 +907,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Constructs a linear interpolator.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L293"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L279"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L293" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L279" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -837,9 +924,9 @@ Returns a nearest neighbour interpolator for regularly gridded data.<ul class="s
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L376"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L450"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L376" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L450" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -855,9 +942,9 @@ Returns a trilinear spline for regularly gridded data.<ul class="simple"><li>z: 
 </ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L665"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L739"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L665" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L739" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -868,9 +955,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Convert interpolator's derivative to <tt class="docutils literal"><span class="pre"><span class="Identifier">NumContextProc</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L342"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L416"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L342" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L416" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -880,9 +967,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a proc to evaluate the derivative of the interpolator.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L338"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L412"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L338" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L412" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -892,9 +979,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a proc to evaluate the interpolator.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L324"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L398"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L324" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L398" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -910,9 +997,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Convert interpolator to <tt class="docutils literal"><span class="pre"><span class="Identifier">NumContextProc</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L328"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L402"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L328" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L402" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -921,27 +1008,15 @@ class="link-seesrc" target="_blank">Source</a>
 <div class="section" id="18">
 <h1><a class="toc-backref" href="#18">Templates</a></h1>
 <dl class="item">
-<div id="derivEval.t,InterpolatorType[T],float">
-<dt><pre><span class="Keyword">template</span> <a href="#derivEval.t%2CInterpolatorType%5BT%5D%2Cfloat"><span class="Identifier">derivEval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">interpolator</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
-<dd>
-
-Evaluates the derivative of an interpolator.
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L314"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L314" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
 <div id="eval.t,InterpolatorUnstructured2DType[T,U],T,T">
 <dt><pre><span class="Keyword">template</span> <a href="#eval.t%2CInterpolatorUnstructured2DType%5BT%2CU%5D%2CT%2CT"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">interpolator</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorUnstructured2DType"><span class="Identifier">InterpolatorUnstructured2DType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">,</span> <span class="Identifier">y</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
 <dd>
 
 Evaluate interpolator.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L618"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L692"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L618" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L692" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -951,9 +1026,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Evaluate interpolator.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L614"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L688"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L614" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L688" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -963,21 +1038,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Evaluate interpolator.
 &nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L695"
+href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L769"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L695" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="eval.t,InterpolatorType[T],float">
-<dt><pre><span class="Keyword">template</span> <a href="#eval.t%2CInterpolatorType%5BT%5D%2Cfloat"><span class="Identifier">eval</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">interpolator</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">x</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
-<dd>
-
-Evaluates an interpolator.
-&nbsp;&nbsp;<a
-href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L310"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L310" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L769" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -996,7 +1059,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-25 18:10:47 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-07-07 09:38:25 UTC</small>
       </div>
     </div>
   </div>

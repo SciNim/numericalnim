@@ -341,6 +341,10 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="optimize: conjugate_gradient[T](A, b, x_0: Tensor[T]; tolerance: float64): Tensor[T]" href="numericalnim/optimize.html#conjugate_gradient%2CTensor%5BT%5D%2CTensor%5BT%5D%2CTensor%5BT%5D%2Cfloat64">optimize: conjugate_gradient[T](A, b, x_0: Tensor[T]; tolerance: float64): Tensor[T]</a></li>
           </ul></dd>
+<dt><a name="Constant" href="#Constant"><span>Constant:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="ExtrapolateKind.Constant" href="numericalnim/interpolate.html#Constant">ExtrapolateKind.Constant</a></li>
+          </ul></dd>
 <dt><a name="constructMeshedPatches" href="#constructMeshedPatches"><span>constructMeshedPatches:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="rbf: constructMeshedPatches[T](grid: RbfGrid[T]): Tensor[float]" href="numericalnim/rbf.html#constructMeshedPatches%2CRbfGrid%5BT%5D">rbf: constructMeshedPatches[T](grid: RbfGrid[T]): Tensor[float]</a></li>
@@ -385,9 +389,15 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="derivEval" href="#derivEval"><span>derivEval:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="interpolate: derivEval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]" href="numericalnim/interpolate.html#derivEval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D">interpolate: derivEval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]</a></li>
+          data-doc-search-tag="interpolate: derivEval[T; U](interpolator: InterpolatorType[T]; x: float;
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T" href="numericalnim/interpolate.html#derivEval%2CInterpolatorType%5BT%5D%2Cfloat%2CExtrapolateKind%2CU">interpolate: derivEval[T; U](interpolator: InterpolatorType[T]; x: float;
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="interpolate: derivEval[T](interpolator: InterpolatorType[T]; x: float): untyped" href="numericalnim/interpolate.html#derivEval.t%2CInterpolatorType%5BT%5D%2Cfloat">interpolate: derivEval[T](interpolator: InterpolatorType[T]; x: float): untyped</a></li>
+          data-doc-search-tag="interpolate: derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[
+    T]" href="numericalnim/interpolate.html#derivEval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2CExtrapolateKind%2CU">interpolate: derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[
+    T]</a></li>
           </ul></dd>
 <dt><a name="derivEval_cubicspline" href="#derivEval_cubicspline"><span>derivEval_cubicspline:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -419,15 +429,27 @@ window.addEventListener('DOMContentLoaded', main);
           <li><a class="reference external"
           data-doc-search-tag="utils: dot[T](v1, v2: Vector[T]): float" href="numericalnim/utils.html#dot%2CVector%5BT%5D%2CVector%5BT%5D">utils: dot[T](v1, v2: Vector[T]): float</a></li>
           </ul></dd>
+<dt><a name="Edge" href="#Edge"><span>Edge:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="ExtrapolateKind.Edge" href="numericalnim/interpolate.html#Edge">ExtrapolateKind.Edge</a></li>
+          </ul></dd>
+<dt><a name="Error" href="#Error"><span>Error:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="ExtrapolateKind.Error" href="numericalnim/interpolate.html#Error">ExtrapolateKind.Error</a></li>
+          </ul></dd>
 <dt><a name="eval" href="#eval"><span>eval:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="interpolate: eval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]" href="numericalnim/interpolate.html#eval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D">interpolate: eval[T](spline: InterpolatorType[T]; x: openArray[float]): seq[T]</a></li>
+          data-doc-search-tag="interpolate: eval[T; U](interpolator: InterpolatorType[T]; x: float;
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T" href="numericalnim/interpolate.html#eval%2CInterpolatorType%5BT%5D%2Cfloat%2CExtrapolateKind%2CU">interpolate: eval[T; U](interpolator: InterpolatorType[T]; x: float;
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="interpolate: eval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]" href="numericalnim/interpolate.html#eval%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2CExtrapolateKind%2CU">interpolate: eval[T; U](spline: InterpolatorType[T]; x: openArray[float];
+           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="interpolate: eval[T](interpolator: Interpolator2DType[T]; x, y: float): untyped" href="numericalnim/interpolate.html#eval.t%2CInterpolator2DType%5BT%5D%2Cfloat%2Cfloat">interpolate: eval[T](interpolator: Interpolator2DType[T]; x, y: float): untyped</a></li>
           <li><a class="reference external"
           data-doc-search-tag="interpolate: eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped" href="numericalnim/interpolate.html#eval.t%2CInterpolator3DType%5BT%5D%2Cfloat%2Cfloat%2Cfloat">interpolate: eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="interpolate: eval[T](interpolator: InterpolatorType[T]; x: float): untyped" href="numericalnim/interpolate.html#eval.t%2CInterpolatorType%5BT%5D%2Cfloat">interpolate: eval[T](interpolator: InterpolatorType[T]; x: float): untyped</a></li>
           <li><a class="reference external"
           data-doc-search-tag="interpolate: eval[T, U](interpolator: InterpolatorUnstructured2DType[T, U]; x, y: T): untyped" href="numericalnim/interpolate.html#eval.t%2CInterpolatorUnstructured2DType%5BT%2CU%5D%2CT%2CT">interpolate: eval[T, U](interpolator: InterpolatorUnstructured2DType[T, U]; x, y: T): untyped</a></li>
           <li><a class="reference external"
@@ -486,6 +508,10 @@ window.addEventListener('DOMContentLoaded', main);
 <dt><a name="EvalUnstructured2DHandler" href="#EvalUnstructured2DHandler"><span>EvalUnstructured2DHandler:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="interpolate: EvalUnstructured2DHandler" href="numericalnim/interpolate.html#EvalUnstructured2DHandler">interpolate: EvalUnstructured2DHandler</a></li>
+          </ul></dd>
+<dt><a name="ExtrapolateKind" href="#ExtrapolateKind"><span>ExtrapolateKind:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="interpolate: ExtrapolateKind" href="numericalnim/interpolate.html#ExtrapolateKind">interpolate: ExtrapolateKind</a></li>
           </ul></dd>
 <dt><a name="findAllBetween" href="#findAllBetween"><span>findAllBetween:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -629,6 +655,10 @@ window.addEventListener('DOMContentLoaded', main);
                   lineSearchCriterion: LineSearchCriterion = NoLineSearch): OptimOptions[
     U, LevMarqOptions[U]]</a></li>
           </ul></dd>
+<dt><a name="Linear" href="#Linear"><span>Linear:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="ExtrapolateKind.Linear" href="numericalnim/interpolate.html#Linear">ExtrapolateKind.Linear</a></li>
+          </ul></dd>
 <dt><a name="line_search" href="#line_search"><span>line_search:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="optimize: line_search[U, T](alpha: var U; p: Tensor[T]; x0: Tensor[U];
@@ -668,6 +698,10 @@ window.addEventListener('DOMContentLoaded', main);
           data-doc-search-tag="differentiate: mixedDerivative[U, T](f: proc (x: Tensor[U]): T; x0: var Tensor[U];
                       indices: (int, int); h: U = U(0.000001)): T" href="numericalnim/differentiate.html#mixedDerivative%2Cproc%28Tensor%5BU%5D%29%2CTensor%5BU%5D%2C%2CU">differentiate: mixedDerivative[U, T](f: proc (x: Tensor[U]): T; x0: var Tensor[U];
                       indices: (int, int); h: U = U(0.000001)): T</a></li>
+          </ul></dd>
+<dt><a name="Native" href="#Native"><span>Native:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="ExtrapolateKind.Native" href="numericalnim/interpolate.html#Native">ExtrapolateKind.Native</a></li>
           </ul></dd>
 <dt><a name="neighbours" href="#neighbours"><span>neighbours:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -1074,7 +1108,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-25 18:11:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-07-07 09:38:41 UTC</small>
       </div>
     </div>
   </div>
