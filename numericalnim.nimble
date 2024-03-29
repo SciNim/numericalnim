@@ -1,5 +1,5 @@
 # Package Information
-version = "0.8.8"
+version = "0.8.9"
 author = "Hugo Granström"
 description = "A collection of numerical methods written in Nim. Current features: integration, ode, optimization."
 license = "MIT"
