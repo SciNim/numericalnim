@@ -72,7 +72,7 @@ proc constructMeshedPatches*[T](grid: RbfGrid[T]): Tensor[float] =
   if grid.gridSize == 1:
     @[@[0.5].cycle(grid.gridDim)].toTensor
   else:
-    numericalnim.meshgrid(@[arraymancer.linspace(0 + grid.gridDelta / 2, 1 - grid.gridDelta / 2, grid.gridSize)].cycle(grid.gridDim))
+    utils.meshgrid(@[arraymancer.linspace(0 + grid.gridDelta / 2, 1 - grid.gridDelta / 2, grid.gridSize)].cycle(grid.gridDim))
 
 template dist2(p1, p2: Tensor[float]): float =
   var result = 0.0
