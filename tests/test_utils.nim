@@ -88,7 +88,7 @@ test "meshgrid":
   let x = [0, 1].toTensor
   let y = [2, 3].toTensor
   let z = [4, 5].toTensor
-  let grid = meshgrid(x, y, z)
+  let grid = numericalnim.meshgrid(x, y, z)
   check grid == [[0, 2, 4], [1, 2, 4], [0, 3, 4], [1, 3, 4], [0, 2, 5], [1, 2, 5], [0, 3, 5], [1, 3, 5]].toTensor
 
 test "chi2 Tensor":
