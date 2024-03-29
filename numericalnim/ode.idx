@@ -1,9 +1,10 @@
-ODEoptions	numericalnim/ode.html#ODEoptions	ode: ODEoptions	
-ODEProc	numericalnim/ode.html#ODEProc	ode: ODEProc	
-IntegratorProc	numericalnim/ode.html#IntegratorProc	ode: IntegratorProc	
-fixedODE	numericalnim/ode.html#fixedODE	ode: fixedODE	
-adaptiveODE	numericalnim/ode.html#adaptiveODE	ode: adaptiveODE	
-allODE	numericalnim/ode.html#allODE	ode: allODE	
-newODEoptions	numericalnim/ode.html#newODEoptions,float,float,float,float,float,float,float,float	ode: newODEoptions(dt: float = 0.0001; absTol: float = 0.0001;\n              relTol: float = 0.0001; dtMax: float = 0.01;\n              dtMin: float = 0.0001; scaleMax: float = 4.0;\n              scaleMin: float = 0.1; tStart: float = 0.0): ODEoptions	
-solveODE	numericalnim/ode.html#solveODE,ODEProc[T],T,openArray[float],ODEoptions,NumContext[T,float],string	ode: solveODE[T](f: ODEProc[T]; y0: T; tspan: openArray[float];\n            options: ODEoptions = DEFAULT_ODEoptions;\n            ctx: NumContext[T, float] = nil; integrator = &quot;dopri54&quot;): (\n    seq[float], seq[T])	
-ODEs	numericalnim/ode.html#odes	 ODEs	
+nimTitle	ode	numericalnim/ode.html	module src/numericalnim/ode		0
+nim	ODEoptions	numericalnim/ode.html#ODEoptions	object ODEoptions		26
+nim	ODEProc	numericalnim/ode.html#ODEProc	type ODEProc		36
+nim	IntegratorProc	numericalnim/ode.html#IntegratorProc	type IntegratorProc		38
+nim	fixedODE	numericalnim/ode.html#fixedODE	const fixedODE		40
+nim	adaptiveODE	numericalnim/ode.html#adaptiveODE	const adaptiveODE		41
+nim	allODE	numericalnim/ode.html#allODE	const allODE		42
+nim	newODEoptions	numericalnim/ode.html#newODEoptions,float,float,float,float,float,float,float,float	proc newODEoptions(dt: float = 0.0001; absTol: float = 0.0001;\n              relTol: float = 0.0001; dtMax: float = 0.01;\n              dtMin: float = 0.0001; scaleMax: float = 4.0;\n              scaleMin: float = 0.1; tStart: float = 0.0): ODEoptions		78
+nim	solveODE	numericalnim/ode.html#solveODE,ODEProc[T],T,openArray[float],ODEoptions,NumContext[T,float],string	proc solveODE[T](f: ODEProc[T]; y0: T; tspan: openArray[float];\n            options: ODEoptions = DEFAULT_ODEoptions;\n            ctx: NumContext[T, float] = nil; integrator = "dopri54"): (\n    seq[float], seq[T])		589
+heading	ODEs	numericalnim/ode.html#odes	 ODEs		0

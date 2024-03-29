@@ -1,20 +1,22 @@
-RbfFunc	numericalnim/rbf.html#RbfFunc	rbf: RbfFunc	
-RbfBaseType	numericalnim/rbf.html#RbfBaseType	rbf: RbfBaseType	
-RbfGrid	numericalnim/rbf.html#RbfGrid	rbf: RbfGrid	
-RbfType	numericalnim/rbf.html#RbfType	rbf: RbfType	
-neighbours	numericalnim/rbf.html#neighbours.i,RbfGrid[T],int,int	rbf: neighbours[T](grid: RbfGrid[T]; k: int; searchLevels: int = 1): int	
-neighboursExcludingCenter	numericalnim/rbf.html#neighboursExcludingCenter.i,RbfGrid[T],int	rbf: neighboursExcludingCenter[T](grid: RbfGrid[T]; k: int): int	
-findIndex	numericalnim/rbf.html#findIndex,RbfGrid[T],Tensor[float]	rbf: findIndex[T](grid: RbfGrid[T]; point: Tensor[float]): int	
-constructMeshedPatches	numericalnim/rbf.html#constructMeshedPatches,RbfGrid[T]	rbf: constructMeshedPatches[T](grid: RbfGrid[T]): Tensor[float]	
-findAllWithin	numericalnim/rbf.html#findAllWithin,RbfGrid[T],Tensor[float],float	rbf: findAllWithin[T](grid: RbfGrid[T]; x: Tensor[float]; rho: float): seq[int]	
-findAllBetween	numericalnim/rbf.html#findAllBetween,RbfGrid[T],Tensor[float],float,float	rbf: findAllBetween[T](grid: RbfGrid[T]; x: Tensor[float]; rho1, rho2: float): seq[\n    int]	
-newRbfGrid	numericalnim/rbf.html#newRbfGrid,Tensor[float],Tensor[T],int	rbf: newRbfGrid[T](points: Tensor[float]; values: Tensor[T]; gridSize: int = 0): RbfGrid[\n    T]	
-compactRbfFuncScalar	numericalnim/rbf.html#compactRbfFuncScalar.t,float,float	rbf: compactRbfFuncScalar(r: float; epsilon: float): float	
-compactRbfFunc	numericalnim/rbf.html#compactRbfFunc,Tensor[float],float	rbf: compactRbfFunc(r: Tensor[float]; epsilon: float): Tensor[float]	
-newRbfBase	numericalnim/rbf.html#newRbfBase,Tensor[float],Tensor[T],RbfFunc,float	rbf: newRbfBase[T](points: Tensor[float]; values: Tensor[T];\n              rbfFunc: RbfFunc = compactRbfFunc; epsilon: float = 1): RbfBaseType[\n    T]	
-eval	numericalnim/rbf.html#eval,RbfBaseType[T],Tensor[float]	rbf: eval[T](rbf: RbfBaseType[T]; x: Tensor[float]): Tensor[T]	
-scalePoint	numericalnim/rbf.html#scalePoint,Tensor[float],tuple[Tensor[float],Tensor[float]]	rbf: scalePoint(x: Tensor[float];\n           limits: tuple[upper: Tensor[float], lower: Tensor[float]]): Tensor[\n    float]	
-newRbf	numericalnim/rbf.html#newRbf,Tensor[float],Tensor[T],int,RbfFunc,float	rbf: newRbf[T](points: Tensor[float]; values: Tensor[T]; gridSize: int = 0;\n          rbfFunc: RbfFunc = compactRbfFunc; epsilon: float = 1): RbfType[T]	
-eval	numericalnim/rbf.html#eval,RbfType[T],Tensor[float]	rbf: eval[T](rbf: RbfType[T]; x: Tensor[float]): Tensor[T]	
-evalAlt	numericalnim/rbf.html#evalAlt,RbfType[T],Tensor[float]	rbf: evalAlt[T](rbf: RbfType[T]; x: Tensor[float]): Tensor[T]	
-Radial basis function interpolation	numericalnim/rbf.html#radial-basis-function-interpolation	 Radial basis function interpolation	
+nimTitle	rbf	numericalnim/rbf.html	module src/numericalnim/rbf		0
+nim	RbfFunc	numericalnim/rbf.html#RbfFunc	type RbfFunc		20
+nim	RbfBaseType	numericalnim/rbf.html#RbfBaseType	object RbfBaseType		21
+nim	RbfGrid	numericalnim/rbf.html#RbfGrid	object RbfGrid		28
+nim	RbfType	numericalnim/rbf.html#RbfType	object RbfType		35
+nim	neighbours	numericalnim/rbf.html#neighbours.i,RbfGrid[T],int,int	iterator neighbours[T](grid: RbfGrid[T]; k: int; searchLevels: int = 1): int		43
+nim	neighboursExcludingCenter	numericalnim/rbf.html#neighboursExcludingCenter.i,RbfGrid[T],int	iterator neighboursExcludingCenter[T](grid: RbfGrid[T]; k: int): int		61
+nim	findIndex	numericalnim/rbf.html#findIndex,RbfGrid[T],Tensor[float]	proc findIndex[T](grid: RbfGrid[T]; point: Tensor[float]): int		66
+nim	constructMeshedPatches	numericalnim/rbf.html#constructMeshedPatches,RbfGrid[T]	proc constructMeshedPatches[T](grid: RbfGrid[T]): Tensor[float]		71
+nim	findAllWithin	numericalnim/rbf.html#findAllWithin,RbfGrid[T],Tensor[float],float	proc findAllWithin[T](grid: RbfGrid[T]; x: Tensor[float]; rho: float): seq[int]		84
+nim	findAllBetween	numericalnim/rbf.html#findAllBetween,RbfGrid[T],Tensor[float],float,float	proc findAllBetween[T](grid: RbfGrid[T]; x: Tensor[float]; rho1, rho2: float): seq[\n    int]		93
+nim	newRbfGrid	numericalnim/rbf.html#newRbfGrid,Tensor[float],Tensor[T],int	proc newRbfGrid[T](points: Tensor[float]; values: Tensor[T]; gridSize: int = 0): RbfGrid[\n    T]		110
+nim	compactRbfFuncScalar	numericalnim/rbf.html#compactRbfFuncScalar.t,float,float	template compactRbfFuncScalar(r: float; epsilon: float): float		137
+nim	compactRbfFunc	numericalnim/rbf.html#compactRbfFunc,Tensor[float],float	proc compactRbfFunc(r: Tensor[float]; epsilon: float): Tensor[float]		140
+nim	newRbfBase	numericalnim/rbf.html#newRbfBase,Tensor[float],Tensor[T],RbfFunc,float	proc newRbfBase[T](points: Tensor[float]; values: Tensor[T];\n              rbfFunc: RbfFunc = compactRbfFunc; epsilon: float = 1): RbfBaseType[\n    T]		147
+nim	eval	numericalnim/rbf.html#eval,RbfBaseType[T],Tensor[float]	proc eval[T](rbf: RbfBaseType[T]; x: Tensor[float]): Tensor[T]		154
+nim	scalePoint	numericalnim/rbf.html#scalePoint,Tensor[float],tuple[Tensor[float],Tensor[float]]	proc scalePoint(x: Tensor[float];\n           limits: tuple[upper: Tensor[float], lower: Tensor[float]]): Tensor[\n    float]		159
+nim	newRbf	numericalnim/rbf.html#newRbf,Tensor[float],Tensor[T],int,RbfFunc,float	proc newRbf[T](points: Tensor[float]; values: Tensor[T]; gridSize: int = 0;\n          rbfFunc: RbfFunc = compactRbfFunc; epsilon: float = 1): RbfType[T]		164
+nim	eval	numericalnim/rbf.html#eval,RbfType[T],Tensor[float]	proc eval[T](rbf: RbfType[T]; x: Tensor[float]): Tensor[T]		203
+nim	evalAlt	numericalnim/rbf.html#evalAlt,RbfType[T],Tensor[float]	proc evalAlt[T](rbf: RbfType[T]; x: Tensor[float]): Tensor[T]		226
+nimgrp	eval	numericalnim/rbf.html#eval-procs-all	proc		154
+heading	Radial basis function interpolation	numericalnim/rbf.html#radial-basis-function-interpolation	 Radial basis function interpolation		0

@@ -1,51 +1,56 @@
-InterpolatorType	numericalnim/interpolate.html#InterpolatorType	interpolate: InterpolatorType	
-EvalHandler	numericalnim/interpolate.html#EvalHandler	interpolate: EvalHandler	
-Constant	numericalnim/interpolate.html#Constant	ExtrapolateKind.Constant	
-Edge	numericalnim/interpolate.html#Edge	ExtrapolateKind.Edge	
-Linear	numericalnim/interpolate.html#Linear	ExtrapolateKind.Linear	
-Native	numericalnim/interpolate.html#Native	ExtrapolateKind.Native	
-Error	numericalnim/interpolate.html#Error	ExtrapolateKind.Error	
-ExtrapolateKind	numericalnim/interpolate.html#ExtrapolateKind	interpolate: ExtrapolateKind	
-Eval2DHandler	numericalnim/interpolate.html#Eval2DHandler	interpolate: Eval2DHandler	
-Interpolator2DType	numericalnim/interpolate.html#Interpolator2DType	interpolate: Interpolator2DType	
-EvalUnstructured2DHandler	numericalnim/interpolate.html#EvalUnstructured2DHandler	interpolate: EvalUnstructured2DHandler	
-InterpolatorUnstructured2DType	numericalnim/interpolate.html#InterpolatorUnstructured2DType	interpolate: InterpolatorUnstructured2DType	
-Eval3DHandler	numericalnim/interpolate.html#Eval3DHandler	interpolate: Eval3DHandler	
-Interpolator3DType	numericalnim/interpolate.html#Interpolator3DType	interpolate: Interpolator3DType	
-findInterval	numericalnim/interpolate.html#findInterval,openArray[float],float	interpolate: findInterval(list: openArray[float]; x: float): int	
-eval_cubicspline	numericalnim/interpolate.html#eval_cubicspline,InterpolatorType[T],float	interpolate: eval_cubicspline[T](spline: InterpolatorType[T]; x: float): T	
-derivEval_cubicspline	numericalnim/interpolate.html#derivEval_cubicspline,InterpolatorType[T],float	interpolate: derivEval_cubicspline[T](spline: InterpolatorType[T]; x: float): T	
-newCubicSpline	numericalnim/interpolate.html#newCubicSpline,openArray[float],openArray[T]	interpolate: newCubicSpline[T: SomeFloat](X: openArray[float]; Y: openArray[T]): InterpolatorType[\n    T]	
-eval_hermitespline	numericalnim/interpolate.html#eval_hermitespline,InterpolatorType[T],float	interpolate: eval_hermitespline[T](spline: InterpolatorType[T]; x: float): T	
-derivEval_hermitespline	numericalnim/interpolate.html#derivEval_hermitespline,InterpolatorType[T],float	interpolate: derivEval_hermitespline[T](spline: InterpolatorType[T]; x: float): T	
-newHermiteSpline	numericalnim/interpolate.html#newHermiteSpline,openArray[float],openArray[T],openArray[T]	interpolate: newHermiteSpline[T](X: openArray[float]; Y, dY: openArray[T]): InterpolatorType[\n    T]	
-newHermiteSpline	numericalnim/interpolate.html#newHermiteSpline,openArray[float],openArray[T]	interpolate: newHermiteSpline[T](X: openArray[float]; Y: openArray[T]): InterpolatorType[T]	
-eval_linear1d	numericalnim/interpolate.html#eval_linear1d,InterpolatorType[T],float	interpolate: eval_linear1d[T](spline: InterpolatorType[T]; x: float): T	
-derivEval_linear1d	numericalnim/interpolate.html#derivEval_linear1d,InterpolatorType[T],float	interpolate: derivEval_linear1d[T](spline: InterpolatorType[T]; x: float): T	
-newLinear1D	numericalnim/interpolate.html#newLinear1D,openArray[float],openArray[T]	interpolate: newLinear1D[T](X: openArray[float]; Y: openArray[T]): InterpolatorType[T]	
-eval	numericalnim/interpolate.html#eval,InterpolatorType[T],float,ExtrapolateKind,U	interpolate: eval[T; U](interpolator: InterpolatorType[T]; x: float;\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T	
-derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],float,ExtrapolateKind,U	interpolate: derivEval[T; U](interpolator: InterpolatorType[T]; x: float;\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T	
-eval	numericalnim/interpolate.html#eval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	interpolate: eval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]	
-toProc	numericalnim/interpolate.html#toProc,InterpolatorType[T]	interpolate: toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]	
-toNumContextProc	numericalnim/interpolate.html#toNumContextProc.c,InterpolatorType[T]	interpolate: toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]	
-derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	interpolate: derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[\n    T]	
-toDerivProc	numericalnim/interpolate.html#toDerivProc,InterpolatorType[T]	interpolate: toDerivProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]	
-toDerivNumContextProc	numericalnim/interpolate.html#toDerivNumContextProc,InterpolatorType[T]	interpolate: toDerivNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]	
-eval_nearestneigh	numericalnim/interpolate.html#eval_nearestneigh,Interpolator2DType[T],float,float	interpolate: eval_nearestneigh[T](self: Interpolator2DType[T]; x, y: float): T	
-newNearestNeighbour2D	numericalnim/interpolate.html#newNearestNeighbour2D,Tensor[T],,	interpolate: newNearestNeighbour2D[T](z: Tensor[T]; xlim, ylim: (float, float)): Interpolator2DType[\n    T]	
-eval_bilinear	numericalnim/interpolate.html#eval_bilinear,Interpolator2DType[T],float,float	interpolate: eval_bilinear[T](self: Interpolator2DType[T]; x, y: float): T	
-newBilinearSpline	numericalnim/interpolate.html#newBilinearSpline,Tensor[T],,	interpolate: newBilinearSpline[T](z: Tensor[T]; xlim, ylim: (float, float)): Interpolator2DType[\n    T]	
-eval_bicubic	numericalnim/interpolate.html#eval_bicubic,Interpolator2DType[T],float,float	interpolate: eval_bicubic[T](self: Interpolator2DType[T]; x, y: float): T	
-newBicubicSpline	numericalnim/interpolate.html#newBicubicSpline,Tensor[T],,	interpolate: newBicubicSpline[T](z: Tensor[T]; xlim, ylim: (float, float)): Interpolator2DType[\n    T]	
-eval_barycentric2d	numericalnim/interpolate.html#eval_barycentric2d,InterpolatorUnstructured2DType[T,U],float,float	interpolate: eval_barycentric2d[T, U](self: InterpolatorUnstructured2DType[T, U]; x, y: float): U	
-newBarycentric2D	numericalnim/interpolate.html#newBarycentric2D,Tensor[T: SomeFloat],Tensor[U]	interpolate: newBarycentric2D[T: SomeFloat; U](points: Tensor[T]; values: Tensor[U]): InterpolatorUnstructured2DType[\n    T, U]	
-eval	numericalnim/interpolate.html#eval.t,Interpolator2DType[T],float,float	interpolate: eval[T](interpolator: Interpolator2DType[T]; x, y: float): untyped	
-eval	numericalnim/interpolate.html#eval.t,InterpolatorUnstructured2DType[T,U],T,T	interpolate: eval[T, U](interpolator: InterpolatorUnstructured2DType[T, U]; x, y: T): untyped	
-eval_trilinear	numericalnim/interpolate.html#eval_trilinear,Interpolator3DType[T],float,float,float	interpolate: eval_trilinear[T](self: Interpolator3DType[T]; x, y, z: float): T	
-newTrilinearSpline	numericalnim/interpolate.html#newTrilinearSpline,Tensor[T],,,	interpolate: newTrilinearSpline[T](f: Tensor[T]; xlim, ylim, zlim: (float, float)): Interpolator3DType[\n    T]	
-eval	numericalnim/interpolate.html#eval.t,Interpolator3DType[T],float,float,float	interpolate: eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped	
-Interpolation	numericalnim/interpolate.html#interpolation	 Interpolation	
-1D interpolation	numericalnim/interpolate.html#interpolation-Z1d-interpolation	  1D interpolation	
-Extrapolation	numericalnim/interpolate.html#Z1d-interpolation-extrapolation	   Extrapolation	
-2D interpolation	numericalnim/interpolate.html#interpolation-Z2d-interpolation	  2D interpolation	
-3D interpolation	numericalnim/interpolate.html#interpolation-Z3d-interpolation	  3D interpolation	
+nimTitle	interpolate	numericalnim/interpolate.html	module src/numericalnim/interpolate		0
+nim	InterpolatorType	numericalnim/interpolate.html#InterpolatorType	type InterpolatorType		79
+nim	EvalHandler	numericalnim/interpolate.html#EvalHandler	type EvalHandler		88
+nim	Constant	numericalnim/interpolate.html#Constant	ExtrapolateKind.Constant		89
+nim	Edge	numericalnim/interpolate.html#Edge	ExtrapolateKind.Edge		89
+nim	Linear	numericalnim/interpolate.html#Linear	ExtrapolateKind.Linear		89
+nim	Native	numericalnim/interpolate.html#Native	ExtrapolateKind.Native		89
+nim	Error	numericalnim/interpolate.html#Error	ExtrapolateKind.Error		89
+nim	ExtrapolateKind	numericalnim/interpolate.html#ExtrapolateKind	enum ExtrapolateKind		89
+nim	Eval2DHandler	numericalnim/interpolate.html#Eval2DHandler	type Eval2DHandler		91
+nim	Interpolator2DType	numericalnim/interpolate.html#Interpolator2DType	type Interpolator2DType		92
+nim	EvalUnstructured2DHandler	numericalnim/interpolate.html#EvalUnstructured2DHandler	type EvalUnstructured2DHandler		98
+nim	InterpolatorUnstructured2DType	numericalnim/interpolate.html#InterpolatorUnstructured2DType	type InterpolatorUnstructured2DType		99
+nim	Eval3DHandler	numericalnim/interpolate.html#Eval3DHandler	type Eval3DHandler		106
+nim	Interpolator3DType	numericalnim/interpolate.html#Interpolator3DType	type Interpolator3DType		107
+nim	findInterval	numericalnim/interpolate.html#findInterval,openArray[float],float	proc findInterval(list: openArray[float]; x: float): int		114
+nim	eval_cubicspline	numericalnim/interpolate.html#eval_cubicspline,InterpolatorType[T],float	proc eval_cubicspline[T](spline: InterpolatorType[T]; x: float): T		155
+nim	derivEval_cubicspline	numericalnim/interpolate.html#derivEval_cubicspline,InterpolatorType[T],float	proc derivEval_cubicspline[T](spline: InterpolatorType[T]; x: float): T		165
+nim	newCubicSpline	numericalnim/interpolate.html#newCubicSpline,openArray[float],openArray[T]	proc newCubicSpline[T: SomeFloat](X: openArray[float]; Y: openArray[T]): InterpolatorType[\n    T]		174
+nim	eval_hermitespline	numericalnim/interpolate.html#eval_hermitespline,InterpolatorType[T],float	proc eval_hermitespline[T](spline: InterpolatorType[T]; x: float): T		186
+nim	derivEval_hermitespline	numericalnim/interpolate.html#derivEval_hermitespline,InterpolatorType[T],float	proc derivEval_hermitespline[T](spline: InterpolatorType[T]; x: float): T		202
+nim	newHermiteSpline	numericalnim/interpolate.html#newHermiteSpline,openArray[float],openArray[T],openArray[T]	proc newHermiteSpline[T](X: openArray[float]; Y, dY: openArray[T]): InterpolatorType[\n    T]		217
+nim	newHermiteSpline	numericalnim/interpolate.html#newHermiteSpline,openArray[float],openArray[T]	proc newHermiteSpline[T](X: openArray[float]; Y: openArray[T]): InterpolatorType[T]		242
+nim	eval_linear1d	numericalnim/interpolate.html#eval_linear1d,InterpolatorType[T],float	proc eval_linear1d[T](spline: InterpolatorType[T]; x: float): T		265
+nim	derivEval_linear1d	numericalnim/interpolate.html#derivEval_linear1d,InterpolatorType[T],float	proc derivEval_linear1d[T](spline: InterpolatorType[T]; x: float): T		272
+nim	newLinear1D	numericalnim/interpolate.html#newLinear1D,openArray[float],openArray[T]	proc newLinear1D[T](X: openArray[float]; Y: openArray[T]): InterpolatorType[T]		279
+nim	eval	numericalnim/interpolate.html#eval,InterpolatorType[T],float,ExtrapolateKind,U	proc eval[T; U](interpolator: InterpolatorType[T]; x: float;\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T		299
+nim	derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],float,ExtrapolateKind,U	proc derivEval[T; U](interpolator: InterpolatorType[T]; x: float;\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T		346
+nim	eval	numericalnim/interpolate.html#eval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	proc eval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]		392
+nim	toProc	numericalnim/interpolate.html#toProc,InterpolatorType[T]	proc toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]		398
+nim	toNumContextProc	numericalnim/interpolate.html#toNumContextProc.c,InterpolatorType[T]	converter toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]		402
+nim	derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	proc derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[\n    T]		406
+nim	toDerivProc	numericalnim/interpolate.html#toDerivProc,InterpolatorType[T]	proc toDerivProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]		412
+nim	toDerivNumContextProc	numericalnim/interpolate.html#toDerivNumContextProc,InterpolatorType[T]	proc toDerivNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]		416
+nim	eval_nearestneigh	numericalnim/interpolate.html#eval_nearestneigh,Interpolator2DType[T],float,float	proc eval_nearestneigh[T](self: Interpolator2DType[T]; x, y: float): T		443
+nim	newNearestNeighbour2D	numericalnim/interpolate.html#newNearestNeighbour2D,Tensor[T],,	proc newNearestNeighbour2D[T](z: Tensor[T]; xlim, ylim: (float, float)): Interpolator2DType[\n    T]		450
+nim	eval_bilinear	numericalnim/interpolate.html#eval_bilinear,Interpolator2DType[T],float,float	proc eval_bilinear[T](self: Interpolator2DType[T]; x, y: float): T		474
+nim	newBilinearSpline	numericalnim/interpolate.html#newBilinearSpline,Tensor[T],,	proc newBilinearSpline[T](z: Tensor[T]; xlim, ylim: (float, float)): Interpolator2DType[\n    T]		491
+nim	eval_bicubic	numericalnim/interpolate.html#eval_bicubic,Interpolator2DType[T],float,float	proc eval_bicubic[T](self: Interpolator2DType[T]; x, y: float): T		570
+nim	newBicubicSpline	numericalnim/interpolate.html#newBicubicSpline,Tensor[T],,	proc newBicubicSpline[T](z: Tensor[T]; xlim, ylim: (float, float)): Interpolator2DType[\n    T]		589
+nim	eval_barycentric2d	numericalnim/interpolate.html#eval_barycentric2d,InterpolatorUnstructured2DType[T,U],float,float	proc eval_barycentric2d[T, U](self: InterpolatorUnstructured2DType[T, U]; x, y: float): U		618
+nim	newBarycentric2D	numericalnim/interpolate.html#newBarycentric2D,Tensor[T: SomeFloat],Tensor[U]	proc newBarycentric2D[T: SomeFloat; U](points: Tensor[T]; values: Tensor[U]): InterpolatorUnstructured2DType[\n    T, U]		656
+nim	eval	numericalnim/interpolate.html#eval.t,Interpolator2DType[T],float,float	template eval[T](interpolator: Interpolator2DType[T]; x, y: float): untyped		688
+nim	eval	numericalnim/interpolate.html#eval.t,InterpolatorUnstructured2DType[T,U],T,T	template eval[T, U](interpolator: InterpolatorUnstructured2DType[T, U]; x, y: T): untyped		692
+nim	eval_trilinear	numericalnim/interpolate.html#eval_trilinear,Interpolator3DType[T],float,float,float	proc eval_trilinear[T](self: Interpolator3DType[T]; x, y, z: float): T		715
+nim	newTrilinearSpline	numericalnim/interpolate.html#newTrilinearSpline,Tensor[T],,,	proc newTrilinearSpline[T](f: Tensor[T]; xlim, ylim, zlim: (float, float)): Interpolator3DType[\n    T]		739
+nim	eval	numericalnim/interpolate.html#eval.t,Interpolator3DType[T],float,float,float	template eval[T](interpolator: Interpolator3DType[T]; x, y, z: float): untyped		769
+nimgrp	deriveval	numericalnim/interpolate.html#derivEval-procs-all	proc		346
+nimgrp	newhermitespline	numericalnim/interpolate.html#newHermiteSpline-procs-all	proc		217
+nimgrp	eval	numericalnim/interpolate.html#eval-procs-all	proc		299
+nimgrp	eval	numericalnim/interpolate.html#eval-templates-all	template		688
+heading	Interpolation	numericalnim/interpolate.html#interpolation	 Interpolation		0
+heading	1D interpolation	numericalnim/interpolate.html#interpolation-Z1d-interpolation	  1D interpolation		0
+heading	Extrapolation	numericalnim/interpolate.html#Z1d-interpolation-extrapolation	   Extrapolation		0
+heading	2D interpolation	numericalnim/interpolate.html#interpolation-Z2d-interpolation	  2D interpolation		0
+heading	3D interpolation	numericalnim/interpolate.html#interpolation-Z3d-interpolation	  3D interpolation		0

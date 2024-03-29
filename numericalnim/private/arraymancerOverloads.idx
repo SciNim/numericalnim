@@ -1,5 +1,7 @@
-`*`	numericalnim/private/arraymancerOverloads.html#*,Tensor[float],Tensor[T: not SomeNumber]	arraymancerOverloads: `*`[T: not SomeNumber](t1: Tensor[float]; t2: Tensor[T]): Tensor[T]	
-`*`	numericalnim/private/arraymancerOverloads.html#*,Tensor[T: not SomeNumber],Tensor[float]	arraymancerOverloads: `*`[T: not SomeNumber](t1: Tensor[T]; t2: Tensor[float]): Tensor[T]	
-`*`	numericalnim/private/arraymancerOverloads.html#*,Tensor[T: not SomeNumber],Tensor[T: not SomeNumber]	arraymancerOverloads: `*`[T: not SomeNumber](t1: Tensor[T]; t2: Tensor[T]): Tensor[T]	
-`+`	numericalnim/private/arraymancerOverloads.html#+,Tensor[T: not SomeNumber],Tensor[T: not SomeNumber]	arraymancerOverloads: `+`[T: not SomeNumber](t1: Tensor[T]; t2: Tensor[T]): Tensor[T]	
-dot	numericalnim/private/arraymancerOverloads.html#dot,Tensor[float],Tensor[T: not SomeNumber]	arraymancerOverloads: dot[T: not SomeNumber](t1: Tensor[float]; t2: Tensor[T]): T	
+nimTitle	arraymancerOverloads	numericalnim/private/arraymancerOverloads.html	module src/numericalnim/private/arraymancerOverloads		0
+nim	`*`	numericalnim/private/arraymancerOverloads.html#*,Tensor[float],Tensor[T: not SomeNumber]	proc `*`[T: not SomeNumber](t1: Tensor[float]; t2: Tensor[T]): Tensor[T]		14
+nim	`*`	numericalnim/private/arraymancerOverloads.html#*,Tensor[T: not SomeNumber],Tensor[float]	proc `*`[T: not SomeNumber](t1: Tensor[T]; t2: Tensor[float]): Tensor[T]		20
+nim	`*`	numericalnim/private/arraymancerOverloads.html#*,Tensor[T: not SomeNumber],Tensor[T: not SomeNumber]	proc `*`[T: not SomeNumber](t1: Tensor[T]; t2: Tensor[T]): Tensor[T]		25
+nim	`+`	numericalnim/private/arraymancerOverloads.html#+,Tensor[T: not SomeNumber],Tensor[T: not SomeNumber]	proc `+`[T: not SomeNumber](t1: Tensor[T]; t2: Tensor[T]): Tensor[T]		30
+nim	dot	numericalnim/private/arraymancerOverloads.html#dot,Tensor[float],Tensor[T: not SomeNumber]	proc dot[T: not SomeNumber](t1: Tensor[float]; t2: Tensor[T]): T		36
+nimgrp	*	numericalnim/private/arraymancerOverloads.html#*-procs-all	proc		14

@@ -1,24 +1,30 @@
-trapz	numericalnim/integrate.html#trapz,NumContextProc[T,float],float,float,int,NumContext[T,float]	integrate: trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;\n         ctx: NumContext[T, float] = nil): T	
-trapz	numericalnim/integrate.html#trapz,openArray[T],openArray[float]	integrate: trapz[T](Y: openArray[T]; X: openArray[float]): T	
-cumtrapz	numericalnim/integrate.html#cumtrapz,openArray[T],openArray[float]	integrate: cumtrapz[T](Y: openArray[T]; X: openArray[float]): seq[T]	
-cumtrapz	numericalnim/integrate.html#cumtrapz,NumContextProc[T,float],openArray[float],NumContext[T,float],float	integrate: cumtrapz[T](f: NumContextProc[T, float]; X: openArray[float];\n            ctx: NumContext[T, float] = nil; dx = 0.00001): seq[T]	
-simpson	numericalnim/integrate.html#simpson,NumContextProc[T,float],float,float,int,NumContext[T,float]	integrate: simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;\n           ctx: NumContext[T, float] = nil): T	
-simpson	numericalnim/integrate.html#simpson,openArray[T],openArray[float]	integrate: simpson[T](Y: openArray[T]; X: openArray[float]): T	
-adaptiveSimpson	numericalnim/integrate.html#adaptiveSimpson,NumContextProc[T,float],float,float,float,NumContext[T,float]	integrate: adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;\n                   ctx: NumContext[T, float] = nil): T	
-adaptiveSimpson2	numericalnim/integrate.html#adaptiveSimpson2,NumContextProc[T,float],float,float,float,NumContext[T,float]	integrate: adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;\n                    tol = 1e-8; ctx: NumContext[T, float] = nil): T	
-cumsimpson	numericalnim/integrate.html#cumsimpson,openArray[T],openArray[float]	integrate: cumsimpson[T](Y: openArray[T]; X: openArray[float]): seq[T]	
-cumsimpson	numericalnim/integrate.html#cumsimpson,NumContextProc[T,float],openArray[float],NumContext[T,float],float	integrate: cumsimpson[T](f: NumContextProc[T, float]; X: openArray[float];\n              ctx: NumContext[T, float] = nil; dx = 0.00001): seq[T]	
-romberg	numericalnim/integrate.html#romberg,NumContextProc[T,float],float,float,int,float,NumContext[T,float]	integrate: romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;\n           tol = 1e-8; ctx: NumContext[T, float] = nil): T	
-romberg	numericalnim/integrate.html#romberg,openArray[T],openArray[float]	integrate: romberg[T](Y: openArray[T]; X: openArray[float]): T	
-gaussQuad	numericalnim/integrate.html#gaussQuad,NumContextProc[T,float],float,float,int,int,NumContext[T,float]	integrate: gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;\n             nPoints = 7; ctx: NumContext[T, float] = nil): T	
-adaptiveGaussLocal	numericalnim/integrate.html#adaptiveGaussLocal,NumContextProc[T,float],float,float,float,NumContext[T,float]	integrate: adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;\n                      tol = 1e-8; ctx: NumContext[T, float] = nil): T	
-cmpInterval	numericalnim/integrate.html#cmpInterval,IntervalType[T,U,V],IntervalType[T,U,V]	integrate: cmpInterval[T; U; V](interval1, interval2: IntervalType[T, U, V]): int	
-insert	numericalnim/integrate.html#insert,IntervalList[T,U,V],IntervalType[T,U,V]	integrate: insert[T; U; V](intervalList: var IntervalList[T, U, V];\n                el: IntervalType[T, U, V])	
-pop	numericalnim/integrate.html#pop,IntervalList[T,U,V]	integrate: pop[T; U; V](intervalList: var IntervalList[T, U, V]): IntervalType[T, U, V]	
-adaptiveGauss	numericalnim/integrate.html#adaptiveGauss,NumContextProc[T,U],U,U,float,openArray[U],int,NumContext[T,U]	integrate: adaptiveGauss[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;\n                    tol = 1e-8; initialPoints: openArray[U] = @[];\n                    maxintervals: int = 10000; ctx: NumContext[T, U] = nil): T	
-cumGaussSpline	numericalnim/integrate.html#cumGaussSpline,NumContextProc[T,U],U,U,float,openArray[U],int,NumContext[T,U]	integrate: cumGaussSpline[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;\n                     tol = 1e-8; initialPoints: openArray[U] = @[];\n                     maxintervals: int = 10000; ctx: NumContext[T, U] = nil): InterpolatorType[\n    T]	
-cumGauss	numericalnim/integrate.html#cumGauss,NumContextProc[T,float],openArray[float],float,openArray[float],int,NumContext[T,float]	integrate: cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;\n            initialPoints: openArray[float] = @[]; maxintervals: int = 10000;\n            ctx: NumContext[T, float] = nil): seq[T]	
-Integration	numericalnim/integrate.html#integration	 Integration	
-Integrate discrete data:	numericalnim/integrate.html#integration-integrate-discrete-datacolon	  Integrate discrete data:	
-Integrate continous functions:	numericalnim/integrate.html#integration-integrate-continous-functionscolon	  Integrate continous functions:	
-Cumulative integration:	numericalnim/integrate.html#integration-cumulative-integrationcolon	  Cumulative integration:	
+nimTitle	integrate	numericalnim/integrate.html	module src/numericalnim/integrate		0
+nim	trapz	numericalnim/integrate.html#trapz,NumContextProc[T,float],float,float,int,NumContext[T,float]	proc trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;\n         ctx: NumContext[T, float] = nil): T		79
+nim	trapz	numericalnim/integrate.html#trapz,openArray[T],openArray[float]	proc trapz[T](Y: openArray[T]; X: openArray[float]): T		103
+nim	cumtrapz	numericalnim/integrate.html#cumtrapz,openArray[T],openArray[float]	proc cumtrapz[T](Y: openArray[T]; X: openArray[float]): seq[T]		119
+nim	cumtrapz	numericalnim/integrate.html#cumtrapz,NumContextProc[T,float],openArray[float],NumContext[T,float],float	proc cumtrapz[T](f: NumContextProc[T, float]; X: openArray[float];\n            ctx: NumContext[T, float] = nil; dx = 0.00001): seq[T]		137
+nim	simpson	numericalnim/integrate.html#simpson,NumContextProc[T,float],float,float,int,NumContext[T,float]	proc simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;\n           ctx: NumContext[T, float] = nil): T		176
+nim	simpson	numericalnim/integrate.html#simpson,openArray[T],openArray[float]	proc simpson[T](Y: openArray[T]; X: openArray[float]): T		220
+nim	adaptiveSimpson	numericalnim/integrate.html#adaptiveSimpson,NumContextProc[T,float],float,float,float,NumContext[T,float]	proc adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;\n                   ctx: NumContext[T, float] = nil): T		254
+nim	adaptiveSimpson2	numericalnim/integrate.html#adaptiveSimpson2,NumContextProc[T,float],float,float,float,NumContext[T,float]	proc adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;\n                    tol = 1e-8; ctx: NumContext[T, float] = nil): T		304
+nim	cumsimpson	numericalnim/integrate.html#cumsimpson,openArray[T],openArray[float]	proc cumsimpson[T](Y: openArray[T]; X: openArray[float]): seq[T]		329
+nim	cumsimpson	numericalnim/integrate.html#cumsimpson,NumContextProc[T,float],openArray[float],NumContext[T,float],float	proc cumsimpson[T](f: NumContextProc[T, float]; X: openArray[float];\n              ctx: NumContext[T, float] = nil; dx = 0.00001): seq[T]		378
+nim	romberg	numericalnim/integrate.html#romberg,NumContextProc[T,float],float,float,int,float,NumContext[T,float]	proc romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;\n           tol = 1e-8; ctx: NumContext[T, float] = nil): T		401
+nim	romberg	numericalnim/integrate.html#romberg,openArray[T],openArray[float]	proc romberg[T](Y: openArray[T]; X: openArray[float]): T		438
+nim	gaussQuad	numericalnim/integrate.html#gaussQuad,NumContextProc[T,float],float,float,int,int,NumContext[T,float]	proc gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;\n             nPoints = 7; ctx: NumContext[T, float] = nil): T		596
+nim	adaptiveGaussLocal	numericalnim/integrate.html#adaptiveGaussLocal,NumContextProc[T,float],float,float,float,NumContext[T,float]	proc adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;\n                      tol = 1e-8; ctx: NumContext[T, float] = nil): T		656
+nim	cmpInterval	numericalnim/integrate.html#cmpInterval,IntervalType[T,U,V],IntervalType[T,U,V]	proc cmpInterval[T; U; V](interval1, interval2: IntervalType[T, U, V]): int		699
+nim	insert	numericalnim/integrate.html#insert,IntervalList[T,U,V],IntervalType[T,U,V]	proc insert[T; U; V](intervalList: var IntervalList[T, U, V];\n                el: IntervalType[T, U, V])		707
+nim	pop	numericalnim/integrate.html#pop,IntervalList[T,U,V]	proc pop[T; U; V](intervalList: var IntervalList[T, U, V]): IntervalType[T, U, V]		710
+nim	adaptiveGauss	numericalnim/integrate.html#adaptiveGauss,NumContextProc[T,U],U,U,float,openArray[U],int,NumContext[T,U]	proc adaptiveGauss[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;\n                    tol = 1e-8; initialPoints: openArray[U] = @[];\n                    maxintervals: int = 10000; ctx: NumContext[T, U] = nil): T		856
+nim	cumGaussSpline	numericalnim/integrate.html#cumGaussSpline,NumContextProc[T,U],U,U,float,openArray[U],int,NumContext[T,U]	proc cumGaussSpline[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;\n                     tol = 1e-8; initialPoints: openArray[U] = @[];\n                     maxintervals: int = 10000; ctx: NumContext[T, U] = nil): InterpolatorType[\n    T]		875
+nim	cumGauss	numericalnim/integrate.html#cumGauss,NumContextProc[T,float],openArray[float],float,openArray[float],int,NumContext[T,float]	proc cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;\n            initialPoints: openArray[float] = @[]; maxintervals: int = 10000;\n            ctx: NumContext[T, float] = nil): seq[T]		911
+nimgrp	trapz	numericalnim/integrate.html#trapz-procs-all	proc		79
+nimgrp	romberg	numericalnim/integrate.html#romberg-procs-all	proc		401
+nimgrp	cumsimpson	numericalnim/integrate.html#cumsimpson-procs-all	proc		329
+nimgrp	cumtrapz	numericalnim/integrate.html#cumtrapz-procs-all	proc		119
+nimgrp	simpson	numericalnim/integrate.html#simpson-procs-all	proc		176
+heading	Integration	numericalnim/integrate.html#integration	 Integration		0
+heading	Integrate discrete data:	numericalnim/integrate.html#integration-integrate-discrete-datacolon	  Integrate discrete data:		0
+heading	Integrate continous functions:	numericalnim/integrate.html#integration-integrate-continous-functionscolon	  Integrate continous functions:		0
+heading	Cumulative integration:	numericalnim/integrate.html#integration-cumulative-integrationcolon	  Cumulative integration:		0
