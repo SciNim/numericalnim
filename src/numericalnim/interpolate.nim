@@ -399,10 +399,6 @@ proc toProc*[T](spline: InterpolatorType[T]): InterpolatorProc[T] =
   ## Returns a proc to evaluate the interpolator.
   result = proc(x: float): T = eval(spline, x)
 
-converter toNumContextProc*[T](spline: InterpolatorType[T]): NumContextProc[T, float] =
-  ## Convert interpolator to `NumContextProc`.
-  result = proc(x: float, ctx: NumContext[T, float]): T = eval(spline, x)
-
 proc derivEval*[T; U](spline: InterpolatorType[T], x: openArray[float], extrap: ExtrapolateKind = Native, extrapValue: U = missing()): seq[T] =
   ## Evaluates the derivative of an interpolator at all points in `x`.
   result = newSeq[T](x.len)
