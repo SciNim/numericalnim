@@ -12,12 +12,12 @@ export rbf
 ## This module implements various interpolation routines.
 ## See also:
 ## - `rbf module<rbf.html>`_ for RBF interpolation of scattered data in arbitrary dimensions.
-## 
+##
 ## ## 1D interpolation
 ## - Hermite spline (recommended): cubic spline that works with many types of values. Accepts derivatives if available.
 ## - Cubic spline: cubic spline that only works with `float`s.
 ## - Linear spline: Linear spline that works with many types of values.
-## 
+##
 ## ### Extrapolation
 ## Extrapolation is supported for all 1D interpolators by passing the type of extrapolation as an argument of `eval`.
 ## The default is to use the interpolator's native method to extrapolate. This means that Linear does linear extrapolation,
@@ -26,7 +26,7 @@ export rbf
 
 runnableExamples:
   import numericalnim, std/[math, sequtils]
-  
+
   let x = linspace(0.0, 1.0, 10)
   let y = x.mapIt(sin(it))
 
@@ -173,7 +173,7 @@ proc derivEval_cubicspline*[T](spline: InterpolatorType[T], x: float): T =
 
 proc newCubicSpline*[T: SomeFloat](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
-  ## Returns a cubic spline. 
+  ## Returns a cubic spline.
   let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   let coeffs = constructCubicSpline(xSorted, ySorted)
   result = InterpolatorType[T](X: xSorted, Y: ySorted, coeffs_T: coeffs, high: xSorted.high,
@@ -241,7 +241,7 @@ proc newHermiteSpline*[T](X: openArray[float], Y, dY: openArray[
 
 proc newHermiteSpline*[T](X: openArray[float], Y: openArray[
     T]): InterpolatorType[T] =
-  ## Constructs a cubic Hermite spline by approximating the derivatives. 
+  ## Constructs a cubic Hermite spline by approximating the derivatives.
   # if only (x, y) is given, use three-point difference to calculate dY.
   let (xSorted, ySorted) = sortAndTrimDataset(@X, @Y)
   var dySorted = newSeq[T](ySorted.len)
@@ -304,16 +304,16 @@ proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extrapolat
   ##  - `Edge`: Use the value of the left/right edge.
   ##  - `Linear`: Uses linear extrapolation using the two points closest to the edge.
   ##  - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
-  ##  - `Error`: Raises an `ValueError` if `x` is outside the range. 
+  ##  - `Error`: Raises an `ValueError` if `x` is outside the range.
   ## - `extrapValue`: The extrapolation value to use when `extrap = Constant`.
-  ## 
+  ##
   ## > Beware: `Native` extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.
   when U is Missing:
     assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
   else:
     when not T is U:
       {.error: &"Type of `extrap` ({U}) is not the same as the type of the interpolator ({T})!".}
-  
+
   let xLeft = x < interpolator.X[0]
   let xRight = x > interpolator.X[^1]
   if xLeft or xRight:
@@ -330,7 +330,7 @@ proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extrapolat
         if xLeft: interpolator.Y[0]
         else: interpolator.Y[^1]
     of Linear:
-      let (xs, ys) = 
+      let (xs, ys) =
         if xLeft:
           ((interpolator.X[0], interpolator.X[1]), (interpolator.Y[0], interpolator.Y[1]))
         else:
@@ -341,7 +341,7 @@ proc eval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extrapolat
       raise newException(ValueError, &"x = {x} isn't in the interval [{interpolator.X[0]}, {interpolator.X[^1]}]")
 
   result = interpolator.eval_handler(interpolator, x)
-  
+
 
 proc derivEval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: ExtrapolateKind = Native, extrapValue: U = missing()): T =
   ## Evaluates the derivative of an interpolator.
@@ -351,9 +351,9 @@ proc derivEval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extra
   ##  - `Edge`: Use the value of the left/right edge.
   ##  - `Linear`: Uses linear extrapolation using the two points closest to the edge.
   ##  - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
-  ##  - `Error`: Raises an `ValueError` if `x` is outside the range. 
+  ##  - `Error`: Raises an `ValueError` if `x` is outside the range.
   ## - `extrapValue`: The extrapolation value to use when `extrap = Constant`.
-  ## 
+  ##
   ## > Beware: `Native` extrapolation for the cubic splines can very quickly diverge if the extrapolation is too far away from the interpolation points.
   when U is Missing:
     assert extrap != Constant, "When using `extrap = Constant`, a value `extrapValue` must be supplied!"
@@ -390,7 +390,7 @@ proc derivEval*[T; U](interpolator: InterpolatorType[T], x: float, extrap: Extra
   result = interpolator.deriveval_handler(interpolator, x)
 
 proc eval*[T; U](spline: InterpolatorType[T], x: openArray[float], extrap: ExtrapolateKind = Native, extrapValue: U = missing()): seq[T] =
-  ## Evaluates an interpolator at all points in `x`. 
+  ## Evaluates an interpolator at all points in `x`.
   result = newSeq[T](x.len)
   for i, xi in x:
     result[i] = eval(spline, xi, extrap, extrapValue)
@@ -655,11 +655,11 @@ proc eval_barycentric2d*[T, U](self: InterpolatorUnstructured2DType[T, U]; x, y:
 
 proc newBarycentric2D*[T: SomeFloat, U](points: Tensor[T], values: Tensor[U]): InterpolatorUnstructured2DType[T, U] =
   ## Barycentric interpolation of scattered points in 2D.
-  ## 
+  ##
   ## Inputs:
   ##  - points: Tensor of shape (nPoints, 2) with the coordinates of all points.
   ##  - values: Tensor of shape (nPoints) with the function values.
-  ## 
+  ##
   ## Returns:
   ##  - Interpolator object that can be evaluated using `interp.eval(x, y`.
   assert points.rank == 2 and points.shape[1] == 2
