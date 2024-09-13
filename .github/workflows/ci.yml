@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nim: [ '1.4.x', 'stable', 'devel' ]
+        nim: [ '1.6.x', 'stable', 'devel' ]
     # Steps represent a sequence of tasks that will be executed as part of the job
     name: Nim ${{ matrix.nim }} sample
     steps:
