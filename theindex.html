@@ -12,16 +12,16 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.2">
+<link rel="stylesheet" type="text/css" href="nimdoc.out.css?v=2.0.8">
 
 <!-- JS -->
-<script type="text/javascript" src="dochack.js?v=2.0.2"></script>
+<script type="text/javascript" src="dochack.js?v=2.0.8"></script>
 </head>
 <body>
   <div class="document" id="documentId">
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="numericalnim.html">numericalnim</a>, <a href="numericalnim/common/commonTypes.html">numericalnim/common/commonTypes</a>, <a href="numericalnim/differentiate.html">numericalnim/differentiate</a>, <a href="numericalnim/integrate.html">numericalnim/integrate</a>, <a href="numericalnim/interpolate.html">numericalnim/interpolate</a>, <a href="numericalnim/ode.html">numericalnim/ode</a>, <a href="numericalnim/optimize.html">numericalnim/optimize</a>, <a href="numericalnim/private/arraymancerOverloads.html">numericalnim/private/arraymancerOverloads</a>, <a href="numericalnim/rbf.html">numericalnim/rbf</a>, <a href="numericalnim/utils.html">numericalnim/utils</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="numericalnim.html">numericalnim</a>, <a href="numericalnim/common/commonTypes.html">numericalnim/common/commonTypes</a>, <a href="numericalnim/differentiate.html">numericalnim/differentiate</a>, <a href="numericalnim/integrate.html">numericalnim/integrate</a>, <a href="numericalnim/interpolate.html">numericalnim/interpolate</a>, <a href="numericalnim/ode.html">numericalnim/ode</a>, <a href="numericalnim/optimize.html">numericalnim/optimize</a>, <a href="numericalnim/private/arraymancerOverloads.html">numericalnim/private/arraymancerOverloads</a>, <a href="numericalnim/private/macro_utils.html">numericalnim/private/macro_utils</a>, <a href="numericalnim/rbf.html">numericalnim/rbf</a>, <a href="numericalnim/utils.html">numericalnim/utils</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%24%60" href="#%60%24%60"><span>`$`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="utils: proc `$`(v: Vector): string" href="numericalnim/utils.html#%24%2CVector">utils: proc `$`(v: Vector): string</a></li>
@@ -174,6 +174,12 @@
           </ul></dd>
 <dt><a name="adaptiveGauss" href="#adaptiveGauss"><span>adaptiveGauss:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc adaptiveGauss[T](f_in: InterpolatorType[T]; xStart_in, xEnd_in: T; tol = 1e-8;
+                 initialPoints: openArray[T] = @[]; maxintervals: int = 10000;
+                 ctx: NumContext[T, T] = nil): T" href="numericalnim/integrate.html#adaptiveGauss%2CInterpolatorType%5BT%5D%2CT%2CT%2Cfloat%2CopenArray%5BT%5D%2Cint%2CNumContext%5BT%2CT%5D">integrate: proc adaptiveGauss[T](f_in: InterpolatorType[T]; xStart_in, xEnd_in: T; tol = 1e-8;
+                 initialPoints: openArray[T] = @[]; maxintervals: int = 10000;
+                 ctx: NumContext[T, T] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc adaptiveGauss[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;
                     tol = 1e-8; initialPoints: openArray[U] = @[];
                     maxintervals: int = 10000; ctx: NumContext[T, U] = nil): T" href="numericalnim/integrate.html#adaptiveGauss%2CNumContextProc%5BT%2CU%5D%2CU%2CU%2Cfloat%2CopenArray%5BU%5D%2Cint%2CNumContext%5BT%2CU%5D">integrate: proc adaptiveGauss[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;
@@ -182,6 +188,10 @@
           </ul></dd>
 <dt><a name="adaptiveGaussLocal" href="#adaptiveGaussLocal"><span>adaptiveGaussLocal:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc adaptiveGaussLocal[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                      ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#adaptiveGaussLocal%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc adaptiveGaussLocal[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                      ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                       tol = 1e-8; ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#adaptiveGaussLocal%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                       tol = 1e-8; ctx: NumContext[T, float] = nil): T</a></li>
@@ -192,12 +202,20 @@
           </ul></dd>
 <dt><a name="adaptiveSimpson" href="#adaptiveSimpson"><span>adaptiveSimpson:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc adaptiveSimpson[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                   ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#adaptiveSimpson%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc adaptiveSimpson[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                   ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;
                    ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#adaptiveSimpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;
                    ctx: NumContext[T, float] = nil): T</a></li>
           </ul></dd>
 <dt><a name="adaptiveSimpson2" href="#adaptiveSimpson2"><span>adaptiveSimpson2:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc adaptiveSimpson2[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                    ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#adaptiveSimpson2%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc adaptiveSimpson2[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                    ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                     tol = 1e-8; ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#adaptiveSimpson2%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                     tol = 1e-8; ctx: NumContext[T, float] = nil): T</a></li>
@@ -302,6 +320,12 @@
           </ul></dd>
 <dt><a name="cumGauss" href="#cumGauss"><span>cumGauss:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc cumGauss[T](f_in: InterpolatorType[T]; X: openArray[float]; tol = 1e-8;
+            initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
+            ctx: NumContext[T, float] = nil): seq[T]" href="numericalnim/integrate.html#cumGauss%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc cumGauss[T](f_in: InterpolatorType[T]; X: openArray[float]; tol = 1e-8;
+            initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
+            ctx: NumContext[T, float] = nil): seq[T]</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;
             initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
             ctx: NumContext[T, float] = nil): seq[T]" href="numericalnim/integrate.html#cumGauss%2CNumContextProc%5BT%2Cfloat%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;
@@ -492,9 +516,17 @@
           </ul></dd>
 <dt><a name="gaussQuad" href="#gaussQuad"><span>gaussQuad:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc gaussQuad[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 100; nPoints = 7;
+             ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#gaussQuad%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc gaussQuad[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 100; nPoints = 7;
+             ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;
              nPoints = 7; ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#gaussQuad%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;
              nPoints = 7; ctx: NumContext[T, float] = nil): T</a></li>
+          </ul></dd>
+<dt><a name="genInterp" href="#genInterp"><span>genInterp:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="macro_utils: macro genInterp(fn: untyped): untyped" href="numericalnim/private/macro_utils.html#genInterp.m%2Cuntyped">macro_utils: macro genInterp(fn: untyped): untyped</a></li>
           </ul></dd>
 <dt><a name="getF" href="#getF"><span>getF:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -860,6 +892,10 @@
           </ul></dd>
 <dt><a name="romberg" href="#romberg"><span>romberg:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc romberg[T](f: InterpolatorType[T]; xStart, xEnd: float; depth = 8; tol = 1e-8;
+           ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#romberg%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc romberg[T](f: InterpolatorType[T]; xStart, xEnd: float; depth = 8; tol = 1e-8;
+           ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;
            tol = 1e-8; ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#romberg%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D">integrate: proc romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;
            tol = 1e-8; ctx: NumContext[T, float] = nil): T</a></li>
@@ -900,6 +936,10 @@
           </ul></dd>
 <dt><a name="simpson" href="#simpson"><span>simpson:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc simpson[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+           ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#simpson%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc simpson[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+           ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
            ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#simpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
            ctx: NumContext[T, float] = nil): T</a></li>
@@ -1020,7 +1060,7 @@
           </ul></dd>
 <dt><a name="toNumContextProc" href="#toNumContextProc"><span>toNumContextProc:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="interpolate: converter toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]" href="numericalnim/interpolate.html#toNumContextProc.c%2CInterpolatorType%5BT%5D">interpolate: converter toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]</a></li>
+          data-doc-search-tag="interpolate: proc toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]" href="numericalnim/interpolate.html#toNumContextProc%2CInterpolatorType%5BT%5D">interpolate: proc toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]</a></li>
           </ul></dd>
 <dt><a name="toProc" href="#toProc"><span>toProc:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -1032,6 +1072,10 @@
           </ul></dd>
 <dt><a name="trapz" href="#trapz"><span>trapz:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="integrate: proc trapz[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+         ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#trapz%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc trapz[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+         ctx: NumContext[T, float] = nil): T</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="integrate: proc trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
          ctx: NumContext[T, float] = nil): T" href="numericalnim/integrate.html#trapz%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D">integrate: proc trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
          ctx: NumContext[T, float] = nil): T</a></li>
@@ -1058,7 +1102,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-03-29 09:01:58 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-09-13 19:25:08 UTC</small>
       </div>
     </div>
   </div>

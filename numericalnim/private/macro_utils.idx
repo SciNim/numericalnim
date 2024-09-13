@@ -1,0 +1,2 @@
+nimTitle	macro_utils	numericalnim/private/macro_utils.html	module src/numericalnim/private/macro_utils		0
+nim	genInterp	numericalnim/private/macro_utils.html#genInterp.m,untyped	macro genInterp(fn: untyped): untyped		71

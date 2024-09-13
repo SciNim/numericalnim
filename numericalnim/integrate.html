@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.2">
+<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.8">
 
 <!-- JS -->
-<script type="text/javascript" src="../dochack.js?v=2.0.2"></script>
+<script type="text/javascript" src="../dochack.js?v=2.0.8"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -64,22 +64,36 @@
                     maxintervals: int = 10000; ctx: NumContext[T, U] = nil): T">adaptiveGauss[T; U](f_in: NumContextProc[T, U]; xStart_in, xEnd_in: U;
                     tol = 1e-8; initialPoints: openArray[U] = @[];
                     maxintervals: int = 10000; ctx: NumContext[T, U] = nil): T</a></li>
+<li><a class="reference" href="#adaptiveGauss%2CInterpolatorType%5BT%5D%2CT%2CT%2Cfloat%2CopenArray%5BT%5D%2Cint%2CNumContext%5BT%2CT%5D" title="adaptiveGauss[T](f_in: InterpolatorType[T]; xStart_in, xEnd_in: T; tol = 1e-8;
+                 initialPoints: openArray[T] = @[]; maxintervals: int = 10000;
+                 ctx: NumContext[T, T] = nil): T">adaptiveGauss[T](f_in: InterpolatorType[T]; xStart_in, xEnd_in: T; tol = 1e-8;
+                 initialPoints: openArray[T] = @[]; maxintervals: int = 10000;
+                 ctx: NumContext[T, T] = nil): T</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">adaptiveGaussLocal
-  <li><a class="reference" href="#adaptiveGaussLocal%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;
+  <li><a class="reference" href="#adaptiveGaussLocal%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveGaussLocal[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                      ctx: NumContext[T, float] = nil): T">adaptiveGaussLocal[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                      ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#adaptiveGaussLocal%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                       tol = 1e-8; ctx: NumContext[T, float] = nil): T">adaptiveGaussLocal[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                       tol = 1e-8; ctx: NumContext[T, float] = nil): T</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">adaptiveSimpson
-  <li><a class="reference" href="#adaptiveSimpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;
+  <li><a class="reference" href="#adaptiveSimpson%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveSimpson[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                   ctx: NumContext[T, float] = nil): T">adaptiveSimpson[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                   ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#adaptiveSimpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;
                    ctx: NumContext[T, float] = nil): T">adaptiveSimpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; tol = 1e-8;
                    ctx: NumContext[T, float] = nil): T</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">adaptiveSimpson2
-  <li><a class="reference" href="#adaptiveSimpson2%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;
+  <li><a class="reference" href="#adaptiveSimpson2%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveSimpson2[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                    ctx: NumContext[T, float] = nil): T">adaptiveSimpson2[T](f: InterpolatorType[T]; xStart, xEnd: float; tol = 1e-8;
+                    ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#adaptiveSimpson2%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                     tol = 1e-8; ctx: NumContext[T, float] = nil): T">adaptiveSimpson2[T](f: NumContextProc[T, float]; xStart, xEnd: float;
                     tol = 1e-8; ctx: NumContext[T, float] = nil): T</a></li>
 
@@ -89,7 +103,12 @@
 
 </ul>
 <ul class="simple nested-toc-section">cumGauss
-  <li><a class="reference" href="#cumGauss%2CNumContextProc%5BT%2Cfloat%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D" title="cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;
+  <li><a class="reference" href="#cumGauss%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D" title="cumGauss[T](f_in: InterpolatorType[T]; X: openArray[float]; tol = 1e-8;
+            initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
+            ctx: NumContext[T, float] = nil): seq[T]">cumGauss[T](f_in: InterpolatorType[T]; X: openArray[float]; tol = 1e-8;
+            initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
+            ctx: NumContext[T, float] = nil): seq[T]</a></li>
+<li><a class="reference" href="#cumGauss%2CNumContextProc%5BT%2Cfloat%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D" title="cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;
             initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
             ctx: NumContext[T, float] = nil): seq[T]">cumGauss[T](f_in: NumContextProc[T, float]; X: openArray[float]; tol = 1e-8;
             initialPoints: openArray[float] = @[]; maxintervals: int = 10000;
@@ -121,7 +140,10 @@
 
 </ul>
 <ul class="simple nested-toc-section">gaussQuad
-  <li><a class="reference" href="#gaussQuad%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D" title="gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;
+  <li><a class="reference" href="#gaussQuad%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D" title="gaussQuad[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 100; nPoints = 7;
+             ctx: NumContext[T, float] = nil): T">gaussQuad[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 100; nPoints = 7;
+             ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#gaussQuad%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D" title="gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;
              nPoints = 7; ctx: NumContext[T, float] = nil): T">gaussQuad[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 100;
              nPoints = 7; ctx: NumContext[T, float] = nil): T</a></li>
 
@@ -137,21 +159,30 @@
 
 </ul>
 <ul class="simple nested-toc-section">romberg
-  <li><a class="reference" href="#romberg%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;
+  <li><a class="reference" href="#romberg%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="romberg[T](f: InterpolatorType[T]; xStart, xEnd: float; depth = 8; tol = 1e-8;
+           ctx: NumContext[T, float] = nil): T">romberg[T](f: InterpolatorType[T]; xStart, xEnd: float; depth = 8; tol = 1e-8;
+           ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#romberg%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D" title="romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;
            tol = 1e-8; ctx: NumContext[T, float] = nil): T">romberg[T](f: NumContextProc[T, float]; xStart, xEnd: float; depth = 8;
            tol = 1e-8; ctx: NumContext[T, float] = nil): T</a></li>
 <li><a class="reference" href="#romberg%2CopenArray%5BT%5D%2CopenArray%5Bfloat%5D" title="romberg[T](Y: openArray[T]; X: openArray[float]): T">romberg[T](Y: openArray[T]; X: openArray[float]): T</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">simpson
-  <li><a class="reference" href="#simpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D" title="simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
+  <li><a class="reference" href="#simpson%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D" title="simpson[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+           ctx: NumContext[T, float] = nil): T">simpson[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+           ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#simpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D" title="simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
            ctx: NumContext[T, float] = nil): T">simpson[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
            ctx: NumContext[T, float] = nil): T</a></li>
 <li><a class="reference" href="#simpson%2CopenArray%5BT%5D%2CopenArray%5Bfloat%5D" title="simpson[T](Y: openArray[T]; X: openArray[float]): T">simpson[T](Y: openArray[T]; X: openArray[float]): T</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">trapz
-  <li><a class="reference" href="#trapz%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D" title="trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
+  <li><a class="reference" href="#trapz%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D" title="trapz[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+         ctx: NumContext[T, float] = nil): T">trapz[T](f: InterpolatorType[T]; xStart, xEnd: float; N = 500;
+         ctx: NumContext[T, float] = nil): T</a></li>
+<li><a class="reference" href="#trapz%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D" title="trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
          ctx: NumContext[T, float] = nil): T">trapz[T](f: NumContextProc[T, float]; xStart, xEnd: float; N = 500;
          ctx: NumContext[T, float] = nil): T</a></li>
 <li><a class="reference" href="#trapz%2CopenArray%5BT%5D%2CopenArray%5Bfloat%5D" title="trapz[T](Y: openArray[T]; X: openArray[float]): T">trapz[T](Y: openArray[T]; X: openArray[float]): T</a></li>
@@ -232,7 +263,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="utils.html">utils</a>, <a class="reference external" href="common/commonTypes.html">common/commonTypes</a>, <a class="reference external" href="interpolate.html">interpolate</a>
+    <a class="reference external" href="utils.html">utils</a>, <a class="reference external" href="common/commonTypes.html">common/commonTypes</a>, <a class="reference external" href="interpolate.html">interpolate</a>, <a class="reference external" href="private/macro_utils.html">private/macro_utils</a>
   </dl>
 </div>
 <div class="section" id="12">
@@ -259,15 +290,38 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using an adaptive Gauss-Kronrod Quadrature.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L856" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L856" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L857" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L857" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="adaptiveGauss,InterpolatorType[T],T,T,float,openArray[T],int,NumContext[T,T]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveGauss%2CInterpolatorType%5BT%5D%2CT%2CT%2Cfloat%2CopenArray%5BT%5D%2Cint%2CNumContext%5BT%2CT%5D"><span class="Identifier">adaptiveGauss</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f_in</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart_in</span><span class="Other">,</span> <span class="Identifier">xEnd_in</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span>
+                      <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">initialPoints</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">;</span>
+                      <span class="Identifier">maxintervals</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">10000</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    NOTE: On Nim 2.0.8 we cannot use <tt class="docutils literal"><span class="pre"><span class="Punctuation">{</span><span class="Operator">.</span><span class="Identifier">genInterp</span><span class="Operator">.</span><span class="Punctuation">}</span></span></tt> on the above proc, because of of the double generic it has <tt class="docutils literal"><span class="pre"><span class="Punctuation">[</span><span class="Identifier">T</span><span class="Punctuation">;</span> <span class="Identifier">U</span><span class="Punctuation">]</span></span></tt>. It fails. So this is just a manual version of the generated code for the time being.
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L876" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L876" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="adaptiveGaussLocal-procs-all">
-  <div id="adaptiveGaussLocal,NumContextProc[T,float],float,float,float,NumContext[T,float]">
+  <div id="adaptiveGaussLocal,InterpolatorType[T],float,float,float,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveGaussLocal%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">adaptiveGaussLocal</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
+                           <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L658" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L658" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="adaptiveGaussLocal,NumContextProc[T,float],float,float,float,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveGaussLocal%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">adaptiveGaussLocal</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
                            <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -284,15 +338,26 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using an adaptive Gauss-Kronrod Quadrature.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L656" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L656" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L657" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L657" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="adaptiveSimpson-procs-all">
-  <div id="adaptiveSimpson,NumContextProc[T,float],float,float,float,NumContext[T,float]">
+  <div id="adaptiveSimpson,InterpolatorType[T],float,float,float,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveSimpson%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">adaptiveSimpson</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span>
+                        <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L256" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L256" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="adaptiveSimpson,NumContextProc[T,float],float,float,float,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveSimpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">adaptiveSimpson</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
                         <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -309,15 +374,26 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using an adaptive Simpson's rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L254" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L254" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L255" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L255" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="adaptiveSimpson2-procs-all">
-  <div id="adaptiveSimpson2,NumContextProc[T,float],float,float,float,NumContext[T,float]">
+  <div id="adaptiveSimpson2,InterpolatorType[T],float,float,float,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveSimpson2%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">adaptiveSimpson2</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
+                         <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L306" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L306" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="adaptiveSimpson2,NumContextProc[T,float],float,float,float,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#adaptiveSimpson2%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">adaptiveSimpson2</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span>
                          <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -334,8 +410,8 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using an adaptive Simpson's rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L304" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L304" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L305" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L305" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -347,15 +423,28 @@
   <dd>
     
     
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L699" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L699" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L700" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L700" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="cumGauss-procs-all">
-  <div id="cumGauss,NumContextProc[T,float],openArray[float],float,openArray[float],int,NumContext[T,float]">
+  <div id="cumGauss,InterpolatorType[T],openArray[float],float,openArray[float],int,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#cumGauss%2CInterpolatorType%5BT%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">cumGauss</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f_in</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">X</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span>
+                 <span class="Identifier">initialPoints</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">;</span>
+                 <span class="Identifier">maxintervals</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">10000</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L928" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L928" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="cumGauss,NumContextProc[T,float],openArray[float],float,openArray[float],int,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#cumGauss%2CNumContextProc%5BT%2Cfloat%5D%2CopenArray%5Bfloat%5D%2Cfloat%2CopenArray%5Bfloat%5D%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">cumGauss</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f_in</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">X</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span>
                  <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">initialPoints</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">;</span>
                  <span class="Identifier">maxintervals</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">10000</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
@@ -375,8 +464,8 @@
 <ul class="simple"><li>A sequence of values which is the cumulative integral of f at the points defined in X.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L911" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L911" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L924" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L924" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -404,8 +493,8 @@
 <ul class="simple"><li>A 1D spline which represents the cumulative integral of f from xStart to xEnd.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L875" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L875" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L888" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L888" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -428,8 +517,8 @@
 <ul class="simple"><li>The value of the integral of f from the smallest to the largest value of X calculated using Simpson's rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L378" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L378" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L379" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L379" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -446,8 +535,8 @@
 <ul class="simple"><li>The cumulative integral evaluated from the smallest to the largest value in X calculated using Simpson's rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L329" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L329" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L330" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L330" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -470,8 +559,8 @@
 <ul class="simple"><li>The value of the integral of f from the smallest to the largest value of X calculated using the trapezoidal rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L137" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L137" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L139" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L139" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -488,15 +577,26 @@
 <ul class="simple"><li>The cumulative integral evaluated from the smallest to the largest value in X calculated using the trapezoidal rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L119" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L119" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L121" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L121" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="gaussQuad-procs-all">
-  <div id="gaussQuad,NumContextProc[T,float],float,float,int,int,NumContext[T,float]">
+  <div id="gaussQuad,InterpolatorType[T],float,float,int,int,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#gaussQuad%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">gaussQuad</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">N</span> <span class="Other">=</span> <span class="DecNumber">100</span><span class="Other">;</span>
+                  <span class="Identifier">nPoints</span> <span class="Other">=</span> <span class="DecNumber">7</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L598" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L598" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="gaussQuad,NumContextProc[T,float],float,float,int,int,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#gaussQuad%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">gaussQuad</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">N</span> <span class="Other">=</span> <span class="DecNumber">100</span><span class="Other">;</span>
                   <span class="Identifier">nPoints</span> <span class="Other">=</span> <span class="DecNumber">7</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -514,8 +614,8 @@
 <ul class="simple"><li>The integral evaluated from the xStart to xEnd calculated using Gaussian Quadrature.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L596" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L596" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L597" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L597" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -528,8 +628,8 @@
   <dd>
     
     
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L707" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L707" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L708" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L708" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -542,15 +642,26 @@
   <dd>
     
     
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L710" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L710" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L711" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L711" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="romberg-procs-all">
-  <div id="romberg,NumContextProc[T,float],float,float,int,float,NumContext[T,float]">
+  <div id="romberg,InterpolatorType[T],float,float,int,float,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#romberg%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">romberg</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">depth</span> <span class="Other">=</span> <span class="DecNumber">8</span><span class="Other">;</span>
+                <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L403" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L403" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="romberg,NumContextProc[T,float],float,float,int,float,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#romberg%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2Cfloat%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">romberg</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">depth</span> <span class="Other">=</span> <span class="DecNumber">8</span><span class="Other">;</span>
                 <span class="Identifier">tol</span> <span class="Other">=</span> <span class="FloatNumber">1e-8</span><span class="Other">;</span> <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -568,8 +679,8 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using Romberg integration.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L401" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L401" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L402" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L402" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -586,15 +697,26 @@
 <ul class="simple"><li>The integral evaluated from the smallest to the largest value in X calculated using Romberg Integration.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L438" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L438" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L439" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L439" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="simpson-procs-all">
-  <div id="simpson,NumContextProc[T,float],float,float,int,NumContext[T,float]">
+  <div id="simpson,InterpolatorType[T],float,float,int,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#simpson%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">simpson</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">N</span> <span class="Other">=</span> <span class="DecNumber">500</span><span class="Other">;</span>
+                <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L178" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L178" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="simpson,NumContextProc[T,float],float,float,int,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#simpson%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">simpson</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">N</span> <span class="Other">=</span> <span class="DecNumber">500</span><span class="Other">;</span>
                 <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -611,8 +733,8 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using Simpson's rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L176" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L176" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L177" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L177" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -629,15 +751,26 @@
 <ul class="simple"><li>The integral evaluated from the smallest to the largest value in X calculated using Simpson's rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L220" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L220" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L221" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L221" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="trapz-procs-all">
-  <div id="trapz,NumContextProc[T,float],float,float,int,NumContext[T,float]">
+  <div id="trapz,InterpolatorType[T],float,float,int,NumContext[T,float]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#trapz%2CInterpolatorType%5BT%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">trapz</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">N</span> <span class="Other">=</span> <span class="DecNumber">500</span><span class="Other">;</span>
+              <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L82" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L82" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="trapz,NumContextProc[T,float],float,float,int,NumContext[T,float]">
   <dt><pre><span class="Keyword">proc</span> <a href="#trapz%2CNumContextProc%5BT%2Cfloat%5D%2Cfloat%2Cfloat%2Cint%2CNumContext%5BT%2Cfloat%5D"><span class="Identifier">trapz</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">xStart</span><span class="Other">,</span> <span class="Identifier">xEnd</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">;</span> <span class="Identifier">N</span> <span class="Other">=</span> <span class="DecNumber">500</span><span class="Other">;</span>
               <span class="Identifier">ctx</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContext"><span class="Identifier">NumContext</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
   <dd>
@@ -654,8 +787,8 @@
 <ul class="simple"><li>The value of the integral of f from xStart to xEnd calculated using the trapezoidal rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L79" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L79" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L81" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L81" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -672,8 +805,8 @@
 <ul class="simple"><li>The integral evaluated from the smallest to the largest value in X calculated using the trapezoidal rule.</li>
 </ul>
 
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L103" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L103" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/integrate.nim#L105" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/integrate.nim#L105" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -689,7 +822,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-03-29 09:01:52 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-09-13 19:25:01 UTC</small>
       </div>
     </div>
   </div>

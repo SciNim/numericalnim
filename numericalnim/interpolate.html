@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.2">
+<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.8">
 
 <!-- JS -->
-<script type="text/javascript" src="../dochack.js?v=2.0.2"></script>
+<script type="text/javascript" src="../dochack.js?v=2.0.8"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -225,20 +225,12 @@
   <li><a class="reference" href="#toDerivProc%2CInterpolatorType%5BT%5D" title="toDerivProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]">toDerivProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">toProc
-  <li><a class="reference" href="#toProc%2CInterpolatorType%5BT%5D" title="toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]">toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]</a></li>
+<ul class="simple nested-toc-section">toNumContextProc
+  <li><a class="reference" href="#toNumContextProc%2CInterpolatorType%5BT%5D" title="toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]">toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]</a></li>
 
 </ul>
-
-    </ul>
-  </details>
-</li>
-<li>
-  <details open>
-    <summary><a class="reference reference-toplevel" href="#16" id="66">Converters</a></summary>
-    <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">toNumContextProc
-  <li><a class="reference" href="#toNumContextProc.c%2CInterpolatorType%5BT%5D" title="toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]">toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]</a></li>
+<ul class="simple nested-toc-section">toProc
+  <li><a class="reference" href="#toProc%2CInterpolatorType%5BT%5D" title="toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]">toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]</a></li>
 
 </ul>
 
@@ -403,8 +395,7 @@
   <span class="Identifier">alphaCache</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Table</span><span class="Other">[</span><span class="Other">(</span><span class="Identifier">int</span><span class="Other">,</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">,</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">dx</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">dy</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">float</span>
   <span class="Identifier">xLim</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">yLim</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">lower</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">,</span> <span class="Identifier">upper</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">]</span>
-  <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#Eval2DHandler"><span class="Identifier">Eval2DHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
-</pre></dt>
+  <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#Eval2DHandler"><span class="Identifier">Eval2DHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
@@ -418,8 +409,7 @@
   <span class="Identifier">f</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
   <span class="Identifier">dx</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">dy</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">dz</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">float</span>
   <span class="Identifier">xLim</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">yLim</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">zLim</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">lower</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">,</span> <span class="Identifier">upper</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">]</span>
-  <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#Eval3DHandler"><span class="Identifier">Eval3DHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
-</pre></dt>
+  <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#Eval3DHandler"><span class="Identifier">Eval3DHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
@@ -437,8 +427,7 @@
   <span class="Identifier">high</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
   <span class="Identifier">len</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
   <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#EvalHandler"><span class="Identifier">EvalHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
-  <span class="Identifier">deriveval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#EvalHandler"><span class="Identifier">EvalHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
-</pre></dt>
+  <span class="Identifier">deriveval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#EvalHandler"><span class="Identifier">EvalHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
@@ -454,8 +443,7 @@
   <span class="Identifier">dt</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">DelaunayTriangulation</span>
   <span class="Identifier">z</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">gradX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">gradY</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Table</span><span class="Other">[</span><span class="Other">(</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span>
   <span class="Identifier">boundPoints</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">4</span><span class="Other">,</span> <span class="Identifier">Vector2</span><span class="Other">]</span>
-  <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#EvalUnstructured2DHandler"><span class="Identifier">EvalUnstructured2DHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span>
-</pre></dt>
+  <span class="Identifier">eval_handler</span><span class="Operator">*</span><span class="Other">:</span> <a href="interpolate.html#EvalUnstructured2DHandler"><span class="Identifier">EvalUnstructured2DHandler</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
@@ -578,7 +566,7 @@
     <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
-    Evaluates an interpolator at all points in <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt>. 
+    Evaluates an interpolator at all points in <tt class="docutils literal"><span class="pre"><span class="Identifier">x</span></span></tt>.
     <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L392" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L392" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
@@ -769,7 +757,7 @@
     <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
-    Returns a cubic spline. 
+    Returns a cubic spline.
     <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L174" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L174" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
@@ -794,7 +782,7 @@
     <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
-    Constructs a cubic Hermite spline by approximating the derivatives. 
+    Constructs a cubic Hermite spline by approximating the derivatives.
     <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L242" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L242" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
@@ -879,6 +867,19 @@
 </div>
 
 </div>
+<div id="toNumContextProc-procs-all">
+  <div id="toNumContextProc,InterpolatorType[T]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#toNumContextProc%2CInterpolatorType%5BT%5D"><span class="Identifier">toNumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">float</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    Convert interpolator to <tt class="docutils literal"><span class="pre"><span class="Identifier">NumContextProc</span></span></tt>.
+    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L402" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L402" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
 <div id="toProc-procs-all">
   <div id="toProc,InterpolatorType[T]">
   <dt><pre><span class="Keyword">proc</span> <a href="#toProc%2CInterpolatorType%5BT%5D"><span class="Identifier">toProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="common/commonTypes.html#InterpolatorProc"><span class="Identifier">InterpolatorProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
@@ -887,26 +888,6 @@
     Returns a proc to evaluate the interpolator.
     <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L398" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L398" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-
-</div>
-
-  </dl>
-</div>
-<div class="section" id="16">
-  <h1><a class="toc-backref" href="#16">Converters</a></h1>
-  <dl class="item">
-    <div id="toNumContextProc-converters-all">
-  <div id="toNumContextProc.c,InterpolatorType[T]">
-  <dt><pre><span class="Keyword">converter</span> <a href="#toNumContextProc.c%2CInterpolatorType%5BT%5D"><span class="Identifier">toNumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">spline</span><span class="Other">:</span> <a href="interpolate.html#InterpolatorType"><span class="Identifier">InterpolatorType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="common/commonTypes.html#NumContextProc"><span class="Identifier">NumContextProc</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span>
-    <span class="Identifier">float</span><span class="Other">]</span></pre></dt>
-  <dd>
-    
-    Convert interpolator to <tt class="docutils literal"><span class="pre"><span class="Identifier">NumContextProc</span></span></tt>.
-    <a href="https://github.com/SciNim/numericalnim/tree/master/src/numericalnim/interpolate.nim#L402" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/SciNim/numericalnim/edit/devel/src/numericalnim/interpolate.nim#L402" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -967,7 +948,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-03-29 09:01:49 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-09-13 19:24:59 UTC</small>
       </div>
     </div>
   </div>

@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.2">
+<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.8">
 
 <!-- JS -->
-<script type="text/javascript" src="../dochack.js?v=2.0.2"></script>
+<script type="text/javascript" src="../dochack.js?v=2.0.8"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -210,8 +210,7 @@
   <span class="Identifier">values</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
   <span class="Identifier">coeffs</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span>
   <span class="Identifier">epsilon</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">float</span>
-  <span class="Identifier">f</span><span class="Operator">*</span><span class="Other">:</span> <a href="rbf.html#RbfFunc"><span class="Identifier">RbfFunc</span></a>
-</pre></dt>
+  <span class="Identifier">f</span><span class="Operator">*</span><span class="Other">:</span> <a href="rbf.html#RbfFunc"><span class="Identifier">RbfFunc</span></a></pre></dt>
   <dd>
     
     
@@ -236,8 +235,7 @@
   <span class="Identifier">values</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
   <span class="Identifier">points</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span>
   <span class="Identifier">gridSize</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">gridDim</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-  <span class="Identifier">gridDelta</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">float</span>
-</pre></dt>
+  <span class="Identifier">gridDelta</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">float</span></pre></dt>
   <dd>
     
     
@@ -250,8 +248,7 @@
   <dt><pre><a href="rbf.html#RbfType"><span class="Identifier">RbfType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
   <span class="Identifier">limits</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">upper</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">lower</span><span class="Other">:</span> <span class="Identifier">Tensor</span><span class="Other">[</span><span class="Identifier">float</span><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">grid</span><span class="Operator">*</span><span class="Other">:</span> <a href="rbf.html#RbfGrid"><span class="Identifier">RbfGrid</span></a><span class="Other">[</span><a href="rbf.html#RbfBaseType"><span class="Identifier">RbfBaseType</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span>
-  <span class="Identifier">nValues</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
-</pre></dt>
+  <span class="Identifier">nValues</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
   <dd>
     
     
@@ -499,7 +496,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-03-29 09:01:46 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-09-13 19:24:56 UTC</small>
       </div>
     </div>
   </div>

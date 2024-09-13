@@ -28,7 +28,7 @@ nim	eval	numericalnim/interpolate.html#eval,InterpolatorType[T],float,Extrapolat
 nim	derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],float,ExtrapolateKind,U	proc derivEval[T; U](interpolator: InterpolatorType[T]; x: float;\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): T		346
 nim	eval	numericalnim/interpolate.html#eval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	proc eval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n           extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[T]		392
 nim	toProc	numericalnim/interpolate.html#toProc,InterpolatorType[T]	proc toProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]		398
-nim	toNumContextProc	numericalnim/interpolate.html#toNumContextProc.c,InterpolatorType[T]	converter toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]		402
+nim	toNumContextProc	numericalnim/interpolate.html#toNumContextProc,InterpolatorType[T]	proc toNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]		402
 nim	derivEval	numericalnim/interpolate.html#derivEval,InterpolatorType[T],openArray[float],ExtrapolateKind,U	proc derivEval[T; U](spline: InterpolatorType[T]; x: openArray[float];\n                extrap: ExtrapolateKind = Native; extrapValue: U = missing()): seq[\n    T]		406
 nim	toDerivProc	numericalnim/interpolate.html#toDerivProc,InterpolatorType[T]	proc toDerivProc[T](spline: InterpolatorType[T]): InterpolatorProc[T]		412
 nim	toDerivNumContextProc	numericalnim/interpolate.html#toDerivNumContextProc,InterpolatorType[T]	proc toDerivNumContextProc[T](spline: InterpolatorType[T]): NumContextProc[T, float]		416
