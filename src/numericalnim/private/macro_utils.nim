@@ -86,7 +86,9 @@ macro genInterp*(fn: untyped): untyped =
   let ncpIdent = ident"ncp"
   new.body = quote do:
     mixin eval # defined in `interpolate`, but macro used in `integrate`
-    let `ncpIdent` = proc(x: float, ctx: NumContext[T, float]): T = eval(`arg`, x)
+    mixin InterpolatorType
+    mixin toNumContextProc
+    let `ncpIdent` = toNumContextProc(`arg`)
   # 2c. add call to original proc
   new.body.add genOriginalCall(fn, ncpIdent)
   # 3. finalize

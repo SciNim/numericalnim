@@ -174,7 +174,6 @@ proc cumtrapz*[T](f: NumContextProc[T, float], X: openArray[float],
         t += dx
     result = hermiteInterpolate(X, times, y, dy)
 
-
 proc simpson*[T](f: NumContextProc[T, float], xStart, xEnd: float,
                  N = 500, ctx: NumContext[T, float] = nil): T {.genInterp.} =
     ## Calculate the integral of f using Simpson's rule.
@@ -856,7 +855,7 @@ template adaptiveGaussImpl(): untyped {.dirty.} =
         totalValue += highValue
 
 proc adaptiveGauss*[T; U](f_in: NumContextProc[T, U],
-                          xStart_in, xEnd_in: U, tol = 1e-8, initialPoints: openArray[U] = @[], maxintervals: int = 10000,  ctx: NumContext[T, U] = nil): T {.genInterp.} =
+                          xStart_in, xEnd_in: U, tol = 1e-8, initialPoints: openArray[U] = @[], maxintervals: int = 10000,  ctx: NumContext[T, U] = nil): T =
     ## Calculate the integral of f using an globally adaptive Gauss-Kronrod Quadrature. Inf and -Inf can be used as integration limits.
     ##
     ## Input:
@@ -873,6 +872,18 @@ proc adaptiveGauss*[T; U](f_in: NumContextProc[T, U],
     ##     an adaptive Gauss-Kronrod Quadrature.
     adaptiveGaussImpl()
     return totalValue
+
+proc adaptiveGauss*[T](f_in: InterpolatorType[T]; xStart_in, xEnd_in: T;
+                       tol = 1e-8; initialPoints: openArray[T] = @[];
+                       maxintervals: int = 10000; ctx: NumContext[T, T] = nil): T =
+  ## NOTE: On Nim 2.0.8 we cannot use `{.genInterp.}` on the above proc, because of
+  ## of the double generic it has `[T; U]`. It fails. So this is just a manual version
+  ## of the generated code for the time being.
+  mixin eval
+  mixin InterpolatorType
+  mixin toNumContextProc
+  let ncp = toNumContextProc(f_in)
+  adaptiveGauss(ncp, xStart_in, xEnd_in, tol, initialPoints, maxintervals, ctx)
 
 proc cumGaussSpline*[T; U](f_in: NumContextProc[T, U],
                            xStart_in, xEnd_in: U, tol = 1e-8, initialPoints: openArray[U] = @[], maxintervals: int = 10000, ctx: NumContext[T, U] = nil): InterpolatorType[T] =
