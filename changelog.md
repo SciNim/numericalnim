@@ -1,10 +1,22 @@
+# v0.8.10
+- remove explicit `converter` for `InterpolatorType` to
+  `NumContextProc`. Instead rely on a macro to generate an overload
+  for the interpolator type for integration routines taking a `NumContextProc`.
+
+# v0.8.9
+- avoid name collisions related to `meshgrid`
+
+# v0.8.8
+- improve documentation
+- add extrapolation for interpolators
+
 # v0.8.7
 The 1D interpolation methods now support extrapolation using these methods:
 - `Constant`: Set all points outside the range of the interpolator to `extrapValue`.
 - `Edge`: Use the value of the left/right edge.
 - `Linear`: Uses linear extrapolation using the two points closest to the edge.
 - `Native` (default): Uses the native method of the interpolator to extrapolate. For Linear1D it will be a linear extrapolation, and for Cubic and Hermite splines it will be cubic extrapolation.
-- `Error`: Raises an `ValueError` if `x` is outside the range. 
+- `Error`: Raises an `ValueError` if `x` is outside the range.
 
 These are passed in as an argument to `eval` and `derivEval`:
 ```nim
@@ -52,12 +64,12 @@ Multi-variate optimization and differentiation has been introduced.
     ```nim
     proc levmarq*[U; T: not Tensor](f: proc(params: Tensor[U], x: U): T, params0: Tensor[U], xData: Tensor[U], yData: Tensor[T], options: OptimOptions[U, LevmarqOptions[U]] = levmarqOptions[U]()): Tensor[U]
     ```
-    - `f` is the function you want to fit to the parameters in `param` and `x` is the value to evaluate the function at. 
+    - `f` is the function you want to fit to the parameters in `param` and `x` is the value to evaluate the function at.
     - `params0` is the initial guess for the parameters
     - `xData` is a 1D Tensor with the x points and `yData` is a 1D Tensor with the y points.
     - `options` can be created using `levmarqOptions`.
     - Returns the final parameters
-  
+
 
 Note: There are basic tests to ensure these methods converge for simple problems, but they are not tested on more complex problems and should be considered experimental until more tests have been done. Please try them out, but don't rely on them for anything important for now. Also, the API isn't set in stone yet so expect that it may change in future versions.
 
